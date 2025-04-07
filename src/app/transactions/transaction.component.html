@@ -1,0 +1,90 @@
+<mat-card class="mat-elevation-z4">
+  <mat-card-header>
+    <mat-card-title>Transaction</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form (ngSubmit)="onSubmit($event)" class="transaction-form">
+
+      @if (!type) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Type</mat-label>
+          <mat-select [(ngModel)]="formTransaction.type" name="type" (selectionChange)="resetForm()">
+            <mat-option value="Product">Product</mat-option>
+            <mat-option value="Scrap">Scrap</mat-option>
+            <mat-option value="Cash">Cash</mat-option>
+            <mat-option value="Bank">Bank</mat-option>
+          </mat-select>
+        </mat-form-field>
+      }
+
+      @if (!direction) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Direction</mat-label>
+          <mat-select [(ngModel)]="formTransaction.direction" name="direction">
+            <mat-option value="In">In</mat-option>
+            <mat-option value="Out">Out</mat-option>
+          </mat-select>
+        </mat-form-field>
+      }
+
+      @if (formTransaction.type === 'Product') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Product</mat-label>
+        <input type="text" matInput [formControl]="productControl" [matAutocomplete]="auto"
+          placeholder="Select a product">
+        <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onProductSelected($event)">
+          <mat-option *ngFor="let product of filteredProducts | async" [value]="product">
+            {{product.name}} ({{product.carat}} carat, {{product.weight}}g)
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="quantity-field">
+        <mat-label>Quantity</mat-label>
+        <input matInput type="number" name="quantity" [(ngModel)]="formTransaction.quantity" min="1"
+          step="1" (focus)="selectQuantity($event)" (input)="calculateTotal24KWeight()">
+      </mat-form-field>
+      }
+
+      @if (formTransaction.type === 'Cash' || formTransaction.type === 'Bank') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Amount</mat-label>
+        <input matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01"
+          name="amount" (focus)="selectAmountInput($event)">
+        <span matSuffix>EUR</span>
+      </mat-form-field>
+      }
+
+      @if (formTransaction.type === 'Scrap') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Carat</mat-label>
+        <mat-select [(ngModel)]="formTransaction.carat" name="carat" (selectionChange)="calculateTotal24KWeight()">
+          <mat-option *ngFor="let carat of caratOptions" [value]="carat">
+            {{ carat }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Weight (grams)</mat-label>
+        <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight" name="weight"
+          (input)="calculateTotal24KWeight()" (focus)="selectWeightInput($event)">
+      </mat-form-field>
+      }
+
+      @if (formTransaction.type === 'Product' || formTransaction.type === 'Scrap') {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Total Weight as 24K (grams)</mat-label>
+        <input matInput type="number" [value]="formTransaction.total24KWeight" readonly>
+      </mat-form-field>
+      }
+
+      <div class="button-container">
+        <button mat-raised-button color="primary" type="submit" [disabled]="checkFormValidity()">
+          {{ transaction ? 'Update Transaction' : 'Create Transaction' }}
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

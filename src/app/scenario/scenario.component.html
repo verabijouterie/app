@@ -1,0 +1,100 @@
+<mat-card class="mat-elevation-z4">
+  <mat-card-header>
+    <mat-card-title>{{isEditing ? 'Edit Scenario' : 'Create Scenario'}}</mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form (ngSubmit)="onSubmit()" class="scenario-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Date</mat-label>
+        <input matInput [matDatepicker]="picker" [(ngModel)]="scenario.date" name="date">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>User</mat-label>
+        <mat-select [(ngModel)]="scenario.user" name="user">
+          <mat-option *ngFor="let user of users" [value]="user">
+            {{user.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput rows="3" [(ngModel)]="scenario.description" name="description"></textarea>
+      </mat-form-field>
+
+      <div class="transactions-section">
+        <div class="section-header">
+          <div class="transaction-buttons">
+            <button mat-raised-button color="primary" type="button" (click)="openTransactionDialog('Product', 'In')">
+              Product In
+            </button>
+            <button mat-raised-button color="warn" type="button" (click)="openTransactionDialog('Product', 'Out')">
+              Product Out
+            </button>
+            <button mat-raised-button color="primary" type="button" (click)="openTransactionDialog('Scrap', 'In')">
+              Scrap In
+            </button>
+            <button mat-raised-button color="warn" type="button" (click)="openTransactionDialog('Scrap', 'Out')">
+              Scrap Out
+            </button>
+            <button mat-raised-button color="primary" type="button" (click)="openTransactionDialog('Cash', 'In')">
+              Cash In
+            </button>
+            <button mat-raised-button color="warn" type="button" (click)="openTransactionDialog('Cash', 'Out')">
+              Cash Out
+            </button>
+            <button mat-raised-button color="primary" type="button" (click)="openTransactionDialog('Bank', 'In')">
+              Bank In
+            </button>
+            <button mat-raised-button color="warn" type="button" (click)="openTransactionDialog('Bank', 'Out')">
+              Bank Out
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="scenario.transactions.length > 0" class="transactions-list" cdkDropList (cdkDropListDropped)="drop($event)">
+          <div *ngFor="let transaction of scenario.transactions; let i = index" 
+               class="transaction-item" 
+               cdkDrag>
+            <div class="transaction-info">
+              <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
+              <span>{{transaction.type}}</span>
+              <span>{{transaction.direction}}</span>
+              <span *ngIf="transaction.type === 'Product'">
+                {{transaction.product?.name}} ({{transaction.product?.weight}}g, {{transaction.product?.carat}} carat) x {{transaction.quantity}}
+              </span>
+              <span *ngIf="transaction.type === 'Scrap'">
+                {{transaction.weight}}g, {{transaction.carat}} carat
+              </span>
+              <span *ngIf="transaction.type === 'Cash' || transaction.type === 'Bank'">
+                {{transaction.amount}} EUR
+              </span>
+              <span>{{transaction.total24KWeight}}g</span>
+            </div>
+            <div class="transaction-actions">
+              <button mat-icon-button color="primary" type="button" (click)="editTransaction(i)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" type="button" (click)="deleteTransaction(i)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-container">
+        <button mat-raised-button type="button" (click)="onCancel()" class="cancel-button">
+          Cancel
+        </button>
+        <button mat-raised-button color="primary" type="submit">
+          {{isEditing ? 'Update' : 'Create'}} Scenario
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

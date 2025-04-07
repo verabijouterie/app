@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  padding: 20px;
+}
+
+mat-card {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.transaction-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+} 
