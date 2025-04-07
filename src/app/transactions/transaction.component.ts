@@ -15,21 +15,20 @@ import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-transaction',
-  standalone: true,
-  imports: [
-    CommonModule, 
-    FormsModule,
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCardModule,
-    MatAutocompleteModule
-  ],
-  templateUrl: './transaction.component.html',
-  styleUrls: ['./transaction.component.scss']
+    selector: 'app-transaction',
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatCardModule,
+        MatAutocompleteModule
+    ],
+    templateUrl: './transaction.component.html',
+    styleUrls: ['./transaction.component.scss']
 })
 export class TransactionComponent implements OnInit, OnChanges {
   @Output() transactionSubmit = new EventEmitter<Transaction>();

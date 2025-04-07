@@ -5,11 +5,10 @@ import { NavItemComponent } from '../nav-item/nav-item.component';
 import { NavItem } from '../interfaces/nav-item.interface';
 
 @Component({
-  selector: 'app-layout',
-  standalone: true,
-  imports: [CommonModule, RouterModule, NavItemComponent],
-  templateUrl: './layout.component.html',
-  styleUrls: ['./layout.component.css']
+    selector: 'app-layout',
+    imports: [CommonModule, RouterModule, NavItemComponent],
+    templateUrl: './layout.component.html',
+    styleUrls: ['./layout.component.css']
 })
 export class LayoutComponent implements OnInit {
   isSidebarOpen = false;

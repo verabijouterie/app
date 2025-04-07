@@ -4,8 +4,8 @@ import { Transaction } from '../interfaces/transaction.interface';
 import { TransactionComponent } from './transaction.component';
 
 @Component({
-  selector: 'app-transaction-dialog',
-  template: `
+    selector: 'app-transaction-dialog',
+    template: `
     <h2 mat-dialog-title>{{ data.transaction ? 'Edit Transaction' : 'Add Transaction' }}</h2>
     <mat-dialog-content>
       <app-transaction 
@@ -16,8 +16,7 @@ import { TransactionComponent } from './transaction.component';
       </app-transaction>
     </mat-dialog-content>
   `,
-  imports: [TransactionComponent, MatDialogModule],
-  standalone: true
+    imports: [TransactionComponent, MatDialogModule]
 })
 export class TransactionDialogComponent {
   constructor(

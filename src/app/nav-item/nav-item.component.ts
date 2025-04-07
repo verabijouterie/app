@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-nav-item',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
-  template: `
+    selector: 'app-nav-item',
+    imports: [CommonModule, RouterModule],
+    template: `
     <a [routerLink]="link" 
        (click)="onClick()"
        class="group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold"

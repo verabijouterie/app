@@ -10,17 +10,16 @@ import { mockScenarios } from '../mockup/mock-scenarios';
 import { Scenario } from '../interfaces/scenario.interface';
 
 @Component({
-  selector: 'app-scenario-list',
-  standalone: true,
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatCardModule
-  ],
-  templateUrl: './scenario-list.component.html',
-  styleUrls: ['./scenario-list.component.scss']
+    selector: 'app-scenario-list',
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatButtonModule,
+        MatIconModule,
+        MatCardModule
+    ],
+    templateUrl: './scenario-list.component.html',
+    styleUrls: ['./scenario-list.component.scss']
 })
 export class ScenarioListComponent implements OnInit {
   scenarios: Scenario[] = mockScenarios;

@@ -35,34 +35,33 @@ export const MY_FORMATS = {
 };
 
 @Component({
-  selector: 'app-scenario',
-  standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatCardModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatIconModule,
-    DragDropModule,
-  ],
-  providers: [
-    {
-      provide: DateAdapter,
-      useClass: MomentDateAdapter,
-    },
-    {
-      provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-      useValue: { strict: true },
-    },
-    { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
-  ],
-  templateUrl: './scenario.component.html',
-  styleUrls: ['./scenario.component.scss']
+    selector: 'app-scenario',
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatCardModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatIconModule,
+        DragDropModule,
+    ],
+    providers: [
+        {
+            provide: DateAdapter,
+            useClass: MomentDateAdapter,
+        },
+        {
+            provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
+            useValue: { strict: true },
+        },
+        { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
+    ],
+    templateUrl: './scenario.component.html',
+    styleUrls: ['./scenario.component.scss']
 })
 export class ScenarioComponent implements OnInit {
   users: User[] = mockUsers;
