@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Scenario } from '../interfaces/scenario.interface';
 import { User } from '../interfaces/user.interface';
 import { mockUsers } from '../mockup/mock-users';
+import { mockProducts } from '../mockup/mock-products';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -21,6 +22,8 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { mockRate } from '../mockup/mock-rate';
 import { ActivatedRoute, Router } from '@angular/router';
 import { mockScenarios } from '../mockup/mock-scenarios';
+import { Product } from '../interfaces/product.interface';
+import { ScenarioService } from '../services/scenario.service';
 
 export const MY_FORMATS = {
   parse: {
@@ -65,13 +68,14 @@ export const MY_FORMATS = {
 })
 export class ScenarioComponent implements OnInit {
   users: User[] = mockUsers;
+  products: Product[] = mockProducts;
   editingTransactionIndex: number | null = null;
   isEditing: boolean = false;
   
   scenario: Scenario = {
     id: undefined,
     date: new Date(),
-    user: this.users[0],
+    user_id: this.users[0].id,
     description: '',
     transactions: [],
     currentRate: mockRate,
@@ -90,17 +94,22 @@ export class ScenarioComponent implements OnInit {
   constructor(
     private dialog: MatDialog,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private scenarioService: ScenarioService
   ) {}
 
   ngOnInit() {
     const scenarioId = this.route.snapshot.paramMap.get('id');
     if (scenarioId) {
       this.isEditing = true;
-      const existingScenario = mockScenarios.find(s => s.id === Number(scenarioId));
-      if (existingScenario) {
-        this.scenario = { ...existingScenario };
-      }
+      this.scenarioService.getScenario(Number(scenarioId)).subscribe({
+        next: (scenario) => {
+          this.scenario = scenario;
+        },
+        error: (error) => {
+          console.error('Error loading scenario:', error);
+        }
+      });
     }
   }
 
@@ -108,13 +117,18 @@ export class ScenarioComponent implements OnInit {
     this.scenario.transactions.forEach(transaction => {
       if(transaction.type === 'Product' || transaction.type === 'Scrap') {
         delete transaction.amount;
+        if (transaction.type === 'Product') {
+          transaction.product_id = transaction.product?.id;
+          delete transaction.product;
+        }
       }
       if(transaction.type === 'Cash' || transaction.type === 'Bank') {
-        delete transaction.product;
+        delete transaction.product_id;
         delete transaction.weight;
         delete transaction.carat;
         delete transaction.quantity;
         delete transaction.total24KWeight;
+        delete transaction.product;
       }
     });
 
@@ -175,22 +189,25 @@ export class ScenarioComponent implements OnInit {
     this.scenario.totalBankIn = totalBankIn;
     this.scenario.totalBankOut = totalBankOut;
 
- 
-    
-    if (this.isEditing) {
-      const index = mockScenarios.findIndex(s => s.id === this.scenario.id);
-      if (index !== -1) {
-        mockScenarios[index] = this.scenario;
-      }
+    if (this.isEditing && this.scenario.id) {
+      this.scenarioService.updateScenario(this.scenario.id, this.scenario).subscribe(
+        () => {
+          this.router.navigate(['/scenarios']);
+        },
+        error => {
+          console.error('Error updating scenario:', error);
+        }
+      );
     } else {
-      const newId = Math.max(...mockScenarios.map(s => s.id || 0)) + 1;
-      this.scenario.id = newId;
-      mockScenarios.push(this.scenario);
+      this.scenarioService.createScenario(this.scenario).subscribe(
+        () => {
+          this.router.navigate(['/scenarios']);
+        },
+        error => {
+          console.error('Error creating scenario:', error);
+        }
+      );
     }
-
-    this.router.navigate(['/scenarios']);
-    //this.resetForm();
-
   }
 
   onCancel() {
@@ -248,7 +265,7 @@ export class ScenarioComponent implements OnInit {
     this.scenario = {
       id: undefined,
       date: new Date(),
-      user: this.users[0],
+      user_id: this.users[0].id,
       description: '',
       transactions: [],
       currentRate: mockRate,
@@ -271,5 +288,9 @@ export class ScenarioComponent implements OnInit {
     transactions.splice(event.previousIndex, 1);
     transactions.splice(event.currentIndex, 0, movedItem);
     this.scenario.transactions = transactions;
+  }
+
+  getProductById(id: number): Product | undefined {
+    return this.products.find(p => p.id === id);
   }
 } 

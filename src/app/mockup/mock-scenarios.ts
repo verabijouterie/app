@@ -6,10 +6,11 @@ export const mockScenarios: Scenario[] = [
     {
         id: 1,
         date: new Date(),
-        user: mockUsers[0],
+        user_id: mockUsers[0].id,
         description: "Only Cash In",
         transactions: [
             {
+                id: 1,
                 rowIndex: 0,
                 direction: "In",
                 type: "Cash",
@@ -31,10 +32,11 @@ export const mockScenarios: Scenario[] = [
     {
         id: 2,
         date: new Date(),
-        user: mockUsers[0],
+        user_id: mockUsers[0].id,
         description: "Only Cash Out",
         transactions: [
             {
+                id: 2,
                 rowIndex: 0,
                 direction: "Out",
                 type: "Cash",
@@ -56,10 +58,11 @@ export const mockScenarios: Scenario[] = [
     {
         id: 3,
         date: new Date(),
-        user: mockUsers[0],
+        user_id: mockUsers[0].id,
         description: "Only Bank In",
         transactions: [
             {
+                id: 3,
                 rowIndex: 0,
                 direction: "In",
                 type: "Bank",
@@ -81,10 +84,11 @@ export const mockScenarios: Scenario[] = [
     {
         id: 4,
         date: new Date(),
-        user: mockUsers[0],
+        user_id: mockUsers[0].id,
         description: "Only Bank Out",
         transactions: [
             {
+                id: 4,
                 rowIndex: 0,
                 direction: "Out",
                 type: "Bank",
@@ -106,16 +110,18 @@ export const mockScenarios: Scenario[] = [
     {
         id: 5,
         date: new Date(),
-        user: mockUsers[0],
+        user_id: mockUsers[0].id,
         description: "Only Cash Out  and Bank In",
         transactions: [
             {
+                id: 5,
                 rowIndex: 0,
                 direction: "Out",
                 type: "Cash",
                 amount: 410,
             },
             {
+                id: 6,
                 rowIndex: 1,
                 direction: "In",
                 type: "Bank",
@@ -137,18 +143,20 @@ export const mockScenarios: Scenario[] = [
     {
         id: 6,
         date: new Date(),
-        user: mockUsers[0],
+        user_id: mockUsers[0].id,
         description: "Product Out and Cash In",
         transactions: [
             {
+                id: 7,
                 rowIndex: 0,
                 direction: "Out",
                 type: "Product",
-                product: mockProducts[0],
+                product_id: mockProducts[0].id,
                 quantity: 1,
                 total24KWeight: 1.605,
             },
             {
+                id: 8,
                 rowIndex: 1,
                 direction: "In",
                 type: "Cash",
@@ -170,18 +178,20 @@ export const mockScenarios: Scenario[] = [
     {
         id: 7,
         date: new Date(),
-        user: mockUsers[0],
+        user_id: mockUsers[0].id,
         description: "Product In and Cash Out   ",
         transactions: [
             {
+                id: 9,
                 rowIndex: 0,
                 direction: "In",
                 type: "Product",
-                product: mockProducts[0],
+                product_id: mockProducts[0].id,
                 quantity: 1,
                 total24KWeight: 1.605,
             },
             {
+                id: 10,
                 rowIndex: 1,
                 direction: "Out",
                 type: "Cash",
@@ -203,10 +213,11 @@ export const mockScenarios: Scenario[] = [
     {
         id: 8,
         date: new Date(),
-        user: mockUsers[0],
+        user_id: mockUsers[0].id,
         description: "Scrap Out and Product In",
         transactions: [ 
             {
+                id: 11,
                 rowIndex: 0,
                 direction: "Out",
                 type: "Scrap",
@@ -215,10 +226,11 @@ export const mockScenarios: Scenario[] = [
                 total24KWeight: 1.605,
             },
             {
+                id: 12,
                 rowIndex: 1,
                 direction: "In",
                 type: "Product",
-                product: mockProducts[0],
+                product_id: mockProducts[0].id,
                 quantity: 1,
                 total24KWeight: 1.605,
             }

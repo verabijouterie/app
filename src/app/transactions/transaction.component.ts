@@ -196,6 +196,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     this.selectedProduct = null;
     this.productControl.setValue('');
     this.formTransaction = {
+      id: undefined,
       type: this.formTransaction.type,
       direction: 'In',
       weight: 0,

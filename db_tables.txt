@@ -1,0 +1,100 @@
+-- USERS
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL
+);
+
+-- PRODUCTS
+CREATE TABLE products (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  carat ENUM('24', '22', '21', '20', '18', '16', '14', '12', '10', '8') NOT NULL,
+  weight DECIMAL(10, 2) NOT NULL,
+  total24k DECIMAL(10, 2) NOT NULL,
+  quantity INT NOT NULL DEFAULT 1
+);
+
+-- SCENARIOS
+CREATE TABLE scenarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  date DATETIME NOT NULL,
+  description TEXT,
+  currentRate DECIMAL(10, 2),
+  total24kProductIn DECIMAL(10, 2),
+  total24kProductOut DECIMAL(10, 2),
+  total24kScrapIn DECIMAL(10, 2),
+  total24kScrapOut DECIMAL(10, 2),
+  total24kIn DECIMAL(10, 2),
+  total24kOut DECIMAL(10, 2),
+  totalCashIn DECIMAL(10, 2),
+  totalCashOut DECIMAL(10, 2),
+  totalBankIn DECIMAL(10, 2),
+  totalBankOut DECIMAL(10, 2),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- TRANSACTIONS
+CREATE TABLE transactions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  scenario_id INT,
+  type ENUM('Product', 'Scrap', 'Cash', 'Bank') NOT NULL,
+  direction ENUM('In', 'Out') NOT NULL,
+  rowIndex INT,
+  product_id INT,
+  weight DECIMAL(10, 2),
+  carat ENUM('24', '22', '21', '20', '18', '16', '14', '12', '10', '8'),
+  amount DECIMAL(10, 2),
+  quantity INT,
+  total24KWeight DECIMAL(10, 2),
+  FOREIGN KEY (scenario_id) REFERENCES scenarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE SET NULL
+);
+
+-- INVENTORY (latest state only)
+CREATE TABLE inventory (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  totalCash DECIMAL(10, 2) DEFAULT 0,
+  totalBank DECIMAL(10, 2) DEFAULT 0,
+  totalScrap24k DECIMAL(10, 2) DEFAULT 0,
+  totalProducts24k DECIMAL(10, 2) DEFAULT 0,
+  total24k DECIMAL(10, 2) GENERATED ALWAYS AS (totalScrap24k + totalProducts24k) STORED,
+  updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+INSERT INTO `users` (`id`, `name`, `email`, `password`) VALUES
+(1, 'hasan', 'hasan.oezcelik@gmail.com', 'test');
+
+INSERT INTO `products` (`id`, `name`, `carat`, `weight`, `total24k`, `inventory`) VALUES
+(1, 'Ceyrek', '22', '1.75', '1.61', 1),
+(2, 'Yarim', '22', '3.50', '3.21', 2),
+(3, 'Gremsi', '22', '17.50', '16.03', 3),
+(4, 'Ajda Bilezik', '22', '10.00', '9.16', 5);
+
+INSERT INTO scenarios (id, user_id, date, description, currentRate, total24kProductIn, total24kProductOut, total24kScrapIn, total24kScrapOut, total24kIn, total24kOut, totalCashIn, totalCashOut, totalBankIn, totalBankOut) VALUES
+(1, 1, NOW(), 'Only Cash In', 89.89, 0, 0, 0, 0, 0, 0, 325.15, 0, 0, 0),
+(2, 1, NOW(), 'Only Cash Out', 89.89, 0, 0, 0, 0, 0, 0, 0, 415.00, 0, 0),
+(3, 1, NOW(), 'Only Bank In', 89.89, 0, 0, 0, 0, 0, 0, 0, 0, 250.50, 0),
+(4, 1, NOW(), 'Only Bank Out', 89.89, 0, 0, 0, 0, 0, 0, 0, 0, 0, 125.25),
+(5, 1, NOW(), 'Only Cash Out  and Bank In', 89.89, 0, 0, 0, 0, 0, 0, 0, 410.00, 525.00, 0),
+(6, 1, NOW(), 'Product Out and Cash In', 89.89, 0, 1.605, 0, 0, 0, 1.605, 325.15, 0, 0, 0),
+(7, 1, NOW(), 'Product In and Cash Out', 89.89, 1.605, 0, 0, 0, 1.605, 0, 0, 325.15, 0, 0),
+(8, 1, NOW(), 'Scrap Out and Product In', 89.89, 1.605, 0, 0, 1.605, 0, 0, 0, 0, 0, 0);
+
+
+INSERT INTO `transactions` (`id`, `scenario_id`, `type`, `direction`, `rowIndex`, `product_id`, `weight`, `carat`, `amount`, `quantity`, `total24KWeight`) VALUES
+(1, 1, 'Cash', 'In', 0, NULL, NULL, NULL, '325.15', NULL, NULL),
+(2, 2, 'Cash', 'Out', 0, NULL, NULL, NULL, '415.00', NULL, NULL),
+(3, 3, 'Bank', 'In', 0, NULL, NULL, NULL, '250.50', NULL, NULL),
+(4, 4, 'Bank', 'Out', 0, NULL, NULL, NULL, '125.25', NULL, NULL),
+(5, 5, 'Cash', 'Out', 0, NULL, NULL, NULL, '410.00', NULL, NULL),
+(6, 5, 'Bank', 'In', 1, NULL, NULL, NULL, '525.00', NULL, NULL),
+(7, 6, 'Product', 'Out', 0, 1, '1.75', '22', NULL, 1, '1.61'),
+(8, 6, 'Cash', 'In', 1, NULL, NULL, NULL, '325.15', NULL, NULL),
+(9, 7, 'Product', 'In', 0, 1, '1.75', '22', NULL, 1, '1.61'),
+(10, 7, 'Cash', 'Out', 1, NULL, NULL, NULL, '325.15', NULL, NULL),
+(11, 8, 'Scrap', 'Out', 0, NULL, '1.75', '22', NULL, NULL, '1.61'),
+(12, 8, 'Product', 'In', 1, 1, '1.75', '22', NULL, 1, '1.61');

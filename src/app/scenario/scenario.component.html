@@ -14,8 +14,8 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>User</mat-label>
-        <mat-select [(ngModel)]="scenario.user" name="user">
-          <mat-option *ngFor="let user of users" [value]="user">
+        <mat-select [(ngModel)]="scenario.user_id" name="user_id">
+          <mat-option *ngFor="let user of users" [value]="user.id">
             {{user.name}}
           </mat-option>
         </mat-select>
@@ -65,7 +65,7 @@
               <span>{{transaction.type}}</span>
               <span>{{transaction.direction}}</span>
               <span *ngIf="transaction.type === 'Product'">
-                {{transaction.product?.name}} ({{transaction.product?.weight}}g, {{transaction.product?.carat}} carat) x {{transaction.quantity}}
+                {{getProductById(transaction.product_id!)?.name}} ({{getProductById(transaction.product_id!)?.weight}}g, {{getProductById(transaction.product_id!)?.carat}} carat) x {{transaction.quantity}}
               </span>
               <span *ngIf="transaction.type === 'Scrap'">
                 {{transaction.weight}}g, {{transaction.carat}} carat

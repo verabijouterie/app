@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, NavigationEnd } from '@angular/router';
-import { mockScenarios } from '../mockup/mock-scenarios';
 import { Scenario } from '../interfaces/scenario.interface';
+import { ScenarioService } from '../services/scenario.service';
 
 @Component({
     selector: 'app-scenario-list',
@@ -22,7 +22,7 @@ import { Scenario } from '../interfaces/scenario.interface';
     styleUrls: ['./scenario-list.component.scss']
 })
 export class ScenarioListComponent implements OnInit {
-  scenarios: Scenario[] = mockScenarios;
+  scenarios: Scenario[] = [];
   displayedColumns: string[] = [
     'date', 
     'user', 
@@ -44,14 +44,16 @@ export class ScenarioListComponent implements OnInit {
 
   constructor(
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private scenarioService: ScenarioService
   ) { }
 
   ngOnInit(): void {
+    this.loadScenarios();
     // Subscribe to route changes to refresh the list when returning from edit
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        this.refreshScenarios();
+        this.loadScenarios();
       }
     });
   }
@@ -74,16 +76,21 @@ export class ScenarioListComponent implements OnInit {
   }
 
   deleteScenario(scenario: Scenario): void {
-    const index = mockScenarios.findIndex(s => s.id === scenario.id);
-    if (index !== -1) {
-      mockScenarios.splice(index, 1);
-      // Refresh the scenarios array to trigger change detection
-      this.scenarios = [...mockScenarios];
+    if (scenario.id) {
+      this.scenarioService.deleteScenario(scenario.id).subscribe(() => {
+        this.loadScenarios();
+      });
     }
   }
 
-  // Add a method to refresh the scenarios list
-  refreshScenarios(): void {
-    this.scenarios = [...mockScenarios];
+  private loadScenarios(): void {
+    this.scenarioService.getScenarios().subscribe({
+      next: (scenarios) => {
+        this.scenarios = scenarios;
+      },
+      error: (error) => {
+        console.error('Error loading scenarios:', error);
+      }
+    });
   }
 } 

@@ -1,12 +1,8 @@
 import { Product } from './product.interface';
 
-export interface ProductsWithQuantity {
-  product: Product;
-  quantity: number;
-}
 
 export interface Inventory {
-  productsWithQuantity: ProductsWithQuantity[];
+  products: Product[];
   totalCash: number;
   totalBank: number;
   totalScrap24k: number;

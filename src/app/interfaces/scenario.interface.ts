@@ -4,7 +4,7 @@ import { Transaction } from './transaction.interface';
 export interface Scenario {
   id?: number;
   date: Date;
-  user: User;
+  user_id: number;
   description: string;
   transactions: Transaction[];
   currentRate: number;
