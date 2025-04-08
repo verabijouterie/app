@@ -37,35 +37,35 @@
       <!-- Transactions Section -->
       <div class="border-t border-gray-900/10 pt-8">
         <div class="flex flex-wrap gap-3">
-          <button type="button" (click)="openTransactionDialog('Product', 'In')"
+          <button type="button" (click)="openTransactionDrawer('Product', 'In')"
             class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-blue-50">
             Product In
           </button>
-          <button type="button" (click)="openTransactionDialog('Product', 'Out')"
+          <button type="button" (click)="openTransactionDrawer('Product', 'Out')"
             class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-50">
             Product Out
           </button>
-          <button type="button" (click)="openTransactionDialog('Scrap', 'In')"
+          <button type="button" (click)="openTransactionDrawer('Scrap', 'In')"
             class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-blue-50">
             Scrap In
           </button>
-          <button type="button" (click)="openTransactionDialog('Scrap', 'Out')"
+          <button type="button" (click)="openTransactionDrawer('Scrap', 'Out')"
             class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-50">
             Scrap Out
           </button>
-          <button type="button" (click)="openTransactionDialog('Cash', 'In')"
+          <button type="button" (click)="openTransactionDrawer('Cash', 'In')"
             class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-blue-50">
             Cash In
           </button>
-          <button type="button" (click)="openTransactionDialog('Cash', 'Out')"
+          <button type="button" (click)="openTransactionDrawer('Cash', 'Out')"
             class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-50">
             Cash Out
           </button>
-          <button type="button" (click)="openTransactionDialog('Bank', 'In')"
+          <button type="button" (click)="openTransactionDrawer('Bank', 'In')"
             class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-blue-50">
             Bank In
           </button>
-          <button type="button" (click)="openTransactionDialog('Bank', 'Out')"
+          <button type="button" (click)="openTransactionDrawer('Bank', 'Out')"
             class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-50">
             Bank Out
           </button>
@@ -127,3 +127,16 @@
     </form>
   </div>
 </div>
+
+<app-drawer 
+  [isOpen]="isDrawerOpen"
+  [title]="editingTransactionIndex !== null ? 'Edit Transaction' : 'Add Transaction'"
+  (close)="onDrawerClose()">
+  <app-transaction 
+    [transaction]="editingTransactionIndex !== null ? scenario.transactions[editingTransactionIndex] : undefined"
+    [type]="drawerType"
+    [direction]="drawerDirection"
+    (transactionSubmit)="onTransactionSubmit($event)"
+    (cancel)="onDrawerClose()">
+  </app-transaction>
+</app-drawer>

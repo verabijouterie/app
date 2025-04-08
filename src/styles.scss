@@ -5,7 +5,6 @@
 @use './styles/material-input' as input;
 @use './styles/material-datepicker' as datepicker;
 @use './styles/material-textarea' as textarea;
-@use './styles/material-dialog' as dialog;
 @use 'tailwindcss';
 
 @include mat.core();

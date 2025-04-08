@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Scenario } from '../interfaces/scenario.interface';
@@ -15,8 +15,6 @@ import { MatNativeDateModule, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular
 import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 import { DateAdapter } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
-import { MatDialog } from '@angular/material/dialog';
-import { TransactionDialogComponent } from '../transactions/transaction-dialog.component';
 import { Transaction } from '../interfaces/transaction.interface';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { mockRate } from '../mockup/mock-rate';
@@ -24,6 +22,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { mockScenarios } from '../mockup/mock-scenarios';
 import { Product } from '../interfaces/product.interface';
 import { ScenarioService } from '../services/scenario.service';
+import { DrawerComponent } from '../shared/drawer/drawer.component';
+import { TransactionComponent } from '../transactions/transaction.component';
 
 export const MY_FORMATS = {
   parse: {
@@ -51,6 +51,8 @@ export const MY_FORMATS = {
         MatNativeDateModule,
         MatIconModule,
         DragDropModule,
+        DrawerComponent,
+        TransactionComponent
     ],
     providers: [
         {
@@ -71,6 +73,9 @@ export class ScenarioComponent implements OnInit {
   products: Product[] = mockProducts;
   editingTransactionIndex: number | null = null;
   isEditing: boolean = false;
+  isDrawerOpen = false;
+  drawerType?: 'Product' | 'Scrap' | 'Cash' | 'Bank';
+  drawerDirection?: 'In' | 'Out';
   
   scenario: Scenario = {
     id: undefined,
@@ -92,7 +97,6 @@ export class ScenarioComponent implements OnInit {
   };
 
   constructor(
-    private dialog: MatDialog,
     private route: ActivatedRoute,
     private router: Router,
     private scenarioService: ScenarioService
@@ -111,6 +115,54 @@ export class ScenarioComponent implements OnInit {
         }
       });
     }
+  }
+
+  openTransactionDrawer(type: 'Product' | 'Scrap' | 'Cash' | 'Bank', direction: 'In' | 'Out') {
+    this.drawerType = type;
+    this.drawerDirection = direction;
+    this.isDrawerOpen = true;
+  }
+
+  onDrawerClose() {
+    this.isDrawerOpen = false;
+    this.editingTransactionIndex = null;
+  }
+
+  onCancel() {
+    this.onDrawerClose();
+  }
+
+  onTransactionSubmit(transaction: Transaction) {
+    if (this.editingTransactionIndex !== null) {
+      // Update existing transaction
+      this.scenario.transactions = this.scenario.transactions.map((t, i) => 
+        i === this.editingTransactionIndex ? transaction : t
+      );
+      this.editingTransactionIndex = null;
+    } else {
+      // Add new transaction
+      this.scenario.transactions = [...this.scenario.transactions, transaction];
+    }
+    
+    // Update rowIndex for all transactions to match their current position
+    this.scenario.transactions = this.scenario.transactions.map((t, index) => ({
+      ...t,
+      rowIndex: index
+    }));
+
+    this.isDrawerOpen = false;
+  }
+
+  editTransaction(index: number) {
+    this.editingTransactionIndex = index;
+    const transaction = this.scenario.transactions[index];
+    this.drawerType = transaction.type;
+    this.drawerDirection = transaction.direction;
+    this.isDrawerOpen = true;
+  }
+
+  deleteTransaction(index: number) {
+    this.scenario.transactions = this.scenario.transactions.filter((_, i) => i !== index);
   }
 
   onSubmit() {
@@ -208,80 +260,6 @@ export class ScenarioComponent implements OnInit {
         }
       );
     }
-  }
-
-  onCancel() {
-    this.router.navigate(['/scenarios']);
-  }
-
-  openTransactionDialog(type: 'Product' | 'Scrap' | 'Cash' | 'Bank', direction: 'In' | 'Out') {
-    const dialogRef = this.dialog.open(TransactionDialogComponent, {
-      width: '600px',
-      maxWidth: '90vw',
-      panelClass: 'custom-dialog',
-      data: { 
-        transaction: this.editingTransactionIndex !== null ? this.scenario.transactions[this.editingTransactionIndex] : undefined,
-        type,
-        direction
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.onTransactionSubmit(result);
-      }
-      this.editingTransactionIndex = null;
-    });
-  }
-
-  editTransaction(index: number) {
-    this.editingTransactionIndex = index;
-    const transaction = this.scenario.transactions[index];
-    this.openTransactionDialog(transaction.type, transaction.direction);
-  }
-
-  onTransactionSubmit(transaction: Transaction) {
-    if (this.editingTransactionIndex !== null) {
-      // Update existing transaction
-      this.scenario.transactions = this.scenario.transactions.map((t, i) => 
-        i === this.editingTransactionIndex ? transaction : t
-      );
-      this.editingTransactionIndex = null;
-    } else {
-      // Add new transaction
-      this.scenario.transactions = [...this.scenario.transactions, transaction];
-    }
-    
-    // Update rowIndex for all transactions to match their current position
-    this.scenario.transactions = this.scenario.transactions.map((t, index) => ({
-      ...t,
-      rowIndex: index
-    }));
-  }
-
-  deleteTransaction(index: number) {
-    this.scenario.transactions = this.scenario.transactions.filter((_, i) => i !== index);
-  }
-
-  private resetForm() {
-    this.scenario = {
-      id: undefined,
-      date: new Date(),
-      user_id: this.users[0].id,
-      description: '',
-      transactions: [],
-      currentRate: mockRate,
-      total24kProductIn: 0,
-      total24kProductOut: 0,
-      total24kScrapIn: 0,
-      total24kScrapOut: 0,
-      total24kIn: 0,
-      total24kOut: 0,
-      totalCashIn: 0,
-      totalCashOut: 0,
-      totalBankIn: 0,
-      totalBankOut: 0,
-    };
   }
 
   drop(event: CdkDragDrop<Transaction[]>) {

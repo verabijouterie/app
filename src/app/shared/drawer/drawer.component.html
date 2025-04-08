@@ -1,0 +1,50 @@
+<div class="fixed inset-0 z-50 transition-[visibility] duration-500" 
+     aria-labelledby="drawer-title" 
+     role="dialog" 
+     aria-modal="true"
+     [class.invisible]="!isOpen"
+     [style.visibility]="isOpen ? 'visible' : 'hidden'">
+  <!-- Background backdrop -->
+  <div class="fixed inset-0 transition-opacity duration-500 cursor-pointer bg-gray-500/5 backdrop-blur-sm" 
+       [class.opacity-0]="!isOpen"
+       [class.opacity-100]="isOpen"
+       [class.pointer-events-none]="!isOpen"
+       [class.pointer-events-auto]="isOpen"
+       (mousedown)="onClose()"></div>
+
+  <div class="fixed inset-0 overflow-hidden pointer-events-none">
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+        <div class="pointer-events-auto relative w-screen max-w-md">
+          <div class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl transform transition ease-in-out duration-500 sm:duration-700"
+               [class.translate-x-0]="isOpen"
+               [class.translate-x-full]="!isOpen">
+            <div class="flex min-h-0 flex-1 flex-col overflow-y-scroll py-6">
+              <div class="px-4 sm:px-6">
+                <div class="flex items-start justify-between">
+                  <h2 class="text-base font-semibold text-gray-900" id="drawer-title">
+                    {{title}}
+                  </h2>
+                  <div class="ml-3 flex h-7 items-center">
+                    <button type="button" 
+                      class="relative rounded-md bg-white text-gray-400 hover:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden"
+                      (click)="onClose()">
+                      <span class="absolute -inset-2.5"></span>
+                      <span class="sr-only">Close panel</span>
+                      <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="relative mt-6 flex-1 px-4 sm:px-6">
+                <ng-content></ng-content>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

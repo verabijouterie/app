@@ -16,6 +16,120 @@ import { map, startWith } from 'rxjs/operators';
 
 @Component({
     selector: 'app-transaction',
+    standalone: true,
+    template: `
+    <div class="max-w-3xl mx-auto px-4 py-10">
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
+        <p class="text-base text-gray-500 mb-8">Create a new transaction.</p>
+
+        <form (ngSubmit)="onSubmit($event)" class="space-y-8">
+          <div class="grid grid-cols-1 gap-6">
+            @if (!type) {
+              <div class="space-y-1.5">
+                <label for="type" class="block text-sm font-medium text-gray-900">Type</label>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                  <mat-select [(ngModel)]="formTransaction.type" name="type" (selectionChange)="resetForm()">
+                    <mat-option value="Product">Product</mat-option>
+                    <mat-option value="Scrap">Scrap</mat-option>
+                    <mat-option value="Cash">Cash</mat-option>
+                    <mat-option value="Bank">Bank</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            }
+
+            @if (!direction) {
+              <div class="space-y-1.5">
+                <label for="direction" class="block text-sm font-medium text-gray-900">Direction</label>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                  <mat-select [(ngModel)]="formTransaction.direction" name="direction">
+                    <mat-option value="In">In</mat-option>
+                    <mat-option value="Out">Out</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            }
+
+            @if (formTransaction.type === 'Product') {
+              <div class="space-y-1.5">
+                <label for="product" class="block text-sm font-medium text-gray-900">Product</label>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                  <input type="text" matInput [formControl]="productControl" [matAutocomplete]="auto"
+                    placeholder="Select a product">
+                  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onProductSelected($event)">
+                    <mat-option *ngFor="let product of filteredProducts | async" [value]="product">
+                      {{product.name}} ({{product.carat}} carat, {{product.weight}}g)
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field>
+              </div>
+
+              <div class="space-y-1.5">
+                <label for="quantity" class="block text-sm font-medium text-gray-900">Quantity</label>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                  <input matInput type="number" name="quantity" [(ngModel)]="formTransaction.quantity" min="1"
+                    step="1" (focus)="selectQuantity($event)" (input)="calculateTotal24KWeight()">
+                </mat-form-field>
+              </div>
+            }
+
+            @if (formTransaction.type === 'Cash' || formTransaction.type === 'Bank') {
+              <div class="space-y-1.5">
+                <label for="amount" class="block text-sm font-medium text-gray-900">Amount</label>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                  <input matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01"
+                    name="amount" (focus)="selectAmountInput($event)">
+                  <span matSuffix>EUR</span>
+                </mat-form-field>
+              </div>
+            }
+
+            @if (formTransaction.type === 'Scrap') {
+              <div class="space-y-1.5">
+                <label for="carat" class="block text-sm font-medium text-gray-900">Carat</label>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                  <mat-select [(ngModel)]="formTransaction.carat" name="carat" (selectionChange)="calculateTotal24KWeight()">
+                    <mat-option *ngFor="let carat of caratOptions" [value]="carat">
+                      {{ carat }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="space-y-1.5">
+                <label for="weight" class="block text-sm font-medium text-gray-900">Weight (grams)</label>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                  <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight" name="weight"
+                    (input)="calculateTotal24KWeight()" (focus)="selectWeightInput($event)">
+                </mat-form-field>
+              </div>
+            }
+
+            @if (formTransaction.type === 'Product' || formTransaction.type === 'Scrap') {
+              <div class="space-y-1.5">
+                <label for="total24KWeight" class="block text-sm font-medium text-gray-900">Total Weight as 24K (grams)</label>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+                  <input matInput type="number" [value]="formTransaction.total24KWeight" readonly>
+                </mat-form-field>
+              </div>
+            }
+          </div>
+
+          <div class="flex items-center justify-end gap-x-6 pt-6 border-t border-gray-900/10">
+            <button type="button" (click)="onCancel()"
+              class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
+              Cancel
+            </button>
+            <button type="submit"
+              class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              [disabled]="checkFormValidity()">
+              {{ transaction ? 'Update' : 'Create' }} Transaction
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `,
     imports: [
         CommonModule,
         FormsModule,
@@ -26,9 +140,7 @@ import { map, startWith } from 'rxjs/operators';
         MatButtonModule,
         MatCardModule,
         MatAutocompleteModule
-    ],
-    templateUrl: './transaction.component.html',
-    styleUrls: ['./transaction.component.scss']
+    ]
 })
 export class TransactionComponent implements OnInit, OnChanges {
   @Output() transactionSubmit = new EventEmitter<Transaction>();
