@@ -6,15 +6,22 @@ import { TransactionComponent } from './transaction.component';
 @Component({
     selector: 'app-transaction-dialog',
     template: `
-    <h2 mat-dialog-title>{{ data.transaction ? 'Edit Transaction' : 'Add Transaction' }}</h2>
-    <mat-dialog-content>
-      <app-transaction 
-        [transaction]="data.transaction"
-        [type]="data.type || 'Product'"
-        [direction]="data.direction || 'In'"
-        (transactionSubmit)="onTransactionSubmit($event)">
-      </app-transaction>
-    </mat-dialog-content>
+    <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5">
+      <div class="px-6 py-4 border-b border-gray-900/10">
+        <h2 class="text-lg font-semibold text-gray-900">
+          {{ data.transaction ? 'Edit Transaction' : 'Add Transaction' }}
+        </h2>
+      </div>
+      <div class="px-6 py-4">
+        <app-transaction 
+          [transaction]="data.transaction"
+          [type]="data.type || 'Product'"
+          [direction]="data.direction || 'In'"
+          (transactionSubmit)="onTransactionSubmit($event)"
+          (cancel)="onCancel()">
+        </app-transaction>
+      </div>
+    </div>
   `,
     imports: [TransactionComponent, MatDialogModule]
 })
@@ -30,5 +37,9 @@ export class TransactionDialogComponent {
 
   onTransactionSubmit(transaction: Transaction) {
     this.dialogRef.close(transaction);
+  }
+
+  onCancel() {
+    this.dialogRef.close();
   }
 } 

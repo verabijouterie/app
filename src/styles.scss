@@ -1,4 +1,18 @@
+/* You can add global styles to this file, and also import other style files */
+
 @use '@angular/material' as mat;
+@use './styles/material-select' as select;
+@use './styles/material-input' as input;
+@use './styles/material-datepicker' as datepicker;
+@use './styles/material-textarea' as textarea;
+@use './styles/material-dialog' as dialog;
+@use 'tailwindcss';
+
 @include mat.core();
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
 
 // Define your custom theme or use a pre-built one 

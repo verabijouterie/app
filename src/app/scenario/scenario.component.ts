@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Scenario } from '../interfaces/scenario.interface';
@@ -217,6 +217,8 @@ export class ScenarioComponent implements OnInit {
   openTransactionDialog(type: 'Product' | 'Scrap' | 'Cash' | 'Bank', direction: 'In' | 'Out') {
     const dialogRef = this.dialog.open(TransactionDialogComponent, {
       width: '600px',
+      maxWidth: '90vw',
+      panelClass: 'custom-dialog',
       data: { 
         transaction: this.editingTransactionIndex !== null ? this.scenario.transactions[this.editingTransactionIndex] : undefined,
         type,

@@ -32,6 +32,7 @@ import { map, startWith } from 'rxjs/operators';
 })
 export class TransactionComponent implements OnInit, OnChanges {
   @Output() transactionSubmit = new EventEmitter<Transaction>();
+  @Output() cancel = new EventEmitter<void>();
   @Input() transaction?: Transaction;
   @Input() type?: 'Product' | 'Scrap' | 'Cash' | 'Bank';
   @Input() direction?: 'In' | 'Out';
@@ -206,5 +207,9 @@ export class TransactionComponent implements OnInit, OnChanges {
       product: undefined,
       total24KWeight: 0
     };
+  }
+
+  onCancel() {
+    this.cancel.emit();
   }
 }

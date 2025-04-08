@@ -1,100 +1,129 @@
-<mat-card class="mat-elevation-z4">
-  <mat-card-header>
-    <mat-card-title>{{isEditing ? 'Edit Scenario' : 'Create Scenario'}}</mat-card-title>
-  </mat-card-header>
+<div class="max-w-3xl mx-auto px-4 py-10">
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
+    <p class="text-base text-gray-500 mb-8">Create a new scenario with transactions.</p>
 
-  <mat-card-content>
-    <form (ngSubmit)="onSubmit()" class="scenario-form">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Date</mat-label>
-        <input matInput [matDatepicker]="picker" [(ngModel)]="scenario.date" name="date">
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>User</mat-label>
-        <mat-select [(ngModel)]="scenario.user_id" name="user_id">
-          <mat-option *ngFor="let user of users" [value]="user.id">
-            {{user.name}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Description</mat-label>
-        <textarea matInput rows="3" [(ngModel)]="scenario.description" name="description"></textarea>
-      </mat-form-field>
-
-      <div class="transactions-section">
-        <div class="section-header">
-          <div class="transaction-buttons">
-            <button mat-raised-button color="primary" type="button" (click)="openTransactionDialog('Product', 'In')">
-              Product In
-            </button>
-            <button mat-raised-button color="warn" type="button" (click)="openTransactionDialog('Product', 'Out')">
-              Product Out
-            </button>
-            <button mat-raised-button color="primary" type="button" (click)="openTransactionDialog('Scrap', 'In')">
-              Scrap In
-            </button>
-            <button mat-raised-button color="warn" type="button" (click)="openTransactionDialog('Scrap', 'Out')">
-              Scrap Out
-            </button>
-            <button mat-raised-button color="primary" type="button" (click)="openTransactionDialog('Cash', 'In')">
-              Cash In
-            </button>
-            <button mat-raised-button color="warn" type="button" (click)="openTransactionDialog('Cash', 'Out')">
-              Cash Out
-            </button>
-            <button mat-raised-button color="primary" type="button" (click)="openTransactionDialog('Bank', 'In')">
-              Bank In
-            </button>
-            <button mat-raised-button color="warn" type="button" (click)="openTransactionDialog('Bank', 'Out')">
-              Bank Out
-            </button>
-          </div>
+    <form (ngSubmit)="onSubmit()" class="space-y-8">
+      <!-- Basic Info Section -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div class="space-y-1.5">
+          <label for="date" class="block text-sm font-medium text-gray-900">Date</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <input matInput [matDatepicker]="picker" [(ngModel)]="scenario.date" name="date" id="date">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
         </div>
 
-        <div *ngIf="scenario.transactions.length > 0" class="transactions-list" cdkDropList (cdkDropListDropped)="drop($event)">
+        <div class="space-y-1.5">
+          <label for="user" class="block text-sm font-medium text-gray-900">User</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-select [(ngModel)]="scenario.user_id" name="user_id" id="user">
+              <mat-option *ngFor="let user of users" [value]="user.id">
+                {{user.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="col-span-full space-y-1.5">
+          <label for="description" class="block text-sm font-medium text-gray-900">Description</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <textarea matInput rows="5" [(ngModel)]="scenario.description" name="description" id="description"></textarea>
+          </mat-form-field>
+          <p class="text-sm text-gray-500">Write a description for this scenario.</p>
+        </div>
+      </div>
+
+      <!-- Transactions Section -->
+      <div class="border-t border-gray-900/10 pt-8">
+        <div class="flex flex-wrap gap-3">
+          <button type="button" (click)="openTransactionDialog('Product', 'In')"
+            class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-blue-50">
+            Product In
+          </button>
+          <button type="button" (click)="openTransactionDialog('Product', 'Out')"
+            class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-50">
+            Product Out
+          </button>
+          <button type="button" (click)="openTransactionDialog('Scrap', 'In')"
+            class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-blue-50">
+            Scrap In
+          </button>
+          <button type="button" (click)="openTransactionDialog('Scrap', 'Out')"
+            class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-50">
+            Scrap Out
+          </button>
+          <button type="button" (click)="openTransactionDialog('Cash', 'In')"
+            class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-blue-50">
+            Cash In
+          </button>
+          <button type="button" (click)="openTransactionDialog('Cash', 'Out')"
+            class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-50">
+            Cash Out
+          </button>
+          <button type="button" (click)="openTransactionDialog('Bank', 'In')"
+            class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-blue-600 shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-blue-50">
+            Bank In
+          </button>
+          <button type="button" (click)="openTransactionDialog('Bank', 'Out')"
+            class="rounded-lg bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-50">
+            Bank Out
+          </button>
+        </div>
+
+        <div *ngIf="scenario.transactions.length > 0" class="mt-6 space-y-2" cdkDropList (cdkDropListDropped)="drop($event)">
           <div *ngFor="let transaction of scenario.transactions; let i = index" 
-               class="transaction-item" 
-               cdkDrag>
-            <div class="transaction-info">
-              <mat-icon cdkDragHandle class="drag-handle">drag_indicator</mat-icon>
-              <span>{{transaction.type}}</span>
-              <span>{{transaction.direction}}</span>
-              <span *ngIf="transaction.type === 'Product'">
-                {{getProductById(transaction.product_id!)?.name}} ({{getProductById(transaction.product_id!)?.weight}}g, {{getProductById(transaction.product_id!)?.carat}} carat) x {{transaction.quantity}}
-              </span>
-              <span *ngIf="transaction.type === 'Scrap'">
-                {{transaction.weight}}g, {{transaction.carat}} carat
-              </span>
-              <span *ngIf="transaction.type === 'Cash' || transaction.type === 'Bank'">
-                {{transaction.amount}} EUR
-              </span>
-              <span>{{transaction.total24KWeight}}g</span>
+              class="group flex items-center justify-between gap-x-6 rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-900/5" 
+              cdkDrag>
+            <div class="flex items-center gap-x-4">
+              <mat-icon cdkDragHandle class="text-gray-400 cursor-move opacity-0 group-hover:opacity-100 transition">
+                drag_indicator
+              </mat-icon>
+              <div>
+                <div class="flex items-center gap-x-2">
+                  <span class="font-medium text-gray-900">{{transaction.type}}</span>
+                  <span [class]="transaction.direction === 'In' ? 'text-blue-600' : 'text-red-600'">
+                    {{transaction.direction}}
+                  </span>
+                </div>
+                <div class="mt-1 text-sm text-gray-500">
+                  <span *ngIf="transaction.type === 'Product'">
+                    {{getProductById(transaction.product_id!)?.name}} ({{getProductById(transaction.product_id!)?.weight}}g, {{getProductById(transaction.product_id!)?.carat}} carat) x {{transaction.quantity}}
+                  </span>
+                  <span *ngIf="transaction.type === 'Scrap'">
+                    {{transaction.weight}}g, {{transaction.carat}} carat
+                  </span>
+                  <span *ngIf="transaction.type === 'Cash' || transaction.type === 'Bank'">
+                    {{transaction.amount}} EUR
+                  </span>
+                  <span class="ml-2 font-medium">{{transaction.total24KWeight}}g</span>
+                </div>
+              </div>
             </div>
-            <div class="transaction-actions">
-              <button mat-icon-button color="primary" type="button" (click)="editTransaction(i)">
-                <mat-icon>edit</mat-icon>
+            <div class="flex items-center gap-x-2">
+              <button type="button" (click)="editTransaction(i)"
+                class="rounded-md p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                <mat-icon class="h-5 w-5">edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" type="button" (click)="deleteTransaction(i)">
-                <mat-icon>delete</mat-icon>
+              <button type="button" (click)="deleteTransaction(i)"
+                class="rounded-md p-2 text-gray-600 hover:text-red-600 hover:bg-red-50">
+                <mat-icon class="h-5 w-5">delete</mat-icon>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="button-container">
-        <button mat-raised-button type="button" (click)="onCancel()" class="cancel-button">
+      <div class="flex items-center justify-end gap-x-6 pt-6 border-t border-gray-900/10">
+        <button type="button" (click)="onCancel()"
+          class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
           Cancel
         </button>
-        <button mat-raised-button color="primary" type="submit">
+        <button type="submit"
+          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
           {{isEditing ? 'Update' : 'Create'}} Scenario
         </button>
       </div>
     </form>
-  </mat-card-content>
-</mat-card>
+  </div>
+</div>
