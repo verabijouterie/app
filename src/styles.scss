@@ -1,17 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
 
+//
 @use '@angular/material' as mat;
-@use './styles/material-select' as select;
-@use './styles/material-input' as input;
-@use './styles/material-datepicker' as datepicker;
-@use './styles/material-textarea' as textarea;
 @use 'tailwindcss';
+
 
 @include mat.core();
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+
+.mat-mdc-form-field-infix {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: 40px !important;
+}
 
 
 // Define your custom theme or use a pre-built one 

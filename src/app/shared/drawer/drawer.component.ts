@@ -12,6 +12,7 @@ export class DrawerComponent {
   @Input() isOpen = false;
   @Input() title = '';
   @Input() size: 'md' | 'lg' | 'xl' | '2xl' | 'full' = 'md';
+  @Input() skipAnimation = false;
   
   @Output() close = new EventEmitter<void>();
 

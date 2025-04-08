@@ -54,6 +54,7 @@ export const MY_FORMATS = {
         DrawerComponent,
         TransactionComponent
     ],
+    standalone: true,
     providers: [
         {
             provide: DateAdapter,
@@ -74,6 +75,7 @@ export class ScenarioComponent implements OnInit {
   editingTransactionIndex: number | null = null;
   isEditing: boolean = false;
   isDrawerOpen = false;
+  skipDrawerAnimation = true;
   drawerType?: 'Product' | 'Scrap' | 'Cash' | 'Bank';
   drawerDirection?: 'In' | 'Out';
   
@@ -103,6 +105,11 @@ export class ScenarioComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Enable animations after initial load
+    setTimeout(() => {
+      this.skipDrawerAnimation = false;
+    }, 100);
+
     const scenarioId = this.route.snapshot.paramMap.get('id');
     if (scenarioId) {
       this.isEditing = true;
@@ -144,10 +151,10 @@ export class ScenarioComponent implements OnInit {
       this.scenario.transactions = [...this.scenario.transactions, transaction];
     }
     
-    // Update rowIndex for all transactions to match their current position
+    // Update row_index for all transactions to match their current position
     this.scenario.transactions = this.scenario.transactions.map((t, index) => ({
       ...t,
-      rowIndex: index
+      row_index: index
     }));
 
     this.isDrawerOpen = false;

@@ -1,10 +1,58 @@
+-- ROLES
+CREATE TABLE roles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    row_index INT DEFAULT 0;
+);
+
 -- USERS
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL
+  role_id INT NOT NULL,
+  FOREIGN KEY (role_id) REFERENCES roles(id)
 );
+
+
+-- PERMISSION GROUPS (like "Client Permissions", "Scenario Permissions")
+CREATE TABLE permission_groups (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    row_index INT DEFAULT 0
+);
+
+-- PERMISSIONS (e.g., "create_scenarios")
+CREATE TABLE permissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE, -- e.g., 'create_clients'
+    label VARCHAR(100),                -- Human-friendly name
+    group_id INT,
+    FOREIGN KEY (group_id) REFERENCES permission_groups(id)
+);
+
+-- ROLE <-> PERMISSIONS (many-to-many)
+CREATE TABLE role_permissions (
+    role_id INT,
+    permission_id INT,
+    PRIMARY KEY (role_id, permission_id),
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+    row_index INT DEFAULT 0
+);
+
+-- USER <-> PERMISSIONS (overrides)
+CREATE TABLE user_permissions (
+    user_id INT,
+    permission_id INT,
+    is_granted BOOLEAN, -- TRUE = grant, FALSE = deny
+    PRIMARY KEY (user_id, permission_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (permission_id) REFERENCES permissions(id) ON DELETE CASCADE
+);
+
+
 
 -- PRODUCTS
 CREATE TABLE products (
@@ -42,7 +90,7 @@ CREATE TABLE transactions (
   scenario_id INT,
   type ENUM('Product', 'Scrap', 'Cash', 'Bank') NOT NULL,
   direction ENUM('In', 'Out') NOT NULL,
-  rowIndex INT,
+  row_index INT DEFAULT 0,
   product_id INT,
   weight DECIMAL(10, 2),
   carat ENUM('24', '22', '21', '20', '18', '16', '14', '12', '10', '8'),
@@ -65,8 +113,13 @@ CREATE TABLE inventory (
 );
 
 
-INSERT INTO `users` (`id`, `name`, `email`, `password`) VALUES
-(1, 'hasan', 'hasan.oezcelik@gmail.com', 'test');
+
+INSERT INTO `roles` (`id`, `name`) VALUES
+(1, 'Super Administrator');
+
+INSERT INTO `users` (`id`, `name`, `email`, `password_hash`, `role_id`) VALUES
+(1, 'hasan', 'hasan.oezcelik@gmail.com', 'test', 1);
+
 
 INSERT INTO `products` (`id`, `name`, `carat`, `weight`, `total24k`, `inventory`) VALUES
 (1, 'Ceyrek', '22', '1.75', '1.61', 1),
@@ -85,7 +138,7 @@ INSERT INTO scenarios (id, user_id, date, description, currentRate, total24kProd
 (8, 1, NOW(), 'Scrap Out and Product In', 89.89, 1.605, 0, 0, 1.605, 0, 0, 0, 0, 0, 0);
 
 
-INSERT INTO `transactions` (`id`, `scenario_id`, `type`, `direction`, `rowIndex`, `product_id`, `weight`, `carat`, `amount`, `quantity`, `total24KWeight`) VALUES
+INSERT INTO `transactions` (`id`, `scenario_id`, `type`, `direction`, `row_index`, `product_id`, `weight`, `carat`, `amount`, `quantity`, `total24KWeight`) VALUES
 (1, 1, 'Cash', 'In', 0, NULL, NULL, NULL, '325.15', NULL, NULL),
 (2, 2, 'Cash', 'Out', 0, NULL, NULL, NULL, '415.00', NULL, NULL),
 (3, 3, 'Bank', 'In', 0, NULL, NULL, NULL, '250.50', NULL, NULL),

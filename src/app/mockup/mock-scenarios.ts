@@ -11,7 +11,7 @@ export const mockScenarios: Scenario[] = [
         transactions: [
             {
                 id: 1,
-                rowIndex: 0,
+                row_index: 0,
                 direction: "In",
                 type: "Cash",
                 amount: 325.15,
@@ -37,7 +37,7 @@ export const mockScenarios: Scenario[] = [
         transactions: [
             {
                 id: 2,
-                rowIndex: 0,
+                row_index: 0,
                 direction: "Out",
                 type: "Cash",
                 amount: 415,
@@ -63,7 +63,7 @@ export const mockScenarios: Scenario[] = [
         transactions: [
             {
                 id: 3,
-                rowIndex: 0,
+                row_index: 0,
                 direction: "In",
                 type: "Bank",
                 amount: 250.50,
@@ -89,7 +89,7 @@ export const mockScenarios: Scenario[] = [
         transactions: [
             {
                 id: 4,
-                rowIndex: 0,
+                row_index: 0,
                 direction: "Out",
                 type: "Bank",
                 amount: 125.25,
@@ -115,14 +115,14 @@ export const mockScenarios: Scenario[] = [
         transactions: [
             {
                 id: 5,
-                rowIndex: 0,
+                row_index: 0,
                 direction: "Out",
                 type: "Cash",
                 amount: 410,
             },
             {
                 id: 6,
-                rowIndex: 1,
+                row_index: 1,
                 direction: "In",
                 type: "Bank",
                 amount: 525,
@@ -148,7 +148,7 @@ export const mockScenarios: Scenario[] = [
         transactions: [
             {
                 id: 7,
-                rowIndex: 0,
+                row_index: 0,
                 direction: "Out",
                 type: "Product",
                 product_id: mockProducts[0].id,
@@ -157,7 +157,7 @@ export const mockScenarios: Scenario[] = [
             },
             {
                 id: 8,
-                rowIndex: 1,
+                row_index: 1,
                 direction: "In",
                 type: "Cash",
                 amount: 325.15,
@@ -183,7 +183,7 @@ export const mockScenarios: Scenario[] = [
         transactions: [
             {
                 id: 9,
-                rowIndex: 0,
+                row_index: 0,
                 direction: "In",
                 type: "Product",
                 product_id: mockProducts[0].id,
@@ -192,7 +192,7 @@ export const mockScenarios: Scenario[] = [
             },
             {
                 id: 10,
-                rowIndex: 1,
+                row_index: 1,
                 direction: "Out",
                 type: "Cash",
                 amount: 325.15,
@@ -218,7 +218,7 @@ export const mockScenarios: Scenario[] = [
         transactions: [ 
             {
                 id: 11,
-                rowIndex: 0,
+                row_index: 0,
                 direction: "Out",
                 type: "Scrap",
                 weight: 1.75,
@@ -227,7 +227,7 @@ export const mockScenarios: Scenario[] = [
             },
             {
                 id: 12,
-                rowIndex: 1,
+                row_index: 1,
                 direction: "In",
                 type: "Product",
                 product_id: mockProducts[0].id,

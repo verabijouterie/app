@@ -5,7 +5,7 @@ export interface Transaction {
   id?: number;
   type: "Product" | "Scrap" | "Cash" | "Bank";
   direction: "In" | "Out";
-  rowIndex?: number;
+  row_index?: number;
   product_id?: number;
   product?: Product;
   weight?: number; // in grams

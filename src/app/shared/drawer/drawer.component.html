@@ -1,11 +1,15 @@
-<div class="fixed inset-0 z-50 transition-[visibility] duration-500" 
+<div class="fixed inset-0 z-50" 
+     [class.transition-[visibility]]="!skipAnimation"
+     [class.duration-500]="!skipAnimation"
      aria-labelledby="drawer-title" 
      role="dialog" 
      aria-modal="true"
      [class.invisible]="!isOpen"
      [style.visibility]="isOpen ? 'visible' : 'hidden'">
   <!-- Background backdrop -->
-  <div class="fixed inset-0 transition-opacity duration-500 cursor-pointer bg-gray-500/5 backdrop-blur-sm" 
+  <div class="fixed inset-0 bg-gray-500/5 backdrop-blur-sm cursor-pointer"
+       [class.transition-opacity]="!skipAnimation"
+       [class.duration-500]="!skipAnimation"
        [class.opacity-0]="!isOpen"
        [class.opacity-100]="isOpen"
        [class.pointer-events-none]="!isOpen"
@@ -16,7 +20,12 @@
     <div class="absolute inset-0 overflow-hidden">
       <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
         <div class="pointer-events-auto relative w-screen max-w-md">
-          <div class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl transform transition ease-in-out duration-500 sm:duration-700"
+          <div class="flex h-full flex-col divide-y divide-gray-200 bg-white shadow-xl"
+               [class.transform]="!skipAnimation"
+               [class.transition]="!skipAnimation"
+               [class.ease-in-out]="!skipAnimation"
+               [class.duration-500]="!skipAnimation"
+               [class.sm:duration-700]="!skipAnimation"
                [class.translate-x-0]="isOpen"
                [class.translate-x-full]="!isOpen">
             <div class="flex min-h-0 flex-1 flex-col overflow-y-scroll py-6">

@@ -1,0 +1,51 @@
+<div class="max-w-3xl mx-auto px-4 py-10">
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
+    <div class="sm:flex sm:items-center">
+      <div class="sm:flex-auto">
+        <h1 class="text-base font-semibold leading-6 text-gray-900">Roles</h1>
+        <p class="mt-2 text-sm text-gray-700">A list of all roles in the system.</p>
+      </div>
+      <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+        <button type="button" (click)="openRoleDrawer()"
+          class="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+          Add Role
+        </button>
+      </div>
+    </div>
+
+    <app-role-list 
+      [roles]="roles"
+      (edit)="editRole($event)"
+      (delete)="deleteRole($event)">
+    </app-role-list>
+  </div>
+</div>
+
+<app-drawer 
+  [isOpen]="isDrawerOpen"
+  [skipAnimation]="skipDrawerAnimation"
+  [title]="editMode ? 'Edit Role' : 'Create Role'"
+  (close)="onDrawerClose()">
+  <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <div class="space-y-1.5">
+      <label for="name" class="block text-sm font-medium text-gray-900">Name</label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <input matInput formControlName="name" id="name" placeholder="Enter role name">
+        <mat-error *ngIf="roleForm.get('name')?.errors?.['required'] && roleForm.get('name')?.touched">
+          Name is required
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="flex items-center justify-end gap-x-6">
+      <button type="button" (click)="onDrawerClose()"
+        class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
+        Cancel
+      </button>
+      <button type="submit"
+        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+        {{editMode ? 'Update' : 'Create'}} Role
+      </button>
+    </div>
+  </form>
+</app-drawer> 
