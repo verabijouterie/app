@@ -10,6 +10,9 @@ export const mockUsers: User[] = [
       id: 1,
       name: "Super Administrator",
     },
+    permissions: [],
+    deniedPermissions: [],
+    extraPermissions: [],
   },
   {
     id: 2,
@@ -20,5 +23,8 @@ export const mockUsers: User[] = [
       id: 2,
       name: "Administrator",
     },
+    permissions: [],
+    deniedPermissions: [],
+    extraPermissions: [],
   },
 ]; 

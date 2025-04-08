@@ -21,11 +21,17 @@ export class RoleService {
   }
 
   createRole(role: Role): Observable<Role> {
-    return this.http.post<Role>(`${this.apiUrl}/roles`, role);
+    return this.http.post<Role>(`${this.apiUrl}/roles`, {
+      name: role.name,
+      permission_ids: role.permission_ids
+    });
   }
 
   updateRole(id: number, role: Role): Observable<Role> {
-    return this.http.put<Role>(`${this.apiUrl}/roles/${id}`, role);
+    return this.http.put<Role>(`${this.apiUrl}/roles/${id}`, {
+      name: role.name,
+      permission_ids: role.permission_ids
+    });
   }
 
   deleteRole(id: number): Observable<void> {

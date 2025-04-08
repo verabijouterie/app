@@ -1,3 +1,4 @@
+import { Permission } from "./permission.interface";
 import { Role } from "./role.interface";
 
 export interface User {
@@ -6,4 +7,7 @@ export interface User {
   name: string;
   role?: Role;
   role_id?: number;
+  permissions?: Permission[];
+  extraPermissions?: Permission[]; // isGranted = true
+  deniedPermissions: Permission[]; // isGranted = false
 } 

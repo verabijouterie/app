@@ -48,11 +48,13 @@ export class PermissionsComponent implements OnInit {
     this.permissionForm = this.fb.group({
       name: ['', Validators.required],
       slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9_-]+$/)]],
-      permission_group_id: [null, Validators.required]
+      permission_group_id: [null, Validators.required],
+      row_index: [null, Validators.required]
     });
 
     this.permissionGroupForm = this.fb.group({
-      name: ['', Validators.required]
+      name: ['', Validators.required],
+      row_index: [null, Validators.required]
     });
   }
 
@@ -101,7 +103,11 @@ export class PermissionsComponent implements OnInit {
 
   openPermissionDrawer(groupId: number): void {
     this.selectedPermissionGroupId = groupId;
-    this.permissionForm.patchValue({ permission_group_id: groupId });
+    const groupPermissions = this.getPermissionsForGroup(groupId);
+    this.permissionForm.patchValue({ 
+      permission_group_id: groupId,
+      row_index: groupPermissions.length // Set initial row_index to the count of permissions in the group
+    });
     this.isPermissionDrawerOpen = true;
   }
 
@@ -114,7 +120,8 @@ export class PermissionsComponent implements OnInit {
     this.editMode = true;
     this.selectedPermissionGroupId = group.id;
     this.permissionGroupForm.patchValue({
-      name: group.name
+      name: group.name,
+      row_index: group.row_index
     });
     this.isPermissionGroupDrawerOpen = true;
   }
@@ -135,9 +142,10 @@ export class PermissionsComponent implements OnInit {
     this.permissionForm.patchValue({
       name: permission.name,
       slug: permission.slug,
-      permission_group_id: permission.permission_group_id
+      permission_group_id: permission.permission_group_id,
+      row_index: permission.row_index
     });
-    this.isPermissionDrawerOpen = true;
+    this.openPermissionDrawer(permission.permission_group_id);
   }
 
   deletePermission(id: number): void {
@@ -179,6 +187,7 @@ export class PermissionsComponent implements OnInit {
       const permission: Permission = this.permissionForm.value;
       
       if (this.editMode && this.selectedPermissionId) {
+        permission.id = this.selectedPermissionId;
         this.permissionService.updatePermission(this.selectedPermissionId, permission).subscribe({
           next: () => {
             this.loadPermissions();
@@ -187,10 +196,6 @@ export class PermissionsComponent implements OnInit {
           error: (error) => console.error('Error updating permission:', error)
         });
       } else {
-        // Set row_index to the current count of permissions in the group
-        const groupPermissions = this.getPermissionsForGroup(permission.permission_group_id);
-        permission.row_index = groupPermissions.length;
-        
         this.permissionService.createPermission(permission).subscribe({
           next: () => {
             this.loadPermissions();
