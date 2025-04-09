@@ -6,7 +6,7 @@ export const mockProducts: Product[] = [
     name: "Ceyrek",
     carat: 22,
     weight: 1.75,
-    total24k: 1.605,
+    weight24k: 1.605,
     inventory: 100
   },
   {
@@ -14,7 +14,7 @@ export const mockProducts: Product[] = [
     name: "Yarim",
     carat: 22,
     weight: 3.50,
-    total24k: 3.206,
+    weight24k: 3.206,
     inventory: 100
   },
   {
@@ -22,7 +22,7 @@ export const mockProducts: Product[] = [
     name: "Gremsi",
     carat: 22,
     weight: 17.5,
-    total24k: 16.03,
+    weight24k: 16.03,
     inventory: 100
   },
   {
@@ -30,7 +30,7 @@ export const mockProducts: Product[] = [
     name: "Ajda Bilezik",
     carat: 22,
     weight: 10,
-    total24k: 9.16,
+    weight24k: 9.16,
     inventory: 100
   },
   

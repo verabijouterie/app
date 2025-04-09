@@ -59,10 +59,10 @@
       </div>
 
       <div class="space-y-1">
-        <label for="total24k" class="block text-sm font-medium text-gray-900">Total Weight as 24K (grams)</label>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput type="number" [value]="calculateTotal24k(productForm.get('weight')?.value || 0, productForm.get('carat')?.value || 24)" readonly id="total24k">
-        </mat-form-field>
+        <label for="total24k" class="text-sm font-medium text-gray-900 inline">Product Weight as 24K (grams): </label>
+        <span class="text-gray-900 text-base inline">
+          {{calculateTotal24k(productForm.get('weight')?.value || 0, productForm.get('carat')?.value || 24)}}
+        </span>
       </div>
     </div>
 
@@ -76,7 +76,7 @@
       </button>
       <button
         type="submit"
-        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         [disabled]="!productForm.valid"
       >
         {{ editMode ? 'Update' : 'Create' }} Product

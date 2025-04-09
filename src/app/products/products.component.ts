@@ -8,6 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { Product } from '../interfaces/product.interface';
 import { ProductListComponent } from './product-list.component';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
+import { CARAT_OPTIONS, CARAT_PURITY_MAP } from '../config/constants';
 
 @Component({
   selector: 'app-products',
@@ -31,9 +32,10 @@ export class ProductsComponent implements OnInit {
   editMode = false;
   selectedProductId: number | null = null;
   isDrawerOpen = false;
-  skipDrawerAnimation = true;
-
-  caratOptions = [24, 22, 21, 20, 18, 16, 14, 12, 10, 8];
+  skipDrawerAnimation = false;
+  currentProductId: string | null = null;
+  caratOptions = CARAT_OPTIONS;
+  caratPurityMap = CARAT_PURITY_MAP;
 
   constructor(private fb: FormBuilder) {
     this.productForm = this.fb.group({
@@ -67,7 +69,7 @@ export class ProductsComponent implements OnInit {
       const product: Product = {
         ...formValue,
         id: this.editMode ? this.selectedProductId! : Date.now(),
-        total24k: this.calculateTotal24k(formValue.weight, formValue.carat)
+        weight24k: this.calculateTotal24k(formValue.weight, formValue.carat)
       };
 
       if (this.editMode) {
@@ -109,7 +111,11 @@ export class ProductsComponent implements OnInit {
     this.selectedProductId = null;
   }
 
-  calculateTotal24k(weight: number, carat: number): number {
-    return (weight * carat) / 24;
+
+  calculateTotal24k(weight: number, carat: number) {
+    
+    const purity = this.caratPurityMap[carat as keyof typeof this.caratPurityMap] || 0;
+    const weight24K = weight * purity;
+    return parseFloat(weight24K.toFixed(4));
   }
 } 

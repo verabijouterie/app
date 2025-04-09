@@ -13,6 +13,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { CARAT_OPTIONS, CARAT_PURITY_MAP } from '../config/constants';
 
 @Component({
     selector: 'app-transaction',
@@ -42,20 +43,8 @@ export class TransactionComponent implements OnInit, OnChanges {
   productControl = new FormControl<string | Product>('');
   filteredProducts: Observable<Product[]>;
   
-  caratOptions: number[] = [24, 22, 21, 20, 18, 16, 14, 12, 10, 8];
-
-  caratPurityMap = {
-    24: 0.999,
-    22: 0.916,
-    21: 0.875,
-    20: 0.833,
-    18: 0.750,
-    16: 0.667,
-    14: 0.585,
-    12: 0.500,
-    10: 0.417,
-    8: 0.333
-  };
+  caratOptions = CARAT_OPTIONS;
+  caratPurityMap = CARAT_PURITY_MAP;
 
   formTransaction: Transaction = {
     type: 'Product',
@@ -164,7 +153,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     if (this.formTransaction.type === 'Product') {
       if (this.formTransaction.product) {
         const quantity = this.formTransaction.quantity || 1;
-        this.formTransaction.total24KWeight = parseFloat((quantity * this.formTransaction.product.total24k).toFixed(4));
+        this.formTransaction.total24KWeight = parseFloat((quantity * this.formTransaction.product.weight24k).toFixed(4));
       } else {
         this.formTransaction.total24KWeight = 0;
       }
