@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
-import { NavItemComponent } from '../nav-item/nav-item.component';
-import { NavItem } from '../interfaces/nav-item.interface';
-import { navItems } from '../config/navigation';
+import { NavItemComponent } from '../../nav-item/nav-item.component';
+import { NavItem } from '../../interfaces/nav-item.interface';
+import { navItems } from '../../config/navigation';
 import { filter, Subject, takeUntil } from 'rxjs';
 
 @Component({

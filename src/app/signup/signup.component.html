@@ -1,0 +1,36 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+  <div class="space-y-1">
+    <label for="email" class="block text-sm font-medium text-gray-900">Email address</label>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <input matInput type="email" formControlName="email" required>
+      <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+        Email is required
+      </mat-error>
+      <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+        Please enter a valid email
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="space-y-1">
+    <label for="password" class="block text-sm font-medium text-gray-900">Password</label>
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+      <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" required>
+      <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+        <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+      </button>
+      <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+        Password is required
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="flex items-center justify-end">
+    <button type="submit"
+      class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+      [disabled]="!loginForm.valid || isLoading">
+      <span *ngIf="!isLoading">Sign in</span>
+      <span *ngIf="isLoading">Signing in...</span>
+    </button>
+  </div>
+</form>
