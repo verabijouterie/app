@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Scenario } from '../interfaces/scenario.interface';
 import { User } from '../interfaces/user.interface';
-import { mockProducts } from '../mockup/mock-products';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -18,12 +17,12 @@ import { Transaction } from '../interfaces/transaction.interface';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { mockRate } from '../mockup/mock-rate';
 import { ActivatedRoute, Router } from '@angular/router';
-import { mockScenarios } from '../mockup/mock-scenarios';
 import { Product } from '../interfaces/product.interface';
 import { ScenarioService } from '../services/scenario.service';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { TransactionComponent } from '../transactions/transaction.component';
 import { UserService } from '../services/user.service';
+import { ProductsService } from '../services/products.service';
 
 export const MY_FORMATS = {
   parse: {
@@ -71,7 +70,7 @@ export const MY_FORMATS = {
 })
 export class ScenarioComponent implements OnInit {
   users: User[] = [];
-  products: Product[] = mockProducts;
+  products: Product[] = [];
   editingTransactionIndex: number | null = null;
   isEditing: boolean = false;
   isDrawerOpen = false;
@@ -102,7 +101,8 @@ export class ScenarioComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private scenarioService: ScenarioService,
-    private userService: UserService
+    private userService: UserService,
+    private productsService: ProductsService
   ) {}
 
   ngOnInit() {
@@ -122,6 +122,16 @@ export class ScenarioComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading users:', error);
+      }
+    });
+
+    // Load products
+    this.productsService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
       }
     });
 
