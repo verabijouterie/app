@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Scenario } from '../interfaces/scenario.interface';
 import { User } from '../interfaces/user.interface';
-import { mockUsers } from '../mockup/mock-users';
 import { mockProducts } from '../mockup/mock-products';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -24,6 +23,7 @@ import { Product } from '../interfaces/product.interface';
 import { ScenarioService } from '../services/scenario.service';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { TransactionComponent } from '../transactions/transaction.component';
+import { UserService } from '../services/user.service';
 
 export const MY_FORMATS = {
   parse: {
@@ -70,7 +70,7 @@ export const MY_FORMATS = {
     styleUrls: ['./scenario.component.scss']
 })
 export class ScenarioComponent implements OnInit {
-  users: User[] = mockUsers;
+  users: User[] = [];
   products: Product[] = mockProducts;
   editingTransactionIndex: number | null = null;
   isEditing: boolean = false;
@@ -82,7 +82,7 @@ export class ScenarioComponent implements OnInit {
   scenario: Scenario = {
     id: undefined,
     date: new Date(),
-    user_id: this.users[0].id,
+    user_id: 0,
     description: '',
     transactions: [],
     currentRate: mockRate,
@@ -101,7 +101,8 @@ export class ScenarioComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private scenarioService: ScenarioService
+    private scenarioService: ScenarioService,
+    private userService: UserService
   ) {}
 
   ngOnInit() {
@@ -109,6 +110,20 @@ export class ScenarioComponent implements OnInit {
     setTimeout(() => {
       this.skipDrawerAnimation = false;
     }, 100);
+
+    // Load users
+    this.userService.getUsers().subscribe({
+      next: (users) => {
+        this.users = users;
+        // Set default user_id after users are loaded if not editing
+        if (!this.isEditing && users.length > 0) {
+          this.scenario.user_id = users[0].id;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+      }
+    });
 
     const scenarioId = this.route.snapshot.paramMap.get('id');
     if (scenarioId) {

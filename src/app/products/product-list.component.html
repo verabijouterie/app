@@ -24,7 +24,7 @@
               <button mat-icon-button color="primary" (click)="edit.emit(product)">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="delete.emit(product.id)">
+              <button mat-icon-button color="warn" (click)="product.id && onDelete(product.id)">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>

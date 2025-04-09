@@ -9,6 +9,7 @@ import { Product } from '../interfaces/product.interface';
 import { ProductListComponent } from './product-list.component';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { CARAT_OPTIONS, CARAT_PURITY_MAP } from '../config/constants';
+import { ProductsService } from '../services/products.service';
 
 @Component({
   selector: 'app-products',
@@ -37,8 +38,12 @@ export class ProductsComponent implements OnInit {
   caratOptions = CARAT_OPTIONS;
   caratPurityMap = CARAT_PURITY_MAP;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private productsService: ProductsService
+  ) {
     this.productForm = this.fb.group({
+      id: [null],
       name: ['', Validators.required],
       carat: [24, Validators.required],
       weight: [0, [Validators.required, Validators.min(0)]],
@@ -47,11 +52,22 @@ export class ProductsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // TODO: Load products from service
+    this.loadProducts();
     // Enable animations after initial load
     setTimeout(() => {
       this.skipDrawerAnimation = false;
     }, 100);
+  }
+
+  loadProducts(): void {
+    this.productsService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
+      }
+    });
   }
 
   openProductDrawer(): void {
@@ -72,25 +88,37 @@ export class ProductsComponent implements OnInit {
         weight24k: this.calculateTotal24k(formValue.weight, formValue.carat)
       };
 
-      if (this.editMode) {
-        const index = this.products.findIndex(p => p.id === this.selectedProductId);
-        if (index !== -1) {
-          this.products[index] = product;
-        }
+      if (this.editMode && product.id) {
+        this.productsService.updateProduct(product.id, product).subscribe({
+          next: (updatedProduct) => {
+            this.loadProducts();
+            this.onDrawerClose();
+          },
+          error: (error) => {
+            console.error('Error updating product:', error);
+          }
+        });
       } else {
-        this.products.push(product);
+        this.productsService.createProduct(product).subscribe({
+          next: (newProduct) => {
+            this.loadProducts();
+            this.onDrawerClose();
+          },
+          error: (error) => {
+            console.error('Error creating product:', error);
+          }
+        });
       }
-
-      this.onDrawerClose();
     }
   }
 
   editProduct(product: Product): void {
     this.editMode = true;
-    this.selectedProductId = product.id;
+    this.selectedProductId = product.id || null;
     this.productForm.patchValue({
+      id: product.id,
       name: product.name,
-      carat: product.carat,
+      carat: Number(product.carat),
       weight: product.weight,
       inventory: product.inventory
     });
@@ -111,9 +139,7 @@ export class ProductsComponent implements OnInit {
     this.selectedProductId = null;
   }
 
-
   calculateTotal24k(weight: number, carat: number) {
-    
     const purity = this.caratPurityMap[carat as keyof typeof this.caratPurityMap] || 0;
     const weight24K = weight * purity;
     return parseFloat(weight24K.toFixed(4));

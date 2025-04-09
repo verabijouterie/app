@@ -8,12 +8,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { Product } from '../interfaces/product.interface';
-import { mockProducts } from '../mockup/mock-products';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Observable, of } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { CARAT_OPTIONS, CARAT_PURITY_MAP } from '../config/constants';
+import { ProductsService } from '../services/products.service';
 
 @Component({
     selector: 'app-transaction',
@@ -38,7 +38,7 @@ export class TransactionComponent implements OnInit, OnChanges {
   @Input() type?: 'Product' | 'Scrap' | 'Cash' | 'Bank';
   @Input() direction?: 'In' | 'Out';
   
-  products: Product[] = mockProducts;
+  products: Product[] = [];
   selectedProduct: Product | null = null;
   productControl = new FormControl<string | Product>('');
   filteredProducts: Observable<Product[]>;
@@ -57,18 +57,13 @@ export class TransactionComponent implements OnInit, OnChanges {
     total24KWeight: 0
   };
 
-  constructor() {
-    // Initialize filteredProducts
-    this.filteredProducts = this.productControl.valueChanges.pipe(
-      startWith(''),
-      map(value => {
-        const name = typeof value === 'string' ? value : value?.name || '';
-        return this._filter(name);
-      })
-    );
+  constructor(private productsService: ProductsService) {
+    this.productControl = new FormControl<string | Product>('');
+    this.filteredProducts = of([]); // Initialize with empty observable
   }
 
   ngOnInit() {
+    this.loadProducts();
     if (this.transaction) {
       this.formTransaction = { ...this.transaction };
       if (this.formTransaction.product) {
@@ -84,6 +79,25 @@ export class TransactionComponent implements OnInit, OnChanges {
     if (this.direction) {
       this.formTransaction.direction = this.direction;
     }
+  }
+
+  loadProducts(): void {
+    this.productsService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+        // Reinitialize filteredProducts with the loaded products
+        this.filteredProducts = this.productControl.valueChanges.pipe(
+          startWith(''),
+          map(value => {
+            const name = typeof value === 'string' ? value : value?.name || '';
+            return name ? this._filter(name) : this.products;
+          })
+        );
+      },
+      error: (error) => {
+        console.error('Error loading products:', error);
+      }
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -122,6 +136,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     if (product) {
       this.selectedProduct = product;
       this.formTransaction.product = product;
+      this.formTransaction.product_id = product.id;
       this.formTransaction.weight = product.weight;
       this.formTransaction.carat = product.carat;
       this.calculateTotal24KWeight();
