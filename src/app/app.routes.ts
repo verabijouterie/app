@@ -7,6 +7,7 @@ import { ScenarioListComponent } from './scenario/scenario-list.component';
 import { ProductsComponent } from './products/products.component';
 import { RolesComponent } from './roles/roles.component';
 import { PermissionsComponent } from './permissions/permissions.component';
+import { UsersComponent } from './users/users.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
@@ -19,4 +20,5 @@ export const routes: Routes = [
   { path: 'products', component: ProductsComponent },
   { path: 'roles', component: RolesComponent },
   { path: 'permissions', component: PermissionsComponent },
+  { path: 'users', component: UsersComponent },
 ];
