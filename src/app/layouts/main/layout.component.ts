@@ -5,6 +5,7 @@ import { NavItemComponent } from '../../nav-item/nav-item.component';
 import { NavItem } from '../../interfaces/nav-item.interface';
 import { navItems } from '../../config/navigation';
 import { filter, Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-layout',
@@ -19,7 +20,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
   currentActiveItem: NavItem | null = null;
   navItems = navItems.map(item => ({ ...item, isActive: false }));
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.router.events.pipe(
@@ -65,5 +69,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
       item.isActive = url.startsWith(item.link);
     });
     this.currentActiveItem = this.navItems.find(item => item.isActive) || null;
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/signup']);
   }
 } 

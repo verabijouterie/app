@@ -48,7 +48,7 @@ export class AuthService {
   }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login`, credentials)
+    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login.php`, credentials)
       .pipe(
         tap(response => {
           this.setAuthData(response);

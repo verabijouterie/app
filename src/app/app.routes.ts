@@ -12,6 +12,7 @@ import { SignupComponent } from './signup/signup.component';
 import { LayoutComponent } from './layouts/main/layout.component';
 import { SignupLayoutComponent } from './layouts/signup/signup-layout.component';
 import { AuthGuard } from './guards/auth.guard';
+import { NoAuthGuard } from './guards/no-auth.guard';
 
 export const routes: Routes = [
   {
@@ -35,6 +36,7 @@ export const routes: Routes = [
   {
     path: 'signup',
     component: SignupLayoutComponent,
+    canActivate: [NoAuthGuard],
     children: [
       { path: '', component: SignupComponent }
     ]
