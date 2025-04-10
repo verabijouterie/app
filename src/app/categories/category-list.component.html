@@ -1,0 +1,31 @@
+<div class="mt-8">
+  <h2 class="text-xl font-bold mb-4">Category List</h2>
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white">
+      <thead>
+        <tr class="border-b">
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <tr *ngFor="let category of categories" class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-900">{{category.name}}</td>
+          <td class="px-4 py-3 text-sm text-gray-900">
+            <div class="flex gap-2">
+              <button mat-icon-button color="primary" (click)="edit.emit(category)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="category.id && onDelete(category.id)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="categories.length === 0">
+          <td colspan="2" class="px-4 py-3 text-sm text-gray-500 text-center">No categories available</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> 

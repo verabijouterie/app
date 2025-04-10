@@ -5,6 +5,7 @@
       <thead>
         <tr class="border-b">
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Category</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carat</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Weight (g)</th>
           <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Total 24K</th>
@@ -14,9 +15,10 @@
       <tbody class="divide-y divide-gray-200">
         <tr *ngFor="let product of products" class="hover:bg-gray-50">
           <td class="px-4 py-3 text-sm text-gray-900">{{product.name}}</td>
-          <td class="px-4 py-3 text-sm text-gray-900">{{product.carat}}K</td>
-          <td class="px-4 py-3 text-sm text-gray-900">{{product.weight}}</td>
-          <td class="px-4 py-3 text-sm text-gray-900">{{product.weight24k}}</td>
+          <td class="px-4 py-3 text-sm text-gray-900">{{product.category?.name || '-'}}</td>
+          <td class="px-4 py-3 text-sm text-gray-900">{{product.carat ? product.carat + 'K' : '-'}}</td>
+          <td class="px-4 py-3 text-sm text-gray-900">{{product.weight || '-'}}</td>
+          <td class="px-4 py-3 text-sm text-gray-900">{{product.weight24k || '-'}}</td>
           <td class="px-4 py-3 text-sm text-gray-900">
             <div class="flex gap-2">
               <button mat-icon-button color="primary" (click)="edit.emit(product)">

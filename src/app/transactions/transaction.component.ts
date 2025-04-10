@@ -128,7 +128,10 @@ export class TransactionComponent implements OnInit, OnChanges {
   displayFn = (product: Product | string): string => {
     if (!product) return '';
     if (typeof product === 'string') return product;
-    return `${product.name} (${product.carat} carat, ${product.weight}g)`;
+    const caratInfo = product.carat ? ` (${product.carat} carat` : '';
+    const weightInfo = product.weight ? `, ${product.weight}g` : '';
+    const closingParen = (caratInfo || weightInfo) ? ')' : '';
+    return `${product.name}${caratInfo}${weightInfo}${closingParen}`;
   }
 
   onProductSelected(event: any) {
@@ -137,8 +140,8 @@ export class TransactionComponent implements OnInit, OnChanges {
       this.selectedProduct = product;
       this.formTransaction.product = product;
       this.formTransaction.product_id = product.id;
-      this.formTransaction.weight = product.weight;
-      this.formTransaction.carat = product.carat;
+      this.formTransaction.weight = product.weight || 0;
+      this.formTransaction.carat = product.carat || 24;
       this.calculateTotal24KWeight();
     }
   }
@@ -168,7 +171,8 @@ export class TransactionComponent implements OnInit, OnChanges {
     if (this.formTransaction.type === 'Product') {
       if (this.formTransaction.product) {
         const quantity = this.formTransaction.quantity || 1;
-        this.formTransaction.weight24k = parseFloat((quantity * this.formTransaction.product.weight24k).toFixed(4));
+        const weight24k = this.formTransaction.product.weight24k || 0;
+        this.formTransaction.weight24k = parseFloat((quantity * weight24k).toFixed(4));
       } else {
         this.formTransaction.weight24k = 0;
       }
