@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Scenario } from '../interfaces/scenario.interface';
@@ -51,6 +51,7 @@ export const MY_FORMATS = {
     styleUrls: ['./scenario.component.scss']
 })
 export class ScenarioComponent implements OnInit {
+  @ViewChild(TransactionComponent) transactionComponent!: TransactionComponent;
   products: Product[] = [];
   editingTransactionIndex: number | null = null;
   isEditing: boolean = false;
@@ -133,6 +134,9 @@ export class ScenarioComponent implements OnInit {
   onDrawerClose() {
     this.isDrawerOpen = false;
     this.editingTransactionIndex = null;
+    if (this.transactionComponent) {
+      this.transactionComponent.resetForm();
+    }
   }
 
   onCancel() {

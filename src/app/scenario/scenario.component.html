@@ -133,8 +133,7 @@
                 </svg>
                 <span class="text-sm text-gray-500">
                   <ng-container *ngIf="transaction.type === 'Product'">
-                    {{getProductById(transaction.product_id!)?.name}} ({{getProductById(transaction.product_id!)?.weight}}g, {{getProductById(transaction.product_id!)?.carat}} carat) x {{transaction.quantity}}
-                    <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
+                    {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}} {{transaction.weight}}g, {{transaction.carat}} carat  <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Scrap'">
                     {{transaction.weight}}g, {{transaction.carat}} carat
