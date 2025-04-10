@@ -1,6 +1,6 @@
 <div class="max-w-3xl mx-auto px-4 py-10">
   <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
-    <p class="text-base text-gray-500 mb-8">Create a new scenario with transactions.</p>
+    <p class="text-base text-gray-500 mb-8">Create a new scenario.</p>
 
     <form (ngSubmit)="onSubmit()" class="space-y-8">
       <!-- Basic Info Section -->
@@ -8,7 +8,8 @@
         <div class="col-span-full space-y-1.5">
           <label for="description" class="block text-sm font-medium text-gray-900">Description</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <textarea matInput rows="1" [(ngModel)]="scenario.description" name="description" id="description"></textarea>
+            <textarea matInput rows="1" [(ngModel)]="scenario.description" name="description"
+              id="description"></textarea>
           </mat-form-field>
         </div>
       </div>
@@ -26,7 +27,7 @@
             <!-- Product Out -->
             <button type="button" (click)="openTransactionDrawer('Product', 'Out')"
               class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Sell Product</span>  
+              <span class="text-sm text-white">Sell Product</span>
             </button>
             <!-- Cash In -->
             <button type="button" (click)="openTransactionDrawer('Cash', 'In')"
@@ -65,19 +66,23 @@
           </div>
         </div>
 
-        <div *ngIf="scenario.transactions.length > 0" class="mt-6 space-y-1" cdkDropList (cdkDropListDropped)="drop($event)">
-          <div *ngFor="let transaction of scenario.transactions; let i = index" 
-              class="group flex items-center justify-between gap-x-4 rounded-lg py-0 px-3 shadow-sm ring-1 ring-gray-900/5" 
-              [ngClass]="{'bg-green-100': transaction.direction === 'In', 'bg-red-100': transaction.direction === 'Out'}"
-              cdkDrag>
+        <div *ngIf="scenario.transactions.length > 0" class="mt-6 space-y-1" cdkDropList
+          (cdkDropListDropped)="drop($event)">
+          <div *ngFor="let transaction of scenario.transactions; let i = index"
+            class="group flex items-center justify-between gap-x-4 rounded-lg py-0 px-3 shadow-sm ring-1 ring-gray-900/5"
+            [ngClass]="{'bg-green-100': transaction.direction === 'In', 'bg-red-100': transaction.direction === 'Out'}"
+            cdkDrag>
             <div class="flex items-center gap-x-2">
-              <mat-icon cdkDragHandle class="text-gray-400 cursor-move opacity-0 group-hover:opacity-100 transition h-5 w-5 text-sm">
+              <mat-icon cdkDragHandle
+                class="text-gray-400 cursor-move opacity-0 group-hover:opacity-100 transition h-5 w-5 text-sm">
                 drag_indicator
               </mat-icon>
               <div class="flex items-center gap-x-2">
                 <span class="text-sm text-gray-500">
                   <ng-container *ngIf="transaction.type === 'Product'">
-                    {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}} {{transaction.weight}}g, {{transaction.carat}} carat  <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
+                    {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}}
+                    {{transaction.weight}}g, {{transaction.carat}} carat <span
+                      class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Scrap'">
                     {{transaction.weight}}g, {{transaction.carat}} carat
@@ -92,7 +97,7 @@
                 </span>
               </div>
             </div>
-            
+
             <div class="flex items-center gap-x-1">
               <button type="button" (click)="editTransaction(i)"
                 class="rounded-md p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
@@ -129,16 +134,15 @@
                   <span class="text-sm text-gray-500">Total Scrap Sold:</span>
                   <span class="text-sm font-medium">{{calculateTotal24kScrapOut()}}g</span>
                 </div>
-                <div class="border-t border-gray-200 pt-1">
-                  <div class="flex justify-between">
-                    <span class="text-sm font-medium text-gray-900">Total 24K Bought:</span>
-                    <span class="text-sm font-medium">{{calculateTotal24kIn()}}g</span>
-                  </div>
-                  <div class="flex justify-between">
-                    <span class="text-sm font-medium text-gray-900">Total 24K Sold:</span>
-                    <span class="text-sm font-medium">{{calculateTotal24kOut()}}g</span>
-                  </div>
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Total Bought:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kIn()}}g</span>
                 </div>
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Total Sold:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kOut()}}g</span>
+                </div>
+
               </div>
             </div>
 
@@ -182,16 +186,11 @@
   </div>
 </div>
 
-<app-drawer 
-  [isOpen]="isDrawerOpen"
-  [skipAnimation]="skipDrawerAnimation"
-  [title]="editingTransactionIndex !== null ? 'Edit Transaction' : 'Add Transaction'"
-  (close)="onDrawerClose()">
-  <app-transaction 
+<app-drawer [isOpen]="isDrawerOpen" [skipAnimation]="skipDrawerAnimation"
+  [title]="editingTransactionIndex !== null ? 'Edit Transaction' : 'Add Transaction'" (close)="onDrawerClose()">
+  <app-transaction
     [transaction]="editingTransactionIndex !== null ? scenario.transactions[editingTransactionIndex] : undefined"
-    [type]="drawerType"
-    [direction]="drawerDirection"
-    (transactionSubmit)="onTransactionSubmit($event)"
+    [type]="drawerType" [direction]="drawerDirection" (transactionSubmit)="onTransactionSubmit($event)"
     (cancel)="onDrawerClose()">
   </app-transaction>
 </app-drawer>
