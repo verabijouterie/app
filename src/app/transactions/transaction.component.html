@@ -84,10 +84,10 @@
 
       @if (formTransaction.type === 'Product' || formTransaction.type === 'Scrap') {
         <div class="space-y-1">
-          <label for="weight24k" class="block text-sm font-medium text-gray-900">Total Weight as 24K (grams)</label>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <input matInput type="number" [value]="formTransaction.weight24k" readonly>
-          </mat-form-field>
+          <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Total Weight as 24K (grams): </label>
+          <span class="text-gray-900 text-base inline">
+            {{formTransaction.weight24k}}
+          </span>
         </div>
       }
     </div>

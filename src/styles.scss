@@ -10,6 +10,9 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+.mat-mdc-form-field-has-icon-suffix  .mdc-notched-outline {
+    height: 40px !important;
+}
 
 .mat-mdc-form-field-infix {
     padding-top: 8px !important;
@@ -18,4 +21,3 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 
-// Define your custom theme or use a pre-built one 

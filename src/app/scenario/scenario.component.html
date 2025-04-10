@@ -4,38 +4,17 @@
 
     <form (ngSubmit)="onSubmit()" class="space-y-8">
       <!-- Basic Info Section -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div class="space-y-1.5">
-          <label for="date" class="block text-sm font-medium text-gray-900">Date</label>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <input matInput [matDatepicker]="picker" [(ngModel)]="scenario.date" name="date" id="date">
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-        </div>
-
-        <div class="space-y-1.5">
-          <label for="user" class="block text-sm font-medium text-gray-900">User</label>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-select [(ngModel)]="scenario.user_id" name="user_id" id="user">
-              <mat-option *ngFor="let user of users" [value]="user.id">
-                {{user.name}}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
         <div class="col-span-full space-y-1.5">
           <label for="description" class="block text-sm font-medium text-gray-900">Description</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <textarea matInput rows="5" [(ngModel)]="scenario.description" name="description" id="description"></textarea>
+            <textarea matInput rows="1" [(ngModel)]="scenario.description" name="description" id="description"></textarea>
           </mat-form-field>
-          <p class="text-sm text-gray-500">Write a description for this scenario.</p>
         </div>
       </div>
 
       <!-- Transactions Section -->
-      <div class="border-t border-gray-900/10 pt-8">
+      <div class="border-t border-gray-900/10 pt-2">
         <div class="flex flex-wrap gap-3 justify-center">
           <!-- Product  In-->
           <button type="button" (click)="openTransactionDrawer('Product', 'In')"
@@ -177,6 +156,77 @@
                 class="rounded-md p-2 text-gray-600 hover:text-red-600 hover:bg-red-50">
                 <mat-icon class="h-5 w-5">delete</mat-icon>
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Totals Section -->
+        <div *ngIf="scenario.transactions.length > 0" class="mt-8 space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Gold Totals -->
+            <div class="space-y-2">
+              <h3 class="text-sm font-medium text-gray-900">Gold Totals (24K)</h3>
+              <div class="space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Products In:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kProductIn()}}g</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Products Out:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kProductOut()}}g</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Scrap In:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kScrapIn()}}g</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Scrap Out:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kScrapOut()}}g</span>
+                </div>
+                <div class="border-t border-gray-200 pt-1">
+                  <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-900">Total In:</span>
+                    <span class="text-sm font-medium">{{calculateTotal24kIn()}}g</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-900">Total Out:</span>
+                    <span class="text-sm font-medium">{{calculateTotal24kOut()}}g</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cash/Bank Totals -->
+            <div class="space-y-2">
+              <h3 class="text-sm font-medium text-gray-900">Cash & Bank Totals</h3>
+              <div class="space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Cash In:</span>
+                  <span class="text-sm font-medium">{{calculateTotalCashIn()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Cash Out:</span>
+                  <span class="text-sm font-medium">{{calculateTotalCashOut()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Bank In:</span>
+                  <span class="text-sm font-medium">{{calculateTotalBankIn()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Bank Out:</span>
+                  <span class="text-sm font-medium">{{calculateTotalBankOut()}} EUR</span>
+                </div>
+                <div class="border-t border-gray-200 pt-1">
+                  <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-900">Total In:</span>
+                    <span class="text-sm font-medium">{{calculateTotalCashIn() + calculateTotalBankIn()}} EUR</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-900">Total Out:</span>
+                    <span class="text-sm font-medium">{{calculateTotalCashOut() + calculateTotalBankOut()}} EUR</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

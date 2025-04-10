@@ -2,18 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Scenario } from '../interfaces/scenario.interface';
-import { User } from '../interfaces/user.interface';
+import { Transaction } from '../interfaces/transaction.interface';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
-import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
-import { DateAdapter } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
-import { Transaction } from '../interfaces/transaction.interface';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { mockRate } from '../mockup/mock-rate';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -21,7 +16,7 @@ import { Product } from '../interfaces/product.interface';
 import { ScenarioService } from '../services/scenario.service';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { TransactionComponent } from '../transactions/transaction.component';
-import { UserService } from '../services/user.service';
+import { AuthService } from '../services/auth.service';
 import { ProductsService } from '../services/products.service';
 
 export const MY_FORMATS = {
@@ -46,30 +41,16 @@ export const MY_FORMATS = {
         MatSelectModule,
         MatButtonModule,
         MatCardModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
         MatIconModule,
         DragDropModule,
         DrawerComponent,
         TransactionComponent
     ],
     standalone: true,
-    providers: [
-        {
-            provide: DateAdapter,
-            useClass: MomentDateAdapter,
-        },
-        {
-            provide: MAT_MOMENT_DATE_ADAPTER_OPTIONS,
-            useValue: { strict: true },
-        },
-        { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
-    ],
     templateUrl: './scenario.component.html',
     styleUrls: ['./scenario.component.scss']
 })
 export class ScenarioComponent implements OnInit {
-  users: User[] = [];
   products: Product[] = [];
   editingTransactionIndex: number | null = null;
   isEditing: boolean = false;
@@ -85,6 +66,7 @@ export class ScenarioComponent implements OnInit {
     description: '',
     transactions: [],
     gold_rate: mockRate,
+    
     total24kProductIn: 0,
     total24kProductOut: 0,
     total24kScrapIn: 0,
@@ -101,7 +83,7 @@ export class ScenarioComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private scenarioService: ScenarioService,
-    private userService: UserService,
+    private authService: AuthService,
     private productsService: ProductsService
   ) {}
 
@@ -111,19 +93,12 @@ export class ScenarioComponent implements OnInit {
       this.skipDrawerAnimation = false;
     }, 100);
 
-    // Load users
-    this.userService.getUsers().subscribe({
-      next: (users) => {
-        this.users = users;
-        // Set default user_id after users are loaded if not editing
-        if (!this.isEditing && users.length > 0) {
-          this.scenario.user_id = users[0].id;
-        }
-      },
-      error: (error) => {
-        console.error('Error loading users:', error);
-      }
-    });
+    // Set current user ID and date
+    const currentUser = this.authService.currentUser;
+    if (currentUser) {
+      this.scenario.user_id = currentUser.id;
+    }
+    this.scenario.date = new Date();
 
     // Load products
     this.productsService.getProducts().subscribe({
@@ -304,5 +279,61 @@ export class ScenarioComponent implements OnInit {
 
   getProductById(id: number): Product | undefined {
     return this.products.find(p => p.id === id);
+  }
+
+  calculateTotal24kProductIn(): number {
+    return this.scenario.transactions
+      .filter(t => t.type === 'Product' && t.direction === 'In')
+      .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+  }
+
+  calculateTotal24kProductOut(): number {
+    return this.scenario.transactions
+      .filter(t => t.type === 'Product' && t.direction === 'Out')
+      .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+  }
+
+  calculateTotal24kScrapIn(): number {
+    return this.scenario.transactions
+      .filter(t => t.type === 'Scrap' && t.direction === 'In')
+      .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+  }
+
+  calculateTotal24kScrapOut(): number {
+    return this.scenario.transactions
+      .filter(t => t.type === 'Scrap' && t.direction === 'Out')
+      .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+  }
+
+  calculateTotal24kIn(): number {
+    return this.calculateTotal24kProductIn() + this.calculateTotal24kScrapIn();
+  }
+
+  calculateTotal24kOut(): number {
+    return this.calculateTotal24kProductOut() + this.calculateTotal24kScrapOut();
+  }
+
+  calculateTotalCashIn(): number {
+    return this.scenario.transactions
+      .filter(t => t.type === 'Cash' && t.direction === 'In')
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+  }
+
+  calculateTotalCashOut(): number {
+    return this.scenario.transactions
+      .filter(t => t.type === 'Cash' && t.direction === 'Out')
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+  }
+
+  calculateTotalBankIn(): number {
+    return this.scenario.transactions
+      .filter(t => t.type === 'Bank' && t.direction === 'In')
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+  }
+
+  calculateTotalBankOut(): number {
+    return this.scenario.transactions
+      .filter(t => t.type === 'Bank' && t.direction === 'Out')
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
   }
 } 
