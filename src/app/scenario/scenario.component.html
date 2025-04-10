@@ -83,8 +83,11 @@
                     {{transaction.weight}}g, {{transaction.carat}} carat
                     <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
-                  <ng-container *ngIf="transaction.type === 'Cash' || transaction.type === 'Bank'">
-                    {{transaction.amount}} EUR
+                  <ng-container *ngIf="transaction.type === 'Cash'">
+                    Cash: {{transaction.amount}} EUR
+                  </ng-container>
+                  <ng-container *ngIf="transaction.type === 'Bank'">
+                    Bank: {{transaction.amount}} EUR
                   </ng-container>
                 </span>
               </div>
