@@ -54,7 +54,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     amount: 0,
     quantity: 1,
     product: undefined,
-    total24KWeight: 0
+    weight24k: 0
   };
 
   constructor(private productsService: ProductsService) {
@@ -144,8 +144,8 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   checkFormValidity() {
-    return (this.formTransaction.type === 'Product' && (!this.formTransaction.total24KWeight || this.formTransaction.total24KWeight === 0)) ||
-           (this.formTransaction.type === 'Scrap' && (!this.formTransaction.total24KWeight || this.formTransaction.total24KWeight === 0)) ||
+    return (this.formTransaction.type === 'Product' && (!this.formTransaction.weight24k || this.formTransaction.weight24k === 0)) ||
+           (this.formTransaction.type === 'Scrap' && (!this.formTransaction.weight24k || this.formTransaction.weight24k === 0)) ||
            ((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank') && (!this.formTransaction.amount || this.formTransaction.amount === 0));
   }
 
@@ -168,9 +168,9 @@ export class TransactionComponent implements OnInit, OnChanges {
     if (this.formTransaction.type === 'Product') {
       if (this.formTransaction.product) {
         const quantity = this.formTransaction.quantity || 1;
-        this.formTransaction.total24KWeight = parseFloat((quantity * this.formTransaction.product.weight24k).toFixed(4));
+        this.formTransaction.weight24k = parseFloat((quantity * this.formTransaction.product.weight24k).toFixed(4));
       } else {
-        this.formTransaction.total24KWeight = 0;
+        this.formTransaction.weight24k = 0;
       }
     }
     else if (this.formTransaction.type === 'Scrap') {
@@ -178,13 +178,13 @@ export class TransactionComponent implements OnInit, OnChanges {
           this.formTransaction.weight > 0 && this.formTransaction.carat > 0) {
         const purity = this.caratPurityMap[this.formTransaction.carat as keyof typeof this.caratPurityMap] || 0;
         const weightAs24K = this.formTransaction.weight * purity;
-        this.formTransaction.total24KWeight = parseFloat(weightAs24K.toFixed(4));
+        this.formTransaction.weight24k = parseFloat(weightAs24K.toFixed(4));
       } else {
-        this.formTransaction.total24KWeight = 0;
+        this.formTransaction.weight24k = 0;
       } 
     }
     else {
-      this.formTransaction.total24KWeight = 0;
+      this.formTransaction.weight24k = 0;
     }
   }
 
@@ -209,7 +209,7 @@ export class TransactionComponent implements OnInit, OnChanges {
       amount: 0,
       quantity: 1,
       product: undefined,
-      total24KWeight: 0
+      weight24k: 0
     };
   }
 

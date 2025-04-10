@@ -7,7 +7,8 @@ export interface Scenario {
   user_id: number;
   description: string;
   transactions: Transaction[];
-  currentRate: number;
+  gold_rate: number;
+  
   total24kProductIn: number;
   total24kProductOut: number;
   total24kScrapIn: number;

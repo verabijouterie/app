@@ -1,11 +1,11 @@
 <div class="max-w-3xl mx-auto px-4 py-10">
   <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
     <div class="flex justify-between items-center mb-8">
-      <p class="text-base text-gray-500">Manage your products inventory</p>
+      <p class="text-base text-gray-500">Manage your products</p>
       <button
         type="button"
         (click)="openProductDrawer()"
-        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-blue-600"
       >
         Create Product
       </button>
@@ -48,13 +48,6 @@
         <label for="weight" class="block text-sm font-medium text-gray-900">Weight (grams)</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <input matInput type="number" formControlName="weight" min="0" step="0.01" id="weight">
-        </mat-form-field>
-      </div>
-
-      <div class="space-y-1">
-        <label for="inventory" class="block text-sm font-medium text-gray-900">Inventory</label>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput type="number" formControlName="inventory" min="0" id="inventory">
         </mat-form-field>
       </div>
 

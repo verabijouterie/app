@@ -84,7 +84,7 @@ export class ScenarioComponent implements OnInit {
     user_id: 0,
     description: '',
     transactions: [],
-    currentRate: mockRate,
+    gold_rate: mockRate,
     total24kProductIn: 0,
     total24kProductOut: 0,
     total24kScrapIn: 0,
@@ -211,7 +211,7 @@ export class ScenarioComponent implements OnInit {
         delete transaction.weight;
         delete transaction.carat;
         delete transaction.quantity;
-        delete transaction.total24KWeight;
+        delete transaction.weight24k;
         delete transaction.product;
       }
     });
@@ -230,20 +230,20 @@ export class ScenarioComponent implements OnInit {
     this.scenario.transactions.forEach(transaction => {
       if(transaction.type === 'Product') {
         if(transaction.direction === 'In') {
-          total24kProductIn += transaction.total24KWeight!;
-          total24kIn += transaction.total24KWeight!;
+          total24kProductIn += transaction.weight24k!;
+          total24kIn += transaction.weight24k!;
         } else {
-          total24kProductOut += transaction.total24KWeight!;
-          total24kOut += transaction.total24KWeight!;
+          total24kProductOut += transaction.weight24k!;
+          total24kOut += transaction.weight24k!;
         }
       }
       if(transaction.type === 'Scrap') {
         if(transaction.direction === 'In') {
-          total24kScrapIn += transaction.total24KWeight!;
-          total24kIn += transaction.total24KWeight!;
+          total24kScrapIn += transaction.weight24k!;
+          total24kIn += transaction.weight24k!;
         } else {
-          total24kScrapOut += transaction.total24KWeight!;
-          total24kOut += transaction.total24KWeight!;
+          total24kScrapOut += transaction.weight24k!;
+          total24kOut += transaction.weight24k!;
         }
       }
       if(transaction.type === 'Cash') {

@@ -46,8 +46,7 @@ export class ProductsComponent implements OnInit {
       id: [null],
       name: ['', Validators.required],
       carat: [24, Validators.required],
-      weight: [0, [Validators.required, Validators.min(0)]],
-      inventory: [0, [Validators.required, Validators.min(0)]]
+      weight: [0, [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -119,8 +118,7 @@ export class ProductsComponent implements OnInit {
       id: product.id,
       name: product.name,
       carat: Number(product.carat),
-      weight: product.weight,
-      inventory: product.inventory
+      weight: product.weight
     });
     this.openProductDrawer();
   }
@@ -133,7 +131,6 @@ export class ProductsComponent implements OnInit {
     this.productForm.reset({
       carat: 24,
       weight: 0,
-      inventory: 0
     });
     this.editMode = false;
     this.selectedProductId = null;
