@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { StatisticsComponent } from './statistics/statistics.component';
-import { ScenarioComponent } from './scenario/scenario.component';
+import { ScenarioComponent } from './scenarios/scenario.component';
+import { ScenarioListComponent } from './scenarios/scenario-list.component';
 import { TransactionComponent } from './transactions/transaction.component';
 import { ProductsComponent } from './products/products.component';
 import { RolesComponent } from './roles/roles.component';
@@ -14,6 +15,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { NoAuthGuard } from './guards/no-auth.guard';
 import { CategoriesComponent } from './categories/categories.component';
 
+
 export const routes: Routes = [
   {
     path: '',
@@ -23,8 +25,9 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'statistics', component: StatisticsComponent },
-      { path: 'scenario', component: ScenarioComponent },
-      { path: 'scenario/:id', component: ScenarioComponent },
+      { path: 'scenarios', component: ScenarioListComponent },
+      { path: 'scenarios/new', component: ScenarioComponent },
+      { path: 'scenarios/:id', component: ScenarioComponent },
       { path: 'transaction', component: TransactionComponent },
       { path: 'products', component: ProductsComponent },
       { path: 'roles', component: RolesComponent },

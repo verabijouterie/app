@@ -26,13 +26,7 @@
   (close)="onDrawerClose()">
   <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="space-y-8">
     <div class="grid grid-cols-1 gap-4">
-      <div class="space-y-1">
-        <label for="name" class="block text-sm font-medium text-gray-900">Product Name</label>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput formControlName="name" placeholder="Enter product name" id="name">
-        </mat-form-field>
-      </div>
-
+      
       <div class="space-y-1">
         <label for="category" class="block text-sm font-medium text-gray-900">Category</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -43,6 +37,13 @@
               {{category.name}}
             </mat-option>
           </mat-autocomplete>
+        </mat-form-field>
+      </div>
+      
+      <div class="space-y-1">
+        <label for="name" class="block text-sm font-medium text-gray-900">Product Name</label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <input matInput formControlName="name" placeholder="Enter product name" id="name">
         </mat-form-field>
       </div>
 

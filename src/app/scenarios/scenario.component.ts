@@ -111,18 +111,44 @@ export class ScenarioComponent implements OnInit {
       }
     });
 
-    const scenarioId = this.route.snapshot.paramMap.get('id');
-    if (scenarioId) {
-      this.isEditing = true;
-      this.scenarioService.getScenario(Number(scenarioId)).subscribe({
-        next: (scenario) => {
-          this.scenario = scenario;
-        },
-        error: (error) => {
-          console.error('Error loading scenario:', error);
-        }
-      });
-    }
+    // Handle route parameters
+    this.route.params.subscribe(params => {
+      const scenarioId = params['id'];
+      if (scenarioId) {
+        this.isEditing = true;
+        this.scenarioService.getScenario(Number(scenarioId)).subscribe({
+          next: (scenario) => {
+            this.scenario = scenario;
+          },
+          error: (error) => {
+            console.error('Error loading scenario:', error);
+            // Redirect to scenarios list if scenario not found
+            this.router.navigate(['/scenarios']);
+          }
+        });
+      } else {
+        this.isEditing = false;
+        // Reset scenario for new creation
+        this.scenario = {
+          id: undefined,
+          date: new Date(),
+          user_id: currentUser?.id || 0,
+          description: '',
+          transactions: [],
+          gold_rate: mockRate,
+          total24kProductIn: 0,
+          total24kProductOut: 0,
+          total24kScrapIn: 0,
+          total24kScrapOut: 0,
+          total24kIn: 0,
+          total24kOut: 0,
+          totalCashIn: 0,
+          totalCashOut: 0,
+          totalBankIn: 0,
+          totalBankOut: 0,
+        };
+      }
+    });
   }
 
   openTransactionDrawer(type: 'Product' | 'Scrap' | 'Cash' | 'Bank', direction: 'In' | 'Out') {
@@ -137,10 +163,6 @@ export class ScenarioComponent implements OnInit {
     if (this.transactionComponent) {
       this.transactionComponent.resetForm();
     }
-  }
-
-  onCancel() {
-    this.onDrawerClose();
   }
 
   onTransactionSubmit(transaction: Transaction) {
@@ -176,13 +198,30 @@ export class ScenarioComponent implements OnInit {
     this.scenario.transactions = this.scenario.transactions.filter((_, i) => i !== index);
   }
 
+  navigateToScenarios() {
+    this.router.navigate(['/scenarios']);
+  }
+
   onSubmit() {
-    this.scenario.transactions.forEach(transaction => {
+    if (this.scenario.transactions.length === 0) {
+      return;
+    }
+
+    // Create a deep clone of the scenario and its transactions
+    const scenarioToSubmit = {
+      ...this.scenario,
+      transactions: this.scenario.transactions.map(transaction => ({...transaction}))
+    };
+
+    scenarioToSubmit.transactions.forEach(transaction => {
       if(transaction.type === 'Product' || transaction.type === 'Scrap') {
         delete transaction.amount;
         if (transaction.type === 'Product') {
           transaction.product_id = transaction.product?.id;
           delete transaction.product;
+        }
+        if(transaction.type === 'Scrap') {
+          delete transaction.quantity;
         }
       }
       if(transaction.type === 'Cash' || transaction.type === 'Bank') {
@@ -206,7 +245,7 @@ export class ScenarioComponent implements OnInit {
     let totalBankIn = 0;
     let totalBankOut = 0;
 
-    this.scenario.transactions.forEach(transaction => {
+    scenarioToSubmit.transactions.forEach(transaction => {
       if(transaction.type === 'Product') {
         if(transaction.direction === 'In') {
           total24kProductIn += transaction.weight24k!;
@@ -241,35 +280,35 @@ export class ScenarioComponent implements OnInit {
       }
     });
 
-    this.scenario.total24kProductIn = total24kProductIn;
-    this.scenario.total24kProductOut = total24kProductOut;
-    this.scenario.total24kScrapIn = total24kScrapIn;
-    this.scenario.total24kScrapOut = total24kScrapOut;
-    this.scenario.total24kIn = total24kIn;
-    this.scenario.total24kOut = total24kOut;
-    this.scenario.totalCashIn = totalCashIn;
-    this.scenario.totalCashOut = totalCashOut;
-    this.scenario.totalBankIn = totalBankIn;
-    this.scenario.totalBankOut = totalBankOut;
+    scenarioToSubmit.total24kProductIn = total24kProductIn;
+    scenarioToSubmit.total24kProductOut = total24kProductOut;
+    scenarioToSubmit.total24kScrapIn = total24kScrapIn;
+    scenarioToSubmit.total24kScrapOut = total24kScrapOut;
+    scenarioToSubmit.total24kIn = total24kIn;
+    scenarioToSubmit.total24kOut = total24kOut;
+    scenarioToSubmit.totalCashIn = totalCashIn;
+    scenarioToSubmit.totalCashOut = totalCashOut;
+    scenarioToSubmit.totalBankIn = totalBankIn;
+    scenarioToSubmit.totalBankOut = totalBankOut;
 
     if (this.isEditing && this.scenario.id) {
-      this.scenarioService.updateScenario(this.scenario.id, this.scenario).subscribe(
-        () => {
+      this.scenarioService.updateScenario(this.scenario.id, scenarioToSubmit).subscribe({
+        next: () => {
           this.router.navigate(['/scenarios']);
         },
-        error => {
+        error: (error) => {
           console.error('Error updating scenario:', error);
         }
-      );
+      });
     } else {
-      this.scenarioService.createScenario(this.scenario).subscribe(
-        () => {
+      this.scenarioService.createScenario(scenarioToSubmit).subscribe({
+        next: () => {
           this.router.navigate(['/scenarios']);
         },
-        error => {
+        error: (error) => {
           console.error('Error creating scenario:', error);
         }
-      );
+      });
     }
   }
 

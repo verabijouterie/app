@@ -1,4 +1,4 @@
-export const CARAT_OPTIONS: number[] = [24, 22, 21, 20, 18, 16, 14, 12, 10, 8];
+export const CARAT_OPTIONS: number[] = [22, 21, 20, 18, 16, 14, 12, 10, 8, 24];
 
 export const CARAT_PURITY_MAP: { [key: number]: number } = {
   24: 0.999,
