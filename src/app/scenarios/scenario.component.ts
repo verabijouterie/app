@@ -317,7 +317,12 @@ export class ScenarioComponent implements OnInit {
     const movedItem = transactions[event.previousIndex];
     transactions.splice(event.previousIndex, 1);
     transactions.splice(event.currentIndex, 0, movedItem);
-    this.scenario.transactions = transactions;
+    
+    // Update row_index for all transactions to match their current position
+    this.scenario.transactions = transactions.map((t, index) => ({
+      ...t,
+      row_index: index
+    }));
   }
 
   getProductById(id: number): Product | undefined {
