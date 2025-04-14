@@ -69,28 +69,7 @@ export class TransactionComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.loadProducts();
-    if (this.transaction) {
-      this.formTransaction = { ...this.transaction };
-      if (this.formTransaction.product) {
-        this.selectedProduct = this.formTransaction.product;
-        this.productControl.setValue(this.formTransaction.product);
-        // Set carat disabled state and value based on product's carat value
-        if (this.formTransaction.product.carat !== undefined && this.formTransaction.product.carat !== null) {
-          this.formTransaction.carat = Number(this.formTransaction.product.carat);
-          this.isCaratDisabled = true;
-        }
-        this.handleProductWeight(this.formTransaction.product);
-      }
-    }
     
-    // Initialize with input values if provided
-    if (this.type) {
-      this.formTransaction.type = this.type;
-    }
-    if (this.direction) {
-      this.formTransaction.direction = this.direction;
-    }
-
     // Subscribe to productControl value changes
     this.productControlSubscription = this.productControl.valueChanges.subscribe(value => {
       if (!value) {
@@ -109,16 +88,17 @@ export class TransactionComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['transaction'] && this.transaction) {
+
       this.formTransaction = { ...this.transaction };
       if (this.formTransaction.product) {
         this.selectedProduct = this.formTransaction.product;
         this.productControl.setValue(this.formTransaction.product);
-        // Set carat disabled state and value based on product's carat value
-        if (this.formTransaction.product.carat !== undefined && this.formTransaction.product.carat !== null) {
-          this.formTransaction.carat = Number(this.formTransaction.product.carat);
-          this.isCaratDisabled = true;
-        }
+        
+        this.handleProductCarat(this.formTransaction.product);
         this.handleProductWeight(this.formTransaction.product);
+
+        this.formTransaction.weight = Number(this.transaction?.weight);
+        this.formTransaction.carat = Number(this.transaction?.carat);
       }
     }
     
@@ -182,15 +162,7 @@ export class TransactionComponent implements OnInit, OnChanges {
       this.formTransaction.product = product;
       this.formTransaction.product_id = product.id;
       
-      // If product has carat, set it and disable the field
-      if (product.carat !== undefined && product.carat !== null) {
-        this.formTransaction.carat = Number(product.carat);
-        this.isCaratDisabled = true;
-      } else {
-        this.formTransaction.carat = undefined;
-        this.isCaratDisabled = false;
-      }
-
+      this.handleProductCarat(product);
       this.handleProductWeight(product);
 
       this.calculateTotal24KWeight();
@@ -198,19 +170,13 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   checkFormValidity() {
-    console.log(this.selectedProduct);
-    console.log(this.formTransaction);
-    
-    if(this.selectedProduct?.carat !== 0) {
-      console.log(this.formTransaction.carat);
-    }
-
-
     if (this.formTransaction.type === 'Product') {
       return !this.formTransaction.product_id || 
              this.formTransaction.carat === undefined || 
              this.formTransaction.weight === undefined || 
-             !this.formTransaction.quantity;
+             !this.formTransaction.quantity || 
+             (!this.isWeightDisabled && this.formTransaction.weight <= 0) ||
+             (!this.isCaratDisabled && this.formTransaction.carat === 0);
     } else if (this.formTransaction.type === 'Scrap') {
       return !this.formTransaction.weight24k || this.formTransaction.weight24k === 0;
     } else if (this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank') {
@@ -290,9 +256,33 @@ export class TransactionComponent implements OnInit, OnChanges {
     this.cancel.emit();
   }
 
+  private handleProductCarat(product: Product) {
+
+
+    if (product.carat !== null && product.carat !== undefined) {
+      this.formTransaction.carat = Number(product.carat);
+      this.isCaratDisabled = true;
+    } else {
+      this.formTransaction.carat = undefined;
+      this.isCaratDisabled = false;
+    }
+
+    //Never allow the user to select 0 carat. that must allways be set from the products page
+    if(!this.isCaratDisabled) {
+      this.caratOptions = CARAT_OPTIONS.filter(carat => carat !== 0);
+    } else {
+      this.caratOptions = CARAT_OPTIONS;
+    }
+    
+
+  }
+
+
+
+
   private handleProductWeight(product: Product) {
     // If product has weight explicitly set to 0, set it and disable the field
-    if (product.weight) {
+    if (product.weight !== null && product.weight !== undefined) {
       // If product has a non-zero weight, set it and disable the field
       this.formTransaction.weight = Number(product.weight);
       this.isWeightDisabled = true;
@@ -301,5 +291,7 @@ export class TransactionComponent implements OnInit, OnChanges {
       this.formTransaction.weight = 0;
       this.isWeightDisabled = false;
     }
+
+
   }
 }
