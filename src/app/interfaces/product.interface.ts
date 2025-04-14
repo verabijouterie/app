@@ -1,9 +1,11 @@
+import { CARAT_OPTIONS } from "../config/constants";
 import { Category } from "./category.interface";
+
 
 export interface Product {
   id?: number;
   name: string;
-  carat?: 24 | 22 | 21 | 20 | 18 | 16 | 14 | 12 | 10 | 8;
+  carat?: typeof CARAT_OPTIONS[number];//
   weight?: number;
   weight24k?: number;
   inventory?: number;

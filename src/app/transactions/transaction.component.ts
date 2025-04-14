@@ -43,7 +43,7 @@ export class TransactionComponent implements OnInit, OnChanges {
   productControl = new FormControl<string | Product>('');
   filteredProducts: Observable<Product[]>;
   
-  caratOptions = CARAT_OPTIONS;
+  caratOptions = CARAT_OPTIONS.map(carat => Number(carat));
   caratPurityMap = CARAT_PURITY_MAP;
 
   formTransaction: Transaction = {
@@ -74,6 +74,12 @@ export class TransactionComponent implements OnInit, OnChanges {
       if (this.formTransaction.product) {
         this.selectedProduct = this.formTransaction.product;
         this.productControl.setValue(this.formTransaction.product);
+        // Set carat disabled state and value based on product's carat value
+        if (this.formTransaction.product.carat !== undefined && this.formTransaction.product.carat !== null) {
+          this.formTransaction.carat = Number(this.formTransaction.product.carat);
+          this.isCaratDisabled = true;
+        }
+        this.handleProductWeight(this.formTransaction.product);
       }
     }
     
@@ -107,6 +113,12 @@ export class TransactionComponent implements OnInit, OnChanges {
       if (this.formTransaction.product) {
         this.selectedProduct = this.formTransaction.product;
         this.productControl.setValue(this.formTransaction.product);
+        // Set carat disabled state and value based on product's carat value
+        if (this.formTransaction.product.carat !== undefined && this.formTransaction.product.carat !== null) {
+          this.formTransaction.carat = Number(this.formTransaction.product.carat);
+          this.isCaratDisabled = true;
+        }
+        this.handleProductWeight(this.formTransaction.product);
       }
     }
     
@@ -156,8 +168,8 @@ export class TransactionComponent implements OnInit, OnChanges {
   displayFn = (product: Product | string): string => {    
     if (!product) return '';
     if (typeof product === 'string') return product;
-    const caratInfo = product.carat ? `${product.carat} carat` : '';
-    const weightInfo = product.weight ? `${product.weight}g` : '';
+    const caratInfo = product.carat && product.carat > 0 ? `${product.carat} carat` : '';
+    const weightInfo = product.weight && product.weight > 0 ? `${product.weight}g` : '';
     const separator = caratInfo && weightInfo ? ', ' : '';
     const details = caratInfo || weightInfo ? ` (${caratInfo}${separator}${weightInfo})` : '';
     return `${product.name}${details}`;
@@ -171,7 +183,7 @@ export class TransactionComponent implements OnInit, OnChanges {
       this.formTransaction.product_id = product.id;
       
       // If product has carat, set it and disable the field
-      if (product.carat) {
+      if (product.carat !== undefined && product.carat !== null) {
         this.formTransaction.carat = Number(product.carat);
         this.isCaratDisabled = true;
       } else {
@@ -179,24 +191,25 @@ export class TransactionComponent implements OnInit, OnChanges {
         this.isCaratDisabled = false;
       }
 
-      // If product has weight, set it and disable the field
-      if (product.weight) {
-        this.formTransaction.weight = Number(product.weight);
-        this.isWeightDisabled = true;
-      } else {
-        this.formTransaction.weight = 0;
-        this.isWeightDisabled = false;
-      }
+      this.handleProductWeight(product);
 
       this.calculateTotal24KWeight();
     }
   }
 
   checkFormValidity() {
+    console.log(this.selectedProduct);
+    console.log(this.formTransaction);
+    
+    if(this.selectedProduct?.carat !== 0) {
+      console.log(this.formTransaction.carat);
+    }
+
+
     if (this.formTransaction.type === 'Product') {
       return !this.formTransaction.product_id || 
-             !this.formTransaction.carat || 
-             !this.formTransaction.weight || 
+             this.formTransaction.carat === undefined || 
+             this.formTransaction.weight === undefined || 
              !this.formTransaction.quantity;
     } else if (this.formTransaction.type === 'Scrap') {
       return !this.formTransaction.weight24k || this.formTransaction.weight24k === 0;
@@ -275,5 +288,18 @@ export class TransactionComponent implements OnInit, OnChanges {
 
   onCancel() {
     this.cancel.emit();
+  }
+
+  private handleProductWeight(product: Product) {
+    // If product has weight explicitly set to 0, set it and disable the field
+    if (product.weight) {
+      // If product has a non-zero weight, set it and disable the field
+      this.formTransaction.weight = Number(product.weight);
+      this.isWeightDisabled = true;
+    } else {
+      // If product has no weight set, enable the field and require > 0
+      this.formTransaction.weight = 0;
+      this.isWeightDisabled = false;
+    }
   }
 }

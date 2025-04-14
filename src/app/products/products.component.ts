@@ -207,7 +207,7 @@ export class ProductsComponent implements OnInit {
     this.productForm.patchValue({
       id: product.id,
       name: product.name,
-      carat: product.carat,
+      carat: product.carat ? parseInt(product.carat.toString()) : null,
       weight: product.weight,
       category_id: product.category_id
     });

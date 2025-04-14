@@ -81,8 +81,10 @@
                 <span class="text-sm text-gray-500">
                   <ng-container *ngIf="transaction.type === 'Product'">
                     {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}}
-                    {{transaction.weight}}g, {{transaction.carat}} carat <span
-                      class="ml-2 font-medium">{{transaction.weight24k}}g</span>
+                    <ng-container *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0">{{transaction.weight}}g</ng-container>
+                    <ng-container *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0 && transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">, </ng-container>
+                    <ng-container *ngIf="transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">{{transaction.carat}} carat</ng-container>
+                    <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Scrap'">
                     {{transaction.weight}}g, {{transaction.carat}} carat
