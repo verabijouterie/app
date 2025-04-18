@@ -14,7 +14,7 @@ import { ProductsService } from '../services/products.service';
 import { CategoriesService } from '../services/categories.service';
 import { Category } from '../interfaces/category.interface';
 import { Observable, of, forkJoin } from 'rxjs';
-import { map, startWith, switchMap } from 'rxjs/operators';
+import { map, startWith, switchMap, tap } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 
 @Component({
@@ -65,18 +65,13 @@ export class ProductsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadProducts();
-    this.loadCategories();
-    setTimeout(() => {
-      this.skipDrawerAnimation = false;
-    }, 100);
-  }
-
-  loadCategories(): void {
-    this.categoriesService.getCategories().subscribe({
-      next: (categories) => {
+    forkJoin({
+      categories: this.categoriesService.getCategories(),
+      products: this.productsService.getProducts()
+    }).subscribe({
+      next: ({ categories, products }) => {
+        // Set categories and initialize filteredCategories
         this.categories = categories;
-        // Initialize filteredCategories with the loaded categories
         this.filteredCategories = this.categoryControl.valueChanges.pipe(
           startWith(''),
           map(value => {
@@ -84,11 +79,21 @@ export class ProductsComponent implements OnInit {
             return name ? this._filterCategories(name) : this.categories;
           })
         );
+
+        // Map products with categories and set products
+        this.products = products.map(product => ({
+          ...product,
+          category: product.category_id ? categories.find(c => c.id === product.category_id) : undefined
+        }));
       },
       error: (error) => {
-        console.error('Error loading categories:', error);
+        console.error('Error loading data:', error);
       }
     });
+
+    setTimeout(() => {
+      this.skipDrawerAnimation = false;
+    }, 100);
   }
 
   private _filterCategories(value: string): Category[] {
@@ -111,44 +116,6 @@ export class ProductsComponent implements OnInit {
         category_id: category.id
       });
     }
-  }
-
-  loadProducts(): void {
-    this.productsService.getProducts().pipe(
-      switchMap(products => {
-        // Get unique category IDs
-        const categoryIds = [...new Set(products
-          .filter(p => p.category_id)
-          .map(p => p.category_id))] as number[];
-        
-        if (categoryIds.length === 0) {
-          return of(products);
-        }
-
-        // Fetch all categories in parallel
-        return forkJoin(
-          categoryIds.map(id => this.categoriesService.getCategory(id))
-        ).pipe(
-          map(categories => {
-            // Create a map of category ID to category
-            const categoryMap = new Map(categories.map(c => [c.id, c]));
-            
-            // Map categories to products
-            return products.map(product => ({
-              ...product,
-              category: product.category_id ? categoryMap.get(product.category_id) : undefined
-            }));
-          })
-        );
-      })
-    ).subscribe({
-      next: (products) => {
-        this.products = products;
-      },
-      error: (error) => {
-        console.error('Error loading products:', error);
-      }
-    });
   }
 
   openProductDrawer(): void {
@@ -180,7 +147,7 @@ export class ProductsComponent implements OnInit {
       if (this.editMode && product.id) {
         this.productsService.updateProduct(product.id, product).subscribe({
           next: (updatedProduct) => {
-            this.loadProducts();
+            this.refreshData();
             this.onDrawerClose();
           },
           error: (error) => {
@@ -190,7 +157,7 @@ export class ProductsComponent implements OnInit {
       } else {
         this.productsService.createProduct(product).subscribe({
           next: (newProduct) => {
-            this.loadProducts();
+            this.refreshData();
             this.onDrawerClose();
           },
           error: (error) => {
@@ -233,7 +200,7 @@ export class ProductsComponent implements OnInit {
   deleteProduct(id: number): void {
     this.productsService.deleteProduct(id).subscribe({
       next: () => {
-        this.loadProducts();
+        this.refreshData();
       },
       error: (error) => {
         console.error('Error deleting product:', error);
@@ -257,5 +224,23 @@ export class ProductsComponent implements OnInit {
     const purity = this.caratPurityMap[carat as keyof typeof this.caratPurityMap] || 0;
     const weight24K = weight * purity;
     return parseFloat(weight24K.toFixed(4));
+  }
+
+  private refreshData(): void {
+    forkJoin({
+      categories: this.categoriesService.getCategories(),
+      products: this.productsService.getProducts()
+    }).subscribe({
+      next: ({ categories, products }) => {
+        this.categories = categories;
+        this.products = products.map(product => ({
+          ...product,
+          category: product.category_id ? categories.find(c => c.id === product.category_id) : undefined
+        }));
+      },
+      error: (error) => {
+        console.error('Error refreshing data:', error);
+      }
+    });
   }
 } 
