@@ -1,12 +1,12 @@
 <div class="max-w-3xl mx-auto px-4 py-10">
   <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
-    <p class="text-base text-gray-500 mb-8">Create a new scenario.</p>
+    <p class="text-base text-gray-500 mb-8">Yeni bir senaryo oluşturun.</p>
 
     <form (ngSubmit)="onSubmit()" class="space-y-8">
       <!-- Basic Info Section -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
         <div class="col-span-full space-y-1.5">
-          <label for="description" class="block text-sm font-medium text-gray-900">Description</label>
+          <label for="description" class="block text-sm font-medium text-gray-900">Açıklama</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <textarea matInput rows="1" [(ngModel)]="scenario.description" name="description"
               id="description"></textarea>
@@ -22,22 +22,22 @@
             <!-- Product In -->
             <button type="button" (click)="openTransactionDrawer('Product', 'In')"
               class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Buy Product</span>
+              <span class="text-sm text-white">Ürün Al</span>
             </button>
             <!-- Product Out -->
             <button type="button" (click)="openTransactionDrawer('Product', 'Out')"
               class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Sell Product</span>
+              <span class="text-sm text-white">Ürün Sat</span>
             </button>
             <!-- Cash In -->
             <button type="button" (click)="openTransactionDrawer('Cash', 'In')"
               class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Cash In</span>
+              <span class="text-sm text-white">Nakit Giriş</span>
             </button>
             <!-- Cash Out -->
             <button type="button" (click)="openTransactionDrawer('Cash', 'Out')"
               class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Cash Out</span>
+              <span class="text-sm text-white">Nakit Çıkış</span>
             </button>
           </div>
 
@@ -46,22 +46,22 @@
             <!-- Scrap In -->
             <button type="button" (click)="openTransactionDrawer('Scrap', 'In')"
               class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Buy Scrap</span>
+              <span class="text-sm text-white">Hurda Al</span>
             </button>
             <!-- Scrap Out -->
             <button type="button" (click)="openTransactionDrawer('Scrap', 'Out')"
               class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Sell Scrap</span>
+              <span class="text-sm text-white">Hurda Sat</span>
             </button>
             <!-- Bank In -->
             <button type="button" (click)="openTransactionDrawer('Bank', 'In')"
               class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Bank In</span>
+              <span class="text-sm text-white">Banka Girişi</span>
             </button>
             <!-- Bank Out -->
             <button type="button" (click)="openTransactionDrawer('Bank', 'Out')"
               class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Bank Out</span>
+              <span class="text-sm text-white">Banka Çıkışı</span>
             </button>
           </div>
         </div>
@@ -83,18 +83,18 @@
                     {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}}
                     <ng-container *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0">{{transaction.weight}}g</ng-container>
                     <ng-container *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0 && transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">, </ng-container>
-                    <ng-container *ngIf="transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">{{transaction.carat}} carat</ng-container>
+                    <ng-container *ngIf="transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">{{transaction.carat}} ayar</ng-container>
                     <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Scrap'">
-                    {{transaction.weight}}g, {{transaction.carat}} carat
+                    {{transaction.weight}}g, {{transaction.carat}} ayar
                     <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Cash'">
-                    Cash: {{transaction.amount}} EUR
+                    Nakit: {{transaction.amount}} EUR
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Bank'">
-                    Bank: {{transaction.amount}} EUR
+                    Banka: {{transaction.amount}} EUR
                   </ng-container>
                 </span>
               </div>
@@ -118,30 +118,30 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Gold Totals -->
             <div class="space-y-2">
-              <h3 class="text-sm font-medium text-gray-900">Gold Totals (24K)</h3>
+              <h3 class="text-sm font-medium text-gray-900">Altın Toplamları (24K)</h3>
               <div class="space-y-1">
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Total Products Bought:</span>
+                  <span class="text-sm text-gray-500">Toplam Alınan Ürünler:</span>
                   <span class="text-sm font-medium">{{calculateTotal24kProductIn()}}g</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Total Products Sold:</span>
+                  <span class="text-sm text-gray-500">Toplam Satılan Ürünler:</span>
                   <span class="text-sm font-medium">{{calculateTotal24kProductOut()}}g</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Total Scrap Bought:</span>
+                  <span class="text-sm text-gray-500">Toplam Alınan Hurda:</span>
                   <span class="text-sm font-medium">{{calculateTotal24kScrapIn()}}g</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Total Scrap Sold:</span>
+                  <span class="text-sm text-gray-500">Toplam Satılan Hurda:</span>
                   <span class="text-sm font-medium">{{calculateTotal24kScrapOut()}}g</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-900">Total Bought:</span>
+                  <span class="text-sm font-medium text-gray-900">Toplam Alım:</span>
                   <span class="text-sm font-medium">{{calculateTotal24kIn()}}g</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-900">Total Sold:</span>
+                  <span class="text-sm font-medium text-gray-900">Toplam Satış:</span>
                   <span class="text-sm font-medium">{{calculateTotal24kOut()}}g</span>
                 </div>
 
@@ -150,22 +150,22 @@
 
             <!-- Cash/Bank Totals -->
             <div class="space-y-2">
-              <h3 class="text-sm font-medium text-gray-900">Cash & Bank Totals</h3>
+              <h3 class="text-sm font-medium text-gray-900">Nakit ve Banka Toplamları</h3>
               <div class="space-y-1">
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Total Cash In:</span>
+                  <span class="text-sm text-gray-500">Toplam Nakit Giriş:</span>
                   <span class="text-sm font-medium">{{calculateTotalCashIn()}} EUR</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Total Cash Out:</span>
+                  <span class="text-sm text-gray-500">Toplam Nakit Çıkış:</span>
                   <span class="text-sm font-medium">{{calculateTotalCashOut()}} EUR</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Total Bank In:</span>
+                  <span class="text-sm text-gray-500">Toplam Banka Girişi:</span>
                   <span class="text-sm font-medium">{{calculateTotalBankIn()}} EUR</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Total Bank Out:</span>
+                  <span class="text-sm text-gray-500">Toplam Banka Çıkışı:</span>
                   <span class="text-sm font-medium">{{calculateTotalBankOut()}} EUR</span>
                 </div>
               </div>
@@ -177,11 +177,11 @@
       <div class="flex items-center justify-end gap-x-6 pt-6 border-t border-gray-900/10">
         <button type="button" (click)="navigateToScenarios()"
           class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
-          Cancel
+          İptal
         </button>
         <button type="submit" [disabled]="scenario.transactions.length === 0"
           class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
-          {{isEditing ? 'Update' : 'Create'}} Scenario
+          {{isEditing ? 'Güncelle' : 'Oluştur'}} Senaryo
         </button>
       </div>
     </form>
@@ -189,7 +189,7 @@
 </div>
 
 <app-drawer [isOpen]="isDrawerOpen" [skipAnimation]="skipDrawerAnimation"
-  [title]="editingTransactionIndex !== null ? 'Edit Transaction' : 'Add Transaction'" (close)="onDrawerClose()">
+  [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()">
   <app-transaction
     [transaction]="editingTransactionIndex !== null ? scenario.transactions[editingTransactionIndex] : undefined"
     [type]="drawerType" [direction]="drawerDirection" (transactionSubmit)="onTransactionSubmit($event)"

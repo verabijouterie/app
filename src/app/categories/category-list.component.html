@@ -1,11 +1,11 @@
 <div class="mt-8">
-  <h2 class="text-xl font-bold mb-4">Category List</h2>
+  <h2 class="text-xl font-bold mb-4">Kategori Listesi</h2>
   <div class="overflow-x-auto">
     <table class="min-w-full bg-white">
       <thead>
         <tr class="border-b">
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Ad</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">İşlemler</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
@@ -23,7 +23,7 @@
           </td>
         </tr>
         <tr *ngIf="categories.length === 0">
-          <td colspan="2" class="px-4 py-3 text-sm text-gray-500 text-center">No categories available</td>
+          <td colspan="2" class="px-4 py-3 text-sm text-gray-500 text-center">Mevcut kategori bulunmamaktadır</td>
         </tr>
       </tbody>
     </table>

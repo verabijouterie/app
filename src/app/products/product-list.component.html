@@ -1,15 +1,15 @@
 <div class="mt-8">
-  <h2 class="text-xl font-bold mb-4">Product List</h2>
+  <h2 class="text-xl font-bold mb-4">Ürün Listesi</h2>
   <div class="overflow-x-auto">
     <table class="min-w-full bg-white">
       <thead>
         <tr class="border-b">
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Category</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Gold Carat</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Gold Weight (g)</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Total 24K Weight (g)</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Actions</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Ad</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Kategori</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Altın Ayarı</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Altın Ağırlığı (g)</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">24K Toplam Ağırlık (g)</th>
+          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">İşlemler</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
@@ -31,7 +31,7 @@
           </td>
         </tr>
         <tr *ngIf="products.length === 0">
-          <td colspan="6" class="px-4 py-3 text-sm text-gray-500 text-center">No products available</td>
+          <td colspan="6" class="px-4 py-3 text-sm text-gray-500 text-center">Mevcut ürün bulunmamaktadır</td>
         </tr>
       </tbody>
     </table>

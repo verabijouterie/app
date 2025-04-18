@@ -1,13 +1,13 @@
 <div class="max-w-3xl mx-auto px-4 py-10">
   <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
     <div class="flex justify-between items-center mb-8">
-      <p class="text-base text-gray-500">Manage your products</p>
+      <p class="text-base text-gray-500">Ürünlerinizi yönetin</p>
       <button
         type="button"
         (click)="openProductDrawer()"
         class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-blue-600"
       >
-        Create Product
+        Ürün Oluştur
       </button>
     </div>
 
@@ -22,16 +22,16 @@
 <app-drawer 
   [isOpen]="isDrawerOpen"
   [skipAnimation]="skipDrawerAnimation"
-  [title]="editMode ? 'Edit Product' : 'Create Product'"
+  [title]="editMode ? 'Ürünü Düzenle' : 'Ürün Oluştur'"
   (close)="onDrawerClose()">
   <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="space-y-8">
     <div class="grid grid-cols-1 gap-4">
       
       <div class="space-y-1">
-        <label for="category" class="block text-sm font-medium text-gray-900">Category</label>
+        <label for="category" class="block text-sm font-medium text-gray-900">Kategori</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <input type="text" matInput [formControl]="categoryControl" [matAutocomplete]="auto"
-            placeholder="Select a category">
+            placeholder="Bir kategori seçin">
           <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayCategoryFn" (optionSelected)="onCategorySelected($event)">
             <mat-option *ngFor="let category of filteredCategories | async" [value]="category">
               {{category.name}}
@@ -41,17 +41,17 @@
       </div>
       
       <div class="space-y-1">
-        <label for="name" class="block text-sm font-medium text-gray-900">Product Name</label>
+        <label for="name" class="block text-sm font-medium text-gray-900">Ürün Adı</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput formControlName="name" placeholder="Enter product name" id="name">
+          <input matInput formControlName="name" placeholder="Ürün adını girin" id="name">
         </mat-form-field>
       </div>
 
       <div class="space-y-1">
-        <label for="carat" class="block text-sm font-medium text-gray-900">Gold Carat (Optional)</label>
+        <label for="carat" class="block text-sm font-medium text-gray-900">Altın Ayarı (Opsiyonel)</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <mat-select formControlName="carat" id="carat">
-            <mat-option [value]="null">Not specified</mat-option>
+            <mat-option [value]="null">Belirtilmedi</mat-option>
             <mat-option *ngFor="let carat of caratOptions" [value]="carat">
               {{carat}}K
             </mat-option>
@@ -60,16 +60,16 @@
       </div>
 
       <div class="space-y-1">
-        <label for="weight" class="block text-sm font-medium text-gray-900">Gold Weight (grams) (Optional)</label>
+        <label for="weight" class="block text-sm font-medium text-gray-900">Altın Ağırlığı (gram) (Opsiyonel)</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <input matInput type="number" formControlName="weight" min="0" step="0.01" id="weight">
         </mat-form-field>
       </div>
 
       <div class="space-y-1" *ngIf="productForm.get('weight')?.value && productForm.get('carat')?.value">
-        <label for="total24k" class="text-sm font-medium text-gray-900 inline">Product Weight as 24K (grams): </label>
+        <label for="total24k" class="text-sm font-medium text-gray-900 inline">24K Olarak Toplam Ağırlık (gram): </label>
         <span class="text-gray-900 text-base inline">
-          {{calculateTotal24k(productForm.get('weight')?.value, productForm.get('carat')?.value) || 'Not calculated'}}
+          {{calculateTotal24k(productForm.get('weight')?.value, productForm.get('carat')?.value) || 'Hesaplanmadı'}}
         </span>
       </div>
     </div>
@@ -80,14 +80,14 @@
         class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors"
         (click)="onDrawerClose()"
       >
-        Cancel
+        İptal
       </button>
       <button
         type="submit"
         class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         [disabled]="!productForm.valid"
       >
-        {{ editMode ? 'Update' : 'Create' }} Product
+        {{ editMode ? 'Güncelle' : 'Oluştur' }} Ürün
       </button>
     </div>
   </form>
