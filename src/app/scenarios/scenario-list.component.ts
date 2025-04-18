@@ -66,12 +66,17 @@ export class ScenarioListComponent implements OnInit {
 
   deleteScenario(id: number) {
     if (confirm('Are you sure you want to delete this scenario?')) {
+      // Optimistically remove the scenario from the local array
+      this.scenarios = this.scenarios.filter(scenario => scenario.id !== id);
+      
       this.scenarioService.deleteScenario(id).subscribe({
         next: () => {
-          this.loadScenarios();
+          // Success - no need to reload since we already updated the UI
         },
         error: (error) => {
           console.error('Error deleting scenario:', error);
+          // On error, reload the scenarios to ensure consistency
+          this.loadScenarios();
         }
       });
     }
