@@ -3,13 +3,13 @@
     <div class="grid grid-cols-1 gap-4">
       @if (!type) {
         <div class="space-y-1">
-          <label for="type" class="block text-sm font-medium text-gray-900">Type</label>
+          <label for="type" class="block text-sm font-medium text-gray-900">Tür</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-select [(ngModel)]="formTransaction.type" name="type" (selectionChange)="resetForm()">
-              <mat-option value="Product">Product</mat-option>
-              <mat-option value="Scrap">Scrap</mat-option>
-              <mat-option value="Cash">Cash</mat-option>
-              <mat-option value="Bank">Bank</mat-option>
+              <mat-option value="Product">Ürün</mat-option>
+              <mat-option value="Scrap">Hurda</mat-option>
+              <mat-option value="Cash">Nakit</mat-option>
+              <mat-option value="Bank">Banka</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -17,11 +17,11 @@
 
       @if (!direction) {
         <div class="space-y-1">
-          <label for="direction" class="block text-sm font-medium text-gray-900">Direction</label>
+          <label for="direction" class="block text-sm font-medium text-gray-900">Yön</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-select [(ngModel)]="formTransaction.direction" name="direction">
-              <mat-option value="In">In</mat-option>
-              <mat-option value="Out">Out</mat-option>
+              <mat-option value="In">Giriş</mat-option>
+              <mat-option value="Out">Çıkış</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
@@ -29,15 +29,15 @@
 
       @if (formTransaction.type === 'Product') {
         <div class="space-y-1">
-          <label for="product" class="block text-sm font-medium text-gray-900">Product</label>
+          <label for="product" class="block text-sm font-medium text-gray-900">Ürün</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <input type="text" matInput [formControl]="productControl" [matAutocomplete]="auto"
-              placeholder="Select a product">
+              placeholder="Ürün seçin">
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onProductSelected($event)">
               <mat-option *ngFor="let product of filteredProducts | async" [value]="product">
                 {{product.name}}
-                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && product.weight !== undefined && product.weight !== null && product.weight > 0">({{product.carat}} carat, {{product.weight}}g)</ng-container>
-                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && (!product.weight || product.weight === 0)">({{product.carat}} carat)</ng-container>
+                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && product.weight !== undefined && product.weight !== null && product.weight > 0">({{product.carat}} ayar, {{product.weight}}g)</ng-container>
+                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && (!product.weight || product.weight === 0)">({{product.carat}} ayar)</ng-container>
                 <ng-container *ngIf="(!product.carat || product.carat === null) && product.weight !== undefined && product.weight !== null && product.weight > 0">({{product.weight}}g)</ng-container>
               </mat-option>
             </mat-autocomplete>
@@ -45,7 +45,7 @@
         </div>
 
         <div class="space-y-1">
-          <label for="carat" class="block text-sm font-medium text-gray-900">Gold Carat</label>
+          <label for="carat" class="block text-sm font-medium text-gray-900">Altın Ayarı</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-select [(ngModel)]="formTransaction.carat" name="carat" [disabled]="isCaratDisabled" 
               (selectionChange)="calculateTotal24KWeight()" (closed)="calculateTotal24KWeight()">
@@ -57,7 +57,7 @@
         </div>
 
         <div class="space-y-1">
-          <label for="weight" class="block text-sm font-medium text-gray-900">Gold Weight (grams)</label>
+          <label for="weight" class="block text-sm font-medium text-gray-900">Altın Ağırlığı (gram)</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight" name="weight"
               [disabled]="isWeightDisabled" (input)="calculateTotal24KWeight()" (change)="calculateTotal24KWeight()"
@@ -66,7 +66,7 @@
         </div>
 
         <div class="space-y-1">
-          <label for="quantity" class="block text-sm font-medium text-gray-900">Quantity</label>
+          <label for="quantity" class="block text-sm font-medium text-gray-900">Adet</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <input matInput type="number" name="quantity" [(ngModel)]="formTransaction.quantity" min="1"
               step="1" (focus)="selectQuantity($event)" (input)="calculateTotal24KWeight()">
@@ -76,7 +76,7 @@
 
       @if (formTransaction.type === 'Cash' || formTransaction.type === 'Bank') {
         <div class="space-y-1">
-          <label for="amount" class="block text-sm font-medium text-gray-900">Amount</label>
+          <label for="amount" class="block text-sm font-medium text-gray-900">Tutar</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <input matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01"
               name="amount" (focus)="selectAmountInput($event)">
@@ -87,7 +87,7 @@
 
       @if (formTransaction.type === 'Scrap') {
         <div class="space-y-1">
-          <label for="carat" class="block text-sm font-medium text-gray-900">Carat</label>
+          <label for="carat" class="block text-sm font-medium text-gray-900">Ayar</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-select [(ngModel)]="formTransaction.carat" name="carat" (selectionChange)="calculateTotal24KWeight()">
               <mat-option *ngFor="let carat of caratOptions" [value]="carat">
@@ -98,7 +98,7 @@
         </div>
 
         <div class="space-y-1">
-          <label for="weight" class="block text-sm font-medium text-gray-900">Weight (grams)</label>
+          <label for="weight" class="block text-sm font-medium text-gray-900">Ağırlık (gram)</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight" name="weight"
               (input)="calculateTotal24KWeight()" (focus)="selectWeightInput($event)">
@@ -108,7 +108,7 @@
 
       @if (formTransaction.type === 'Product' || formTransaction.type === 'Scrap') {
         <div class="space-y-1">
-          <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Total Weight as 24K (grams): </label>
+          <label for="weight24k" class="text-sm font-medium text-gray-900 inline">24K Toplam Ağırlık (gram): </label>
           <span class="text-gray-900 text-base inline">
             {{formTransaction.weight24k}}
           </span>
@@ -119,12 +119,12 @@
     <div class="flex items-center justify-end gap-x-4">
       <button type="button" (click)="onCancel()"
         class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
-        Cancel
+        İptal
       </button>
       <button type="submit"
         class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
         [disabled]="checkFormValidity()">
-        {{ transaction ? 'Update' : 'Create' }} Transaction
+        {{ transaction ? 'Güncelle' : 'Oluştur' }} İşlem
       </button>
     </div>
   </form>
