@@ -10,7 +10,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { mockRate } from '../mockup/mock-rate';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Product } from '../interfaces/product.interface';
 import { ScenarioService } from '../services/scenario.service';
@@ -66,7 +65,6 @@ export class ScenarioComponent implements OnInit {
     user_id: 0,
     description: '',
     transactions: [],
-    gold_rate: mockRate,
     
     total24kProductIn: 0,
     total24kProductOut: 0,
@@ -135,7 +133,6 @@ export class ScenarioComponent implements OnInit {
           user_id: currentUser?.id || 0,
           description: '',
           transactions: [],
-          gold_rate: mockRate,
           total24kProductIn: 0,
           total24kProductOut: 0,
           total24kScrapIn: 0,
