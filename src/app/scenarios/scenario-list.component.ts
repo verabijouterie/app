@@ -27,6 +27,7 @@ import { DatePipe } from '@angular/common';
 export class ScenarioListComponent implements OnInit {
   scenarios: Scenario[] = [];
   displayedColumns: string[] = [
+    'actions',
     'date',
     'description',
     'total24kProductIn',
@@ -38,8 +39,7 @@ export class ScenarioListComponent implements OnInit {
     'totalCashIn',
     'totalCashOut',
     'totalBankIn',
-    'totalBankOut',
-    'actions'
+    'totalBankOut'
   ];
 
   constructor(

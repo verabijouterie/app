@@ -27,14 +27,14 @@ import { DatePipe } from '@angular/common';
 export class OrderListComponent implements OnInit {
   orders: Order[] = [];
   displayedColumns: string[] = [
+    'actions',
     'date_planned',
     'date_fulfilled',
     'description',
     'total24kProductOut',
     'total24kOut',
     'totalCashIn',
-    'totalBankIn',
-    'actions'
+    'totalBankIn'
   ];
 
   constructor(

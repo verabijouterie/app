@@ -88,6 +88,14 @@
             </div>
 
             <div class="flex items-center gap-x-1">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-40" *ngIf="transaction.type === 'Product'">
+                <mat-select [(ngModel)]="transaction.status" name="status" [value]="transaction.status || 'ToBeOrdered'">
+                  <mat-option value="ToBeOrdered">Sipariş Edilecek</mat-option>
+                  <mat-option value="AwaitingWholesaler">Toptancı Bekleniyor</mat-option>
+                  <mat-option value="AwaitingCustomer">Müşteri Bekleniyor</mat-option>
+                  <mat-option value="HandedOut">Teslim Edildi</mat-option>
+                </mat-select>
+              </mat-form-field>
               <button type="button" (click)="editTransaction(i)"
                 class="rounded-md p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
                 <mat-icon class="h-4 w-4">edit</mat-icon>
