@@ -453,4 +453,11 @@ export class ScenarioComponent implements OnInit {
   calculateTotalPaymentOut(): string {
     return (Number(this.calculateTotalCashOut()) + Number(this.calculateTotalBankOut())).toFixed(2);
   }
+
+  formatAmount(amount: any): string {
+    // Safely convert to number and format with 2 decimal places
+    if (amount === null || amount === undefined) return "0.00";
+    const num = Number(amount);
+    return isNaN(num) ? "0.00" : num.toFixed(2);
+  }
 } 

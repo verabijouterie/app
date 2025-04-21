@@ -304,10 +304,15 @@ export class OrderComponent implements OnInit {
   }
 
   calculateTotal24kProductOut(): number {
-    const total = this.order.transactions
-      .filter(t => t.type === 'Product' && t.direction === 'Out')
-      .reduce((sum, t) => sum + (t.weight24k || 0), 0);
-    return Number(total.toFixed(4));
+    try {
+      const total = this.order.transactions
+        .filter(t => t.type === 'Product' && t.direction === 'Out')
+        .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+      return Number(Number(total).toFixed(4));
+    } catch (error) {
+      console.error('Error in calculateTotal24kProductOut', error);
+      return 0;
+    }
   }
 
   calculateTotal24kOut(): number {
@@ -315,25 +320,45 @@ export class OrderComponent implements OnInit {
   }
 
   calculateTotalCashIn(): string {
-    const total = this.order.transactions
-      .filter(t => t.type === 'Cash' && t.direction === 'In')
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
-    return total.toFixed(2);
+    try {
+      const total = this.order.transactions
+        .filter(t => t.type === 'Cash' && t.direction === 'In')
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+      return Number(total).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateTotalCashIn', error);
+      return "0.00";
+    }
   }
 
   calculateTotalBankIn(): string {
-    const total = this.order.transactions
-      .filter(t => t.type === 'Bank' && t.direction === 'In')
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
-    return total.toFixed(2);
+    try {
+      const total = this.order.transactions
+        .filter(t => t.type === 'Bank' && t.direction === 'In')
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+      return Number(total).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateTotalBankIn', error);
+      return "0.00";
+    }
   }
 
   calculateTotalPaymentIn(): string {
-    return (Number(this.calculateTotalCashIn()) + Number(this.calculateTotalBankIn())).toFixed(2);
+    try {
+      return (Number(this.calculateTotalCashIn()) + Number(this.calculateTotalBankIn())).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateTotalPaymentIn', error);
+      return "0.00";
+    }
   }
 
   calculateRemainingAmount(): string {
-    return (this.order.total_order_amount - Number(this.calculateTotalPaymentIn())).toFixed(2);
+    try {
+      return (this.order.total_order_amount - Number(this.calculateTotalPaymentIn())).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateRemainingAmount', error);
+      return "0.00";
+    }
   }
 
   isOrderValid(): boolean {
@@ -342,5 +367,12 @@ export class OrderComponent implements OnInit {
     && this.order.client_name.trim() !== ''
     && this.order.client_phone.trim() !== ''
     && this.order.date_planned !== null;
+  }
+
+  formatAmount(amount: any): string {
+    // Safely convert to number and format with 2 decimal places
+    if (amount === null || amount === undefined) return "0.00";
+    const num = Number(amount);
+    return isNaN(num) ? "0.00" : num.toFixed(2);
   }
 } 

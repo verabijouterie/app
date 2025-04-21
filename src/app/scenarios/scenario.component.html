@@ -91,10 +91,10 @@
                     <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Cash'">
-                    Nakit: {{(transaction.amount || 0).toFixed(2)}} EUR
+                    Nakit: {{formatAmount(transaction.amount)}} EUR
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Bank'">
-                    Banka: {{(transaction.amount || 0).toFixed(2)}} EUR
+                    Banka: {{formatAmount(transaction.amount)}} EUR
                   </ng-container>
                 </span>
               </div>
