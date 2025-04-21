@@ -14,7 +14,8 @@ import { SignupLayoutComponent } from './layouts/signup/signup-layout.component'
 import { AuthGuard } from './guards/auth.guard';
 import { NoAuthGuard } from './guards/no-auth.guard';
 import { CategoriesComponent } from './categories/categories.component';
-
+import { OrderListComponent } from './orders/order-list.component';
+import { OrderComponent } from './orders/order.component';
 
 export const routes: Routes = [
   {
@@ -28,6 +29,9 @@ export const routes: Routes = [
       { path: 'scenarios', component: ScenarioListComponent },
       { path: 'scenarios/new', component: ScenarioComponent },
       { path: 'scenarios/:id', component: ScenarioComponent },
+      { path: 'orders', component: OrderListComponent },
+      { path: 'orders/new', component: OrderComponent },
+      { path: 'orders/:id', component: OrderComponent },
       { path: 'transaction', component: TransactionComponent },
       { path: 'products', component: ProductsComponent },
       { path: 'roles', component: RolesComponent },

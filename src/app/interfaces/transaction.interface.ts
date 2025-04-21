@@ -15,4 +15,5 @@ export interface Transaction {
   amount?: number; // in euro
   quantity?: number;
   weight24k?: number; // in grams
+  status: 'ToBeOrdered' | 'AwaitingWholesaler' | 'AwaitingCustomer' | 'HandedOut' | null;
 }

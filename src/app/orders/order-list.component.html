@@ -1,0 +1,78 @@
+<div class="max-w-7xl mx-auto px-4 py-10">
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-2xl font-semibold text-gray-900">Siparişler</h1>
+      <button mat-raised-button color="primary" (click)="createNewOrder()">
+        <mat-icon>add</mat-icon>
+        Yeni Sipariş
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table mat-table [dataSource]="orders" class="w-full">
+        <!-- Date Column -->
+        <ng-container matColumnDef="date_planned">
+          <th mat-header-cell *matHeaderCellDef>Planlanan Tarih</th>
+          <td mat-cell *matCellDef="let order">{{ order.date_planned | date:'dd/MM/yyyy' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="date_fulfilled">
+          <th mat-header-cell *matHeaderCellDef>Tamamlandığı Tarih</th>
+          <td mat-cell *matCellDef="let order">{{ order.date_fulfilled | date:'dd/MM/yyyy' }}</td>
+        </ng-container>
+
+        <!-- Description Column -->
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef>Açıklama</th>
+          <td mat-cell *matCellDef="let order">{{ order.description }}</td>
+        </ng-container>
+
+
+        <!-- Total 24K Product Out Column -->
+        <ng-container matColumnDef="total24kProductOut">
+          <th mat-header-cell *matHeaderCellDef>Toplam 24K Ürün Çıkışı (g)</th>
+          <td mat-cell *matCellDef="let order">{{ order.total24kProductOut }}</td>
+        </ng-container>
+
+
+
+        <!-- Total 24K Out Column -->
+        <ng-container matColumnDef="total24kOut">
+          <th mat-header-cell *matHeaderCellDef>Toplam 24K Çıkış (g)</th>
+          <td mat-cell *matCellDef="let order">{{ order.total24kOut }}</td>
+        </ng-container>
+
+        <!-- Total Cash In Column -->
+        <ng-container matColumnDef="totalCashIn">
+          <th mat-header-cell *matHeaderCellDef>Toplam Nakit Giriş (€)</th>
+          <td mat-cell *matCellDef="let order">{{ order.totalCashIn }}</td>
+        </ng-container>
+
+
+        <!-- Total Bank In Column -->
+        <ng-container matColumnDef="totalBankIn">
+          <th mat-header-cell *matHeaderCellDef>Toplam Banka Girişi (€)</th>
+          <td mat-cell *matCellDef="let order">{{ order.totalBankIn }}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>İşlemler</th>
+          <td mat-cell *matCellDef="let order">
+            <div class="flex gap-2">
+              <button mat-icon-button color="accent" [routerLink]="['/orders', order.id]" matTooltip="Düzenle">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteOrder(order.id!)" matTooltip="Sil">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  </div>
+</div>

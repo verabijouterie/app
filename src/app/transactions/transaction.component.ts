@@ -12,7 +12,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Observable, of, Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { CARAT_OPTIONS, CARAT_PURITY_MAP } from '../config/constants';
+import { CARAT_OPTIONS, CARAT_PURITY_MAP_GOLD, CARAT_PURITY_MAP_SCRAP } from '../config/constants';
 import { ProductsService } from '../services/products.service';
 
 @Component({
@@ -44,17 +44,19 @@ export class TransactionComponent implements OnInit, OnChanges {
   filteredProducts: Observable<Product[]>;
   
   caratOptions = CARAT_OPTIONS.map(carat => Number(carat));
-  caratPurityMap = CARAT_PURITY_MAP;
+  caratPurityMapGold = CARAT_PURITY_MAP_GOLD;
+  caratPurityMapScrap = CARAT_PURITY_MAP_SCRAP;
 
   formTransaction: Transaction = {
-    type: 'Product',
-    direction: 'In',
+    type: this.type || 'Product',
+    direction: this.direction || 'In',
     weight: 0,
     carat: undefined,
     amount: 0,
     quantity: 1,
     product: undefined,
-    weight24k: 0
+    weight24k: 0,
+    status: null
   };
 
   isCaratDisabled = false;
@@ -203,7 +205,7 @@ export class TransactionComponent implements OnInit, OnChanges {
   calculateTotal24KWeight() {
     if (this.formTransaction.type === 'Product') {
       if (this.formTransaction.carat && this.formTransaction.weight && this.formTransaction.quantity) {
-        const purity = this.caratPurityMap[this.formTransaction.carat as keyof typeof this.caratPurityMap] || 0;
+        const purity = this.caratPurityMapGold[this.formTransaction.carat as keyof typeof this.caratPurityMapGold] || 0;
         const weightAs24K = this.formTransaction.weight * purity * this.formTransaction.quantity;
         this.formTransaction.weight24k = parseFloat(weightAs24K.toFixed(4));
       } else {
@@ -213,7 +215,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     else if (this.formTransaction.type === 'Scrap') {
       if (this.formTransaction.weight && this.formTransaction.carat && 
           this.formTransaction.weight > 0 && this.formTransaction.carat > 0) {
-        const purity = this.caratPurityMap[this.formTransaction.carat as keyof typeof this.caratPurityMap] || 0;
+        const purity = this.caratPurityMapScrap[this.formTransaction.carat as keyof typeof this.caratPurityMapScrap] || 0;
         const weightAs24K = this.formTransaction.weight * purity;
         this.formTransaction.weight24k = parseFloat(weightAs24K.toFixed(4));
       } else {
@@ -242,13 +244,14 @@ export class TransactionComponent implements OnInit, OnChanges {
     this.formTransaction = {
       id: undefined,
       type: this.formTransaction.type,
-      direction: 'In',
+      direction: this.formTransaction.direction,
       weight: 0,
       carat: undefined,
       amount: 0,
       quantity: 1,
       product: undefined,
-      weight24k: 0
+      weight24k: 0,
+      status: null
     };
   }
 

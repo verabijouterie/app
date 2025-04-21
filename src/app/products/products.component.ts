@@ -9,7 +9,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { Product } from '../interfaces/product.interface';
 import { ProductListComponent } from './product-list.component';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
-import { CARAT_OPTIONS, CARAT_PURITY_MAP } from '../config/constants';
+import { CARAT_OPTIONS, CARAT_PURITY_MAP_GOLD } from '../config/constants';
 import { ProductsService } from '../services/products.service';
 import { CategoriesService } from '../services/categories.service';
 import { Category } from '../interfaces/category.interface';
@@ -43,7 +43,7 @@ export class ProductsComponent implements OnInit {
   isDrawerOpen = false;
   skipDrawerAnimation = true;
   caratOptions = CARAT_OPTIONS;
-  caratPurityMap = CARAT_PURITY_MAP;
+  caratPurityMapGold = CARAT_PURITY_MAP_GOLD;
   categoryControl = new FormControl<string | Category>('');
   filteredCategories: Observable<Category[]>;
 
@@ -221,7 +221,7 @@ export class ProductsComponent implements OnInit {
 
   calculateTotal24k(weight: number | null, carat: number | null) {
     if (!weight || !carat) return undefined;
-    const purity = this.caratPurityMap[carat as keyof typeof this.caratPurityMap] || 0;
+    const purity = this.caratPurityMapGold[carat as keyof typeof this.caratPurityMapGold] || 0;
     const weight24K = weight * purity;
     return parseFloat(weight24K.toFixed(4));
   }
