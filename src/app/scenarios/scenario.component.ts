@@ -245,48 +245,48 @@ export class ScenarioComponent implements OnInit {
     scenarioToSubmit.transactions.forEach(transaction => {
       if(transaction.type === 'Product') {
         if(transaction.direction === 'In') {
-          total24kProductIn += transaction.weight24k!;
-          total24kIn += transaction.weight24k!;
+          total24kProductIn += transaction.weight24k || 0;
+          total24kIn += transaction.weight24k || 0;
         } else {
-          total24kProductOut += transaction.weight24k!;
-          total24kOut += transaction.weight24k!;
+          total24kProductOut += transaction.weight24k || 0;
+          total24kOut += transaction.weight24k || 0;
         }
       }
       if(transaction.type === 'Scrap') {
         if(transaction.direction === 'In') {
-          total24kScrapIn += transaction.weight24k!;
-          total24kIn += transaction.weight24k!;
+          total24kScrapIn += transaction.weight24k || 0;
+          total24kIn += transaction.weight24k || 0;
         } else {
-          total24kScrapOut += transaction.weight24k!;
-          total24kOut += transaction.weight24k!;
+          total24kScrapOut += transaction.weight24k || 0;
+          total24kOut += transaction.weight24k || 0;
         }
       }
       if(transaction.type === 'Cash') {
         if(transaction.direction === 'In') {
-          totalCashIn += transaction.amount!;
+          totalCashIn += transaction.amount || 0;
         } else {
-          totalCashOut += transaction.amount!;
+          totalCashOut += transaction.amount || 0;
         }
       }
       if(transaction.type === 'Bank') {
         if(transaction.direction === 'In') {
-          totalBankIn += transaction.amount!;
+          totalBankIn += transaction.amount || 0;
         } else {
-          totalBankOut += transaction.amount!;
+          totalBankOut += transaction.amount || 0;
         }
       }
     });
 
-    scenarioToSubmit.total24kProductIn = total24kProductIn;
-    scenarioToSubmit.total24kProductOut = total24kProductOut;
-    scenarioToSubmit.total24kScrapIn = total24kScrapIn;
-    scenarioToSubmit.total24kScrapOut = total24kScrapOut;
-    scenarioToSubmit.total24kIn = total24kIn;
-    scenarioToSubmit.total24kOut = total24kOut;
-    scenarioToSubmit.totalCashIn = totalCashIn;
-    scenarioToSubmit.totalCashOut = totalCashOut;
-    scenarioToSubmit.totalBankIn = totalBankIn;
-    scenarioToSubmit.totalBankOut = totalBankOut;
+    scenarioToSubmit.total24kProductIn = Number(total24kProductIn.toFixed(4));
+    scenarioToSubmit.total24kProductOut = Number(total24kProductOut.toFixed(4));
+    scenarioToSubmit.total24kScrapIn = Number(total24kScrapIn.toFixed(4));
+    scenarioToSubmit.total24kScrapOut = Number(total24kScrapOut.toFixed(4));
+    scenarioToSubmit.total24kIn = Number(total24kIn.toFixed(4));
+    scenarioToSubmit.total24kOut = Number(total24kOut.toFixed(4));
+    scenarioToSubmit.totalCashIn = Number(totalCashIn.toFixed(2));
+    scenarioToSubmit.totalCashOut = Number(totalCashOut.toFixed(2));
+    scenarioToSubmit.totalBankIn = Number(totalBankIn.toFixed(2));
+    scenarioToSubmit.totalBankOut = Number(totalBankOut.toFixed(2));
 
     if (this.isEditing && this.scenario.id) {
       this.scenarioService.updateScenario(this.scenario.id, scenarioToSubmit).subscribe({
@@ -327,58 +327,130 @@ export class ScenarioComponent implements OnInit {
   }
 
   calculateTotal24kProductIn(): number {
-    return this.scenario.transactions
-      .filter(t => t.type === 'Product' && t.direction === 'In')
-      .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+    try {
+      const total = this.scenario.transactions
+        .filter(t => t.type === 'Product' && t.direction === 'In')
+        .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+      return Number(Number(total).toFixed(4));
+    } catch (error) {
+      console.error('Error in calculateTotal24kProductIn', error);
+      return 0;
+    }
   }
 
   calculateTotal24kProductOut(): number {
-    return this.scenario.transactions
-      .filter(t => t.type === 'Product' && t.direction === 'Out')
-      .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+    try {
+      const total = this.scenario.transactions
+        .filter(t => t.type === 'Product' && t.direction === 'Out')
+        .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+      return Number(Number(total).toFixed(4));
+    } catch (error) {
+      console.error('Error in calculateTotal24kProductOut', error);
+      return 0;
+    }
   }
 
   calculateTotal24kScrapIn(): number {
-    return this.scenario.transactions
-      .filter(t => t.type === 'Scrap' && t.direction === 'In')
-      .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+    try {
+      const total = this.scenario.transactions
+        .filter(t => t.type === 'Scrap' && t.direction === 'In')
+        .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+      return Number(Number(total).toFixed(4));
+    } catch (error) {
+      console.error('Error in calculateTotal24kScrapIn', error);
+      return 0;
+    }
   }
 
   calculateTotal24kScrapOut(): number {
-    return this.scenario.transactions
-      .filter(t => t.type === 'Scrap' && t.direction === 'Out')
-      .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+    try {
+      const total = this.scenario.transactions
+        .filter(t => t.type === 'Scrap' && t.direction === 'Out')
+        .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+      return Number(Number(total).toFixed(4));
+    } catch (error) {
+      console.error('Error in calculateTotal24kScrapOut', error);
+      return 0;
+    }
   }
 
   calculateTotal24kIn(): number {
-    return this.calculateTotal24kProductIn() + this.calculateTotal24kScrapIn();
+    try {
+      const productIn = this.calculateTotal24kProductIn();
+      const scrapIn = this.calculateTotal24kScrapIn();
+      const total = productIn + scrapIn;
+      return Number(Number(total).toFixed(4));
+    } catch (error) {
+      console.error('Error in calculateTotal24kIn', error);
+      return 0;
+    }
   }
 
   calculateTotal24kOut(): number {
-    return this.calculateTotal24kProductOut() + this.calculateTotal24kScrapOut();
+    try {
+      const productOut = this.calculateTotal24kProductOut();
+      const scrapOut = this.calculateTotal24kScrapOut();
+      const total = productOut + scrapOut;
+      return Number(Number(total).toFixed(4));
+    } catch (error) {
+      console.error('Error in calculateTotal24kOut', error);
+      return 0;
+    }
   }
 
-  calculateTotalCashIn(): number {
-    return this.scenario.transactions
-      .filter(t => t.type === 'Cash' && t.direction === 'In')
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
+  calculateTotalCashIn(): string {
+    try {
+      const total = this.scenario.transactions
+        .filter(t => t.type === 'Cash' && t.direction === 'In')
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+      return Number(total).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateTotalCashIn', error);
+      return "0.00";
+    }
   }
 
-  calculateTotalCashOut(): number {
-    return this.scenario.transactions
-      .filter(t => t.type === 'Cash' && t.direction === 'Out')
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
+  calculateTotalCashOut(): string {
+    try {
+      const total = this.scenario.transactions
+        .filter(t => t.type === 'Cash' && t.direction === 'Out')
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+      return Number(total).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateTotalCashOut', error);
+      return "0.00";
+    }
   }
 
-  calculateTotalBankIn(): number {
-    return this.scenario.transactions
-      .filter(t => t.type === 'Bank' && t.direction === 'In')
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
+  calculateTotalBankIn(): string {
+    try {
+      const total = this.scenario.transactions
+        .filter(t => t.type === 'Bank' && t.direction === 'In')
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+      return Number(total).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateTotalBankIn', error);
+      return "0.00";
+    }
   }
 
-  calculateTotalBankOut(): number {
-    return this.scenario.transactions
-      .filter(t => t.type === 'Bank' && t.direction === 'Out')
-      .reduce((sum, t) => sum + (t.amount || 0), 0);
+  calculateTotalBankOut(): string {
+    try {
+      const total = this.scenario.transactions
+        .filter(t => t.type === 'Bank' && t.direction === 'Out')
+        .reduce((sum, t) => sum + (t.amount || 0), 0);
+      return Number(total).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateTotalBankOut', error);
+      return "0.00";
+    }
+  }
+
+  calculateTotalPaymentIn(): string {
+    return (Number(this.calculateTotalCashIn()) + Number(this.calculateTotalBankIn())).toFixed(2);
+  }
+
+  calculateTotalPaymentOut(): string {
+    return (Number(this.calculateTotalCashOut()) + Number(this.calculateTotalBankOut())).toFixed(2);
   }
 } 

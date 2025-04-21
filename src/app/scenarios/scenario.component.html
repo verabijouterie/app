@@ -91,10 +91,10 @@
                     <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Cash'">
-                    Nakit: {{transaction.amount}} EUR
+                    Nakit: {{(transaction.amount || 0).toFixed(2)}} EUR
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Bank'">
-                    Banka: {{transaction.amount}} EUR
+                    Banka: {{(transaction.amount || 0).toFixed(2)}} EUR
                   </ng-container>
                 </span>
               </div>
@@ -137,11 +137,11 @@
                   <span class="text-sm font-medium">{{calculateTotal24kScrapOut()}}g</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-900">Toplam Alım:</span>
+                  <span class="text-sm font-medium text-gray-900">Toplam Alınan Altın:</span>
                   <span class="text-sm font-medium">{{calculateTotal24kIn()}}g</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-900">Toplam Satış:</span>
+                  <span class="text-sm font-medium text-gray-900">Toplam Satılan Altın:</span>
                   <span class="text-sm font-medium">{{calculateTotal24kOut()}}g</span>
                 </div>
 
@@ -150,23 +150,31 @@
 
             <!-- Cash/Bank Totals -->
             <div class="space-y-2">
-              <h3 class="text-sm font-medium text-gray-900">Nakit ve Banka Toplamları</h3>
+              <h3 class="text-sm font-medium text-gray-900">Ödeme Toplamları</h3>
               <div class="space-y-1">
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Nakit Giriş:</span>
+                  <span class="text-sm text-gray-500">Toplam Alınan Nakit Ödeme:</span>
                   <span class="text-sm font-medium">{{calculateTotalCashIn()}} EUR</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Nakit Çıkış:</span>
+                  <span class="text-sm text-gray-500">Toplam Yapılan Nakit Ödeme:</span>
                   <span class="text-sm font-medium">{{calculateTotalCashOut()}} EUR</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Banka Girişi:</span>
+                  <span class="text-sm text-gray-500">Toplam Alınan Banka Ödemesi:</span>
                   <span class="text-sm font-medium">{{calculateTotalBankIn()}} EUR</span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Banka Çıkışı:</span>
+                  <span class="text-sm text-gray-500">Toplam Yapılan Banka Ödemesi:</span>
                   <span class="text-sm font-medium">{{calculateTotalBankOut()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam Alınan Ödeme:</span>
+                  <span class="text-sm font-medium">{{calculateTotalPaymentIn()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam Yapılan Ödeme:</span>
+                  <span class="text-sm font-medium">{{calculateTotalPaymentOut()}} EUR</span>
                 </div>
               </div>
             </div>

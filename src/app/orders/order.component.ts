@@ -242,26 +242,28 @@ export class OrderComponent implements OnInit {
     orderToSubmit.transactions.forEach(transaction => {
       if(transaction.type === 'Product') {
         if(transaction.direction === 'Out') {
-          total24kProductOut += transaction.weight24k!;
-          total24kOut += transaction.weight24k!;
+          total24kProductOut += transaction.weight24k || 0;
+          total24kOut += transaction.weight24k || 0;
         }
       }
       if(transaction.type === 'Cash') {
         if(transaction.direction === 'In') {
-          totalCashIn += transaction.amount!;
+          totalCashIn += transaction.amount || 0;
         }
       }
       if(transaction.type === 'Bank') {
         if(transaction.direction === 'In') {
-          totalBankIn += transaction.amount!;
+          totalBankIn += transaction.amount || 0;
         }
       }
     });
 
-    orderToSubmit.total24kProductOut = total24kProductOut;
-    orderToSubmit.total24kOut = total24kOut;
-    orderToSubmit.totalCashIn = totalCashIn;
-    orderToSubmit.totalBankIn = totalBankIn;
+    orderToSubmit.total24kProductOut = Number(total24kProductOut.toFixed(4));
+    orderToSubmit.total24kOut = Number(total24kOut.toFixed(4));
+    orderToSubmit.totalCashIn = Number(totalCashIn.toFixed(2));
+    orderToSubmit.totalBankIn = Number(totalBankIn.toFixed(2));
+    orderToSubmit.totalPaymentIn = Number((totalCashIn + totalBankIn).toFixed(2));
+    orderToSubmit.remaining_amount = Number((orderToSubmit.total_order_amount - orderToSubmit.totalPaymentIn).toFixed(2));
 
     if (this.isEditing && this.order.id) {
       this.orderService.updateOrder(this.order.id, orderToSubmit).subscribe({
@@ -302,36 +304,37 @@ export class OrderComponent implements OnInit {
   }
 
   calculateTotal24kProductOut(): number {
-    return this.order.transactions
+    const total = this.order.transactions
       .filter(t => t.type === 'Product' && t.direction === 'Out')
       .reduce((sum, t) => sum + (t.weight24k || 0), 0);
+    return Number(total.toFixed(4));
   }
-
 
   calculateTotal24kOut(): number {
     return this.calculateTotal24kProductOut();
   }
 
-  calculateTotalCashIn(): number {
-    return this.order.transactions
+  calculateTotalCashIn(): string {
+    const total = this.order.transactions
       .filter(t => t.type === 'Cash' && t.direction === 'In')
       .reduce((sum, t) => sum + (t.amount || 0), 0);
+    return total.toFixed(2);
   }
 
-  calculateTotalBankIn(): number {
-    return this.order.transactions
+  calculateTotalBankIn(): string {
+    const total = this.order.transactions
       .filter(t => t.type === 'Bank' && t.direction === 'In')
       .reduce((sum, t) => sum + (t.amount || 0), 0);
+    return total.toFixed(2);
   }
 
-  calculateTotalPaymentIn(): number {
-    return this.calculateTotalCashIn() + this.calculateTotalBankIn();
+  calculateTotalPaymentIn(): string {
+    return (Number(this.calculateTotalCashIn()) + Number(this.calculateTotalBankIn())).toFixed(2);
   }
 
-  calculateRemainingAmount(): number {
-    return this.order.total_order_amount - this.calculateTotalPaymentIn();
+  calculateRemainingAmount(): string {
+    return (this.order.total_order_amount - Number(this.calculateTotalPaymentIn())).toFixed(2);
   }
-
 
   isOrderValid(): boolean {
     return this.order.transactions.length > 0 
@@ -340,5 +343,4 @@ export class OrderComponent implements OnInit {
     && this.order.client_phone.trim() !== ''
     && this.order.date_planned !== null;
   }
-
 } 
