@@ -244,35 +244,47 @@ export class ScenarioComponent implements OnInit {
 
     scenarioToSubmit.transactions.forEach(transaction => {
       if(transaction.type === 'Product') {
+        const weight = Number(transaction.weight24k || 0);
+        if(isNaN(weight)) return;
+        
         if(transaction.direction === 'In') {
-          total24kProductIn += transaction.weight24k || 0;
-          total24kIn += transaction.weight24k || 0;
+          total24kProductIn += weight;
+          total24kIn += weight;
         } else {
-          total24kProductOut += transaction.weight24k || 0;
-          total24kOut += transaction.weight24k || 0;
+          total24kProductOut += weight;
+          total24kOut += weight;
         }
       }
       if(transaction.type === 'Scrap') {
+        const weight = Number(transaction.weight24k || 0);
+        if(isNaN(weight)) return;
+        
         if(transaction.direction === 'In') {
-          total24kScrapIn += transaction.weight24k || 0;
-          total24kIn += transaction.weight24k || 0;
+          total24kScrapIn += weight;
+          total24kIn += weight;
         } else {
-          total24kScrapOut += transaction.weight24k || 0;
-          total24kOut += transaction.weight24k || 0;
+          total24kScrapOut += weight;
+          total24kOut += weight;
         }
       }
       if(transaction.type === 'Cash') {
+        const amount = Number(transaction.amount || 0);
+        if(isNaN(amount)) return;
+        
         if(transaction.direction === 'In') {
-          totalCashIn += transaction.amount || 0;
+          totalCashIn += amount;
         } else {
-          totalCashOut += transaction.amount || 0;
+          totalCashOut += amount;
         }
       }
       if(transaction.type === 'Bank') {
+        const amount = Number(transaction.amount || 0);
+        if(isNaN(amount)) return;
+        
         if(transaction.direction === 'In') {
-          totalBankIn += transaction.amount || 0;
+          totalBankIn += amount;
         } else {
-          totalBankOut += transaction.amount || 0;
+          totalBankOut += amount;
         }
       }
     });
@@ -330,8 +342,11 @@ export class ScenarioComponent implements OnInit {
     try {
       const total = this.scenario.transactions
         .filter(t => t.type === 'Product' && t.direction === 'In')
-        .reduce((sum, t) => sum + (t.weight24k || 0), 0);
-      return Number(Number(total).toFixed(4));
+        .reduce((sum, t) => {
+          const weight = Number(t.weight24k || 0);
+          return sum + (isNaN(weight) ? 0 : weight);
+        }, 0);
+      return Number(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kProductIn', error);
       return 0;
@@ -342,8 +357,11 @@ export class ScenarioComponent implements OnInit {
     try {
       const total = this.scenario.transactions
         .filter(t => t.type === 'Product' && t.direction === 'Out')
-        .reduce((sum, t) => sum + (t.weight24k || 0), 0);
-      return Number(Number(total).toFixed(4));
+        .reduce((sum, t) => {
+          const weight = Number(t.weight24k || 0);
+          return sum + (isNaN(weight) ? 0 : weight);
+        }, 0);
+      return Number(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kProductOut', error);
       return 0;
@@ -354,8 +372,11 @@ export class ScenarioComponent implements OnInit {
     try {
       const total = this.scenario.transactions
         .filter(t => t.type === 'Scrap' && t.direction === 'In')
-        .reduce((sum, t) => sum + (t.weight24k || 0), 0);
-      return Number(Number(total).toFixed(4));
+        .reduce((sum, t) => {
+          const weight = Number(t.weight24k || 0);
+          return sum + (isNaN(weight) ? 0 : weight);
+        }, 0);
+      return Number(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kScrapIn', error);
       return 0;
@@ -366,8 +387,11 @@ export class ScenarioComponent implements OnInit {
     try {
       const total = this.scenario.transactions
         .filter(t => t.type === 'Scrap' && t.direction === 'Out')
-        .reduce((sum, t) => sum + (t.weight24k || 0), 0);
-      return Number(Number(total).toFixed(4));
+        .reduce((sum, t) => {
+          const weight = Number(t.weight24k || 0);
+          return sum + (isNaN(weight) ? 0 : weight);
+        }, 0);
+      return Number(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kScrapOut', error);
       return 0;
@@ -378,8 +402,8 @@ export class ScenarioComponent implements OnInit {
     try {
       const productIn = this.calculateTotal24kProductIn();
       const scrapIn = this.calculateTotal24kScrapIn();
-      const total = productIn + scrapIn;
-      return Number(Number(total).toFixed(4));
+      const total = (isNaN(productIn) ? 0 : productIn) + (isNaN(scrapIn) ? 0 : scrapIn);
+      return Number(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kIn', error);
       return 0;
@@ -390,8 +414,8 @@ export class ScenarioComponent implements OnInit {
     try {
       const productOut = this.calculateTotal24kProductOut();
       const scrapOut = this.calculateTotal24kScrapOut();
-      const total = productOut + scrapOut;
-      return Number(Number(total).toFixed(4));
+      const total = (isNaN(productOut) ? 0 : productOut) + (isNaN(scrapOut) ? 0 : scrapOut);
+      return Number(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kOut', error);
       return 0;
