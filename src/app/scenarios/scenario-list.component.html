@@ -8,13 +8,13 @@
       </button>
     </div>
 
-    <div class="overflow-x-auto">
+    <div class="table-container">
       <table mat-table [dataSource]="scenarios" class="w-full">
 
         <!-- Actions Column -->
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>İşlemler</th>
-          <td mat-cell *matCellDef="let scenario">
+          <th mat-header-cell *matHeaderCellDef class="sticky-column">İşlemler</th>
+          <td mat-cell *matCellDef="let scenario" class="sticky-column">
             <div class="flex gap-2">
               <button mat-icon-button color="accent" [routerLink]="['/scenarios', scenario.id]" matTooltip="Düzenle">
                 <mat-icon>edit</mat-icon>
@@ -28,14 +28,14 @@
 
         <!-- Date Column -->
         <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef>Tarih</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.date | date:'dd/MM/yyyy' }}</td>
+          <th mat-header-cell *matHeaderCellDef class="sticky-column">Tarih</th>
+          <td mat-cell *matCellDef="let scenario" class="sticky-column">{{ scenario.date | date:'dd/MM/yyyy' }}</td>
         </ng-container>
 
         <!-- Description Column -->
         <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef>Açıklama</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.description }}</td>
+          <th mat-header-cell *matHeaderCellDef class="sticky-column">Açıklama</th>
+          <td mat-cell *matCellDef="let scenario" class="sticky-column">{{ scenario.description }}</td>
         </ng-container>
 
         <!-- Total 24K Product In Column -->

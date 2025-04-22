@@ -1,5 +1,13 @@
+.table-container {
+  position: relative;
+  max-height: calc(100vh - 200px); // Adjust based on your layout
+  overflow: auto;
+}
+
 .mat-mdc-table {
   width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .mat-mdc-row {
@@ -21,4 +29,33 @@
   width: 32px;
   height: 32px;
   line-height: 32px;
+}
+
+// Sticky header
+.mat-mdc-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// Sticky actions column
+.mat-column-actions {
+  position: sticky;
+  left: 0;
+  background-color: white;
+  z-index: 2;
+}
+
+// Ensure sticky column has proper z-index when row is hovered
+.mat-mdc-row:hover {
+  .mat-column-actions {
+    background-color: rgba(0, 0, 0, 0.04);
+  }
+}
+
+// Ensure header cell in sticky column has proper z-index
+.mat-mdc-header-cell.sticky-column {
+  z-index: 4;
 } 

@@ -8,7 +8,7 @@
       </button>
     </div>
 
-    <div class="overflow-x-auto">
+    <div class="table-container">
       <table mat-table [dataSource]="orders" class="w-full">
 
         <!-- ID Column --> 
@@ -19,8 +19,8 @@
 
         <!-- Actions Column -->
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>İşlemler</th>
-          <td mat-cell *matCellDef="let order">
+          <th mat-header-cell *matHeaderCellDef class="sticky-column">İşlemler</th>
+          <td mat-cell *matCellDef="let order" class="sticky-column">
             <div class="flex gap-2">
               <button mat-icon-button color="accent" [routerLink]="['/orders', order.id]" matTooltip="Düzenle">
                 <mat-icon>edit</mat-icon>
