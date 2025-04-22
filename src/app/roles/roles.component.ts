@@ -14,6 +14,8 @@ import { PermissionGroup } from '../interfaces/permission-group.interface';
 import { Permission } from '../interfaces/permission.interface';
 import { PermissionGroupService } from '../services/permission-group.service';
 import { PermissionService } from '../services/permission.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-roles',
@@ -28,7 +30,8 @@ import { PermissionService } from '../services/permission.service';
     MatIconModule,
     MatCheckboxModule,
     RoleListComponent,
-    DrawerComponent
+    DrawerComponent,
+    MatDialogModule
   ],
   templateUrl: './roles.component.html'
 })
@@ -47,7 +50,8 @@ export class RolesComponent implements OnInit {
     private fb: FormBuilder,
     private roleService: RoleService,
     private permissionGroupService: PermissionGroupService,
-    private permissionService: PermissionService
+    private permissionService: PermissionService,
+    private dialog: MatDialog
   ) {
     this.roleForm = this.fb.group({
       name: ['', Validators.required]
@@ -157,10 +161,29 @@ export class RolesComponent implements OnInit {
   }
 
   deleteRole(id: number): void {
-    this.roleService.deleteRole(id).subscribe({
-      next: () => this.loadRoles(),
-      error: (error) => console.error('Error deleting role:', error)
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Rolü Sil',
+        message: 'Bu rolü silmek istediğinizden emin misiniz?'
+      }
     });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.roles = this.roles.filter(role => role.id !== id);
+        
+        this.roleService.deleteRole(id).subscribe({
+          next: () => {
+          },
+          error: (error) => {
+            console.error('Error deleting role:', error);
+            this.loadRoles();
+          }
+        });
+      }
+    });
+    
+
   }
 
   resetForm(): void {

@@ -11,6 +11,8 @@ import { PermissionService } from '../services/permission.service';
 import { PermissionGroupService } from '../services/permission-group.service';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-permissions',
@@ -24,7 +26,8 @@ import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
     MatButtonModule,
     MatIconModule,
     DrawerComponent,
-    DragDropModule
+    DragDropModule,
+    MatDialogModule
   ],
   templateUrl: './permissions.component.html'
 })
@@ -43,7 +46,8 @@ export class PermissionsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private permissionService: PermissionService,
-    private permissionGroupService: PermissionGroupService
+    private permissionGroupService: PermissionGroupService,
+    private dialog: MatDialog
   ) {
     this.permissionForm = this.fb.group({
       name: ['', Validators.required],
@@ -54,7 +58,7 @@ export class PermissionsComponent implements OnInit {
 
     this.permissionGroupForm = this.fb.group({
       name: ['', Validators.required],
-      row_index: [null, Validators.required]
+      row_index: [null]
     });
   }
 
@@ -127,12 +131,52 @@ export class PermissionsComponent implements OnInit {
   }
 
   deletePermissionGroup(id: number): void {
-    this.permissionGroupService.deletePermissionGroup(id).subscribe({
-      next: () => {
-        this.loadPermissionGroups();
-        this.loadPermissions();
-      },
-      error: (error) => console.error('Error deleting permission group:', error)
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'İzin Grubunu Sil',
+        message: 'Bu izin gruplarını silmek istediğinizden emin misiniz?'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.permissionGroups = this.permissionGroups.filter(group => group.id !== id);
+        this.permissions = this.permissions.filter(permission => permission.permission_group_id !== id);
+
+        this.permissionGroupService.deletePermissionGroup(id).subscribe({
+          next: () => {
+          },
+          error: (error) => {
+            console.error('Error deleting permission group:', error);
+            this.loadPermissionGroups();
+            this.loadPermissions();
+          }
+        });
+      }
+    });
+  }
+
+  deletePermission(id: number): void {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'İzni Sil',
+        message: 'Bu izni silmek istediğinizden emin misiniz?'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.permissions = this.permissions.filter(permission => permission.id !== id);
+        
+        this.permissionService.deletePermission(id).subscribe({
+          next: () => {
+          },
+          error: (error) => {
+            console.error('Error deleting permission:', error);
+            this.loadPermissions();
+          }
+        });
+      }
     });
   }
 
@@ -146,13 +190,6 @@ export class PermissionsComponent implements OnInit {
       row_index: permission.row_index
     });
     this.openPermissionDrawer(permission.permission_group_id);
-  }
-
-  deletePermission(id: number): void {
-    this.permissionService.deletePermission(id).subscribe({
-      next: () => this.loadPermissions(),
-      error: (error) => console.error('Error deleting permission:', error)
-    });
   }
 
   onPermissionGroupSubmit(): void {

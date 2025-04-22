@@ -5,9 +5,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Order } from '../interfaces/order.interface';
 import { OrderService } from '../services/order.service';
 import { DatePipe } from '@angular/common';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-order-list',
@@ -18,6 +20,7 @@ import { DatePipe } from '@angular/common';
     MatCardModule,
     MatIconModule,
     MatTableModule,
+    MatDialogModule,
     DatePipe,
     RouterModule
   ],
@@ -41,8 +44,8 @@ export class OrderListComponent implements OnInit {
 
   constructor(
     private orderService: OrderService,
-    private router: Router
-    
+    private router: Router,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -75,21 +78,30 @@ export class OrderListComponent implements OnInit {
   }
 
   deleteOrder(id: number) {
-    if (confirm('Are you sure you want to delete this order?')) {
-      // Optimistically remove the order from the local array
-      this.orders = this.orders.filter(order => order.id !== id);
-      
-      this.orderService.deleteOrder(id).subscribe({
-        next: () => {
-          // Success - no need to reload since we already updated the UI
-        },
-        error: (error) => {
-          console.error('Error deleting order:', error);
-          // On error, reload the orders to ensure consistency
-          this.loadOrders();
-        }
-      });
-    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Siparişi Sil',
+        message: 'Bu siparişi silmek istediğinizden emin misiniz?'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Optimistically remove the order from the local array
+        this.orders = this.orders.filter(order => order.id !== id);
+        
+        this.orderService.deleteOrder(id).subscribe({
+          next: () => {
+            // Success - no need to reload since we already updated the UI
+          },
+          error: (error) => {
+            console.error('Error deleting order:', error);
+            // On error, reload the orders to ensure consistency
+            this.loadOrders();
+          }
+        });
+      }
+    });
   }
 
   createNewOrder() {

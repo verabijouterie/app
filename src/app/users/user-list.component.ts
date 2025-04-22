@@ -22,4 +22,8 @@ export class UserListComponent {
     const role = this.roles.find(r => r.id === roleId);
     return role ? role.name : 'Unknown Role';
   }
+
+  onDelete(id: number): void {
+    this.delete.emit(id);
+  }
 } 

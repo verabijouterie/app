@@ -14,4 +14,8 @@ export class RoleListComponent {
   @Input() roles: Role[] = [];
   @Output() edit = new EventEmitter<Role>();
   @Output() delete = new EventEmitter<number>();
+
+  onDelete(id: number): void {
+    this.delete.emit(id);
+  }
 } 

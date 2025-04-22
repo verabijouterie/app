@@ -6,12 +6,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { User } from '../interfaces/user.interface';
 import { Role } from '../interfaces/role.interface';
 import { UserListComponent } from './user-list.component';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { UserService } from '../services/user.service';
 import { RoleService } from '../services/roles.services';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-users',
@@ -25,6 +27,7 @@ import { RoleService } from '../services/roles.services';
     MatButtonModule,
     MatIconModule,
     MatSelectModule,
+    MatDialogModule,
     UserListComponent,
     DrawerComponent
   ],
@@ -42,7 +45,8 @@ export class UsersComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-    private roleService: RoleService
+    private roleService: RoleService,
+    private dialog: MatDialog
   ) {
     this.userForm = this.fb.group({
       name: ['', Validators.required],
@@ -142,9 +146,26 @@ export class UsersComponent implements OnInit {
   }
 
   deleteUser(id: number): void {
-    this.userService.deleteUser(id).subscribe({
-      next: () => this.loadUsers(),
-      error: (error) => console.error('Error deleting user:', error)
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Kullanıcıyı Sil',
+        message: 'Bu kullanıcıyı silmek istediğinizden emin misiniz?'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.users = this.users.filter(user => user.id !== id);
+        
+        this.userService.deleteUser(id).subscribe({
+          next: () => {
+          },
+          error: (error) => {
+            console.error('Error deleting user:', error);
+            this.loadUsers();
+          }
+        });
+      }
     });
   }
 } 

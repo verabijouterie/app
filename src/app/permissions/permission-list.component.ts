@@ -21,4 +21,9 @@ export class PermissionListComponent {
     const group = this.permissionGroups.find(g => g.id === groupId);
     return group ? group.name : 'Unknown Group';
   }
+
+  onDelete(id: number) {
+    this.delete.emit(id);
+  }
+
 } 

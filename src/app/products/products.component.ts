@@ -16,6 +16,8 @@ import { Category } from '../interfaces/category.interface';
 import { Observable, of, forkJoin } from 'rxjs';
 import { map, startWith, switchMap, tap } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-products',
@@ -30,7 +32,8 @@ import { FormControl } from '@angular/forms';
     MatButtonModule,
     MatAutocompleteModule,
     ProductListComponent,
-    DrawerComponent
+    DrawerComponent,
+    MatDialogModule
   ],
   templateUrl: './products.component.html'
 })
@@ -50,7 +53,8 @@ export class ProductsComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private productsService: ProductsService,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private dialog: MatDialog
   ) {
     this.productForm = this.fb.group({
       id: [null],
@@ -198,14 +202,29 @@ export class ProductsComponent implements OnInit {
   }
 
   deleteProduct(id: number): void {
-    this.productsService.deleteProduct(id).subscribe({
-      next: () => {
-        this.refreshData();
-      },
-      error: (error) => {
-        console.error('Error deleting product:', error);
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Ürünü Sil',
+        message: 'Bu ürünü silmek istediğinizden emin misiniz?'
       }
     });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.products = this.products.filter(product => product.id !== id);
+        
+        this.productsService.deleteProduct(id).subscribe({
+          next: () => {
+          },
+          error: (error) => {
+            console.error('Error deleting product:', error);
+            this.refreshData();
+          }
+        });
+      }
+    });
+
   }
 
   resetForm(): void {

@@ -9,6 +9,8 @@ import { CategoryListComponent } from './category-list.component';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { CategoriesService } from '../services/categories.service';
 import { Category } from '../interfaces/category.interface';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-categories',
@@ -22,7 +24,8 @@ import { Category } from '../interfaces/category.interface';
     MatSelectModule,
     MatButtonModule,
     CategoryListComponent,
-    DrawerComponent
+    DrawerComponent,
+    MatDialogModule
   ],
   templateUrl: './categories.component.html'
 })
@@ -36,7 +39,8 @@ export class CategoriesComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private categoriesService: CategoriesService
+    private categoriesService: CategoriesService,
+    private dialog: MatDialog
   ) {
     this.categoryForm = this.fb.group({
       id: [null],
@@ -120,12 +124,25 @@ export class CategoriesComponent implements OnInit {
   }
 
   deleteCategory(id: number): void {
-    this.categoriesService.deleteCategory(id).subscribe({
-      next: () => {
-        this.loadCategories();
-      },
-      error: (error) => {
-        console.error('Error deleting category:', error);
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: {
+        title: 'Kategoriyi Sil',
+        message: 'Bu kategoriyi silmek istediğinizden emin misiniz?'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.categories = this.categories.filter(category => category.id !== id);
+        
+        this.categoriesService.deleteCategory(id).subscribe({
+          next: () => {
+          },
+          error: (error) => {
+            console.error('Error deleting category:', error);
+            this.loadCategories();
+          }
+        });
       }
     });
   }
