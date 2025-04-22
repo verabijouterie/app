@@ -11,6 +11,10 @@
 }
 
 .mat-mdc-row {
+  &:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+  
   &:hover {
     background-color: rgba(0, 0, 0, 0.04);
   }
