@@ -11,6 +11,7 @@ import { CategoriesService } from '../services/categories.service';
 import { Category } from '../interfaces/category.interface';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-categories',
@@ -25,9 +26,11 @@ import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confi
     MatButtonModule,
     CategoryListComponent,
     DrawerComponent,
-    MatDialogModule
+    MatDialogModule,
+    MatSnackBarModule
   ],
-  templateUrl: './categories.component.html'
+  templateUrl: './categories.component.html',
+  styleUrls: ['./categories.component.scss']
 })
 export class CategoriesComponent implements OnInit {
   categories: Category[] = [];
@@ -40,7 +43,8 @@ export class CategoriesComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private categoriesService: CategoriesService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.categoryForm = this.fb.group({
       id: [null],
@@ -139,8 +143,13 @@ export class CategoriesComponent implements OnInit {
           next: () => {
           },
           error: (error) => {
-            console.error('Error deleting category:', error);
             this.loadCategories();
+            this.snackBar.open('Kategori silinirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }

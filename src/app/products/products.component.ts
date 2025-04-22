@@ -18,6 +18,7 @@ import { map, startWith, switchMap, tap } from 'rxjs/operators';
 import { FormControl } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-products',
@@ -33,7 +34,8 @@ import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confi
     MatAutocompleteModule,
     ProductListComponent,
     DrawerComponent,
-    MatDialogModule
+    MatDialogModule,
+    MatSnackBarModule
   ],
   templateUrl: './products.component.html'
 })
@@ -54,7 +56,8 @@ export class ProductsComponent implements OnInit {
     private fb: FormBuilder,
     private productsService: ProductsService,
     private categoriesService: CategoriesService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.productForm = this.fb.group({
       id: [null],
@@ -218,8 +221,13 @@ export class ProductsComponent implements OnInit {
           next: () => {
           },
           error: (error) => {
-            console.error('Error deleting product:', error);
             this.refreshData();
+            this.snackBar.open('Ürün silinirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }

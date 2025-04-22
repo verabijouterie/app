@@ -16,7 +16,7 @@ import { PermissionGroupService } from '../services/permission-group.service';
 import { PermissionService } from '../services/permission.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
-
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-roles',
   standalone: true,
@@ -31,7 +31,8 @@ import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confi
     MatCheckboxModule,
     RoleListComponent,
     DrawerComponent,
-    MatDialogModule
+    MatDialogModule,
+    MatSnackBarModule
   ],
   templateUrl: './roles.component.html'
 })
@@ -51,7 +52,8 @@ export class RolesComponent implements OnInit {
     private roleService: RoleService,
     private permissionGroupService: PermissionGroupService,
     private permissionService: PermissionService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.roleForm = this.fb.group({
       name: ['', Validators.required]
@@ -176,8 +178,13 @@ export class RolesComponent implements OnInit {
           next: () => {
           },
           error: (error) => {
-            console.error('Error deleting role:', error);
             this.loadRoles();
+            this.snackBar.open('Rol silinirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }

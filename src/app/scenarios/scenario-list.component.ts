@@ -10,7 +10,7 @@ import { Scenario } from '../interfaces/scenario.interface';
 import { ScenarioService } from '../services/scenario.service';
 import { DatePipe } from '@angular/common';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
-
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-scenario-list',
   standalone: true,
@@ -22,7 +22,8 @@ import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confi
     MatTableModule,
     MatDialogModule,
     DatePipe,
-    RouterModule
+    RouterModule,
+    MatSnackBarModule
   ],
   templateUrl: './scenario-list.component.html',
   styleUrls: ['./scenario-list.component.scss']
@@ -48,7 +49,8 @@ export class ScenarioListComponent implements OnInit {
   constructor(
     private scenarioService: ScenarioService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -84,9 +86,13 @@ export class ScenarioListComponent implements OnInit {
             // Success - no need to reload since we already updated the UI
           },
           error: (error) => {
-            console.error('Error deleting scenario:', error);
-            // On error, reload the scenarios to ensure consistency
             this.loadScenarios();
+            this.snackBar.open('Alışveriş silinirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }

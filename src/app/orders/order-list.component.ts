@@ -10,6 +10,7 @@ import { Order } from '../interfaces/order.interface';
 import { OrderService } from '../services/order.service';
 import { DatePipe } from '@angular/common';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-order-list',
@@ -22,7 +23,8 @@ import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confi
     MatTableModule,
     MatDialogModule,
     DatePipe,
-    RouterModule
+    RouterModule,
+    MatSnackBarModule
   ],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
@@ -45,7 +47,8 @@ export class OrderListComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -92,12 +95,15 @@ export class OrderListComponent implements OnInit {
         
         this.orderService.deleteOrder(id).subscribe({
           next: () => {
-            // Success - no need to reload since we already updated the UI
           },
           error: (error) => {
-            console.error('Error deleting order:', error);
-            // On error, reload the orders to ensure consistency
             this.loadOrders();
+            this.snackBar.open('Sipariş silinirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }

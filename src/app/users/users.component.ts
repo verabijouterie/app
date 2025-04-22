@@ -14,7 +14,7 @@ import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { UserService } from '../services/user.service';
 import { RoleService } from '../services/roles.services';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
-
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -29,7 +29,8 @@ import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confi
     MatSelectModule,
     MatDialogModule,
     UserListComponent,
-    DrawerComponent
+    DrawerComponent,
+    MatSnackBarModule
   ],
   templateUrl: './users.component.html'
 })
@@ -46,7 +47,8 @@ export class UsersComponent implements OnInit {
     private fb: FormBuilder,
     private userService: UserService,
     private roleService: RoleService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.userForm = this.fb.group({
       name: ['', Validators.required],
@@ -161,8 +163,13 @@ export class UsersComponent implements OnInit {
           next: () => {
           },
           error: (error) => {
-            console.error('Error deleting user:', error);
             this.loadUsers();
+            this.snackBar.open('Kullanıcı silinirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }

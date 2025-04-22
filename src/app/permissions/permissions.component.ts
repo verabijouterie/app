@@ -13,7 +13,7 @@ import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
-
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-permissions',
   standalone: true,
@@ -27,7 +27,8 @@ import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confi
     MatIconModule,
     DrawerComponent,
     DragDropModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSnackBarModule
   ],
   templateUrl: './permissions.component.html'
 })
@@ -47,7 +48,8 @@ export class PermissionsComponent implements OnInit {
     private fb: FormBuilder,
     private permissionService: PermissionService,
     private permissionGroupService: PermissionGroupService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {
     this.permissionForm = this.fb.group({
       name: ['', Validators.required],
@@ -147,9 +149,14 @@ export class PermissionsComponent implements OnInit {
           next: () => {
           },
           error: (error) => {
-            console.error('Error deleting permission group:', error);
             this.loadPermissionGroups();
             this.loadPermissions();
+            this.snackBar.open('İzin grubu silinirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }
@@ -172,8 +179,13 @@ export class PermissionsComponent implements OnInit {
           next: () => {
           },
           error: (error) => {
-            console.error('Error deleting permission:', error);
             this.loadPermissions();
+            this.snackBar.open('İzin silinirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }
