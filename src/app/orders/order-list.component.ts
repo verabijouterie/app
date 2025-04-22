@@ -28,6 +28,7 @@ export class OrderListComponent implements OnInit {
   orders: Order[] = [];
   displayedColumns: string[] = [
     'actions',
+    'id',
     'client_name',
     'date_planned',
     'date_fulfilled',
