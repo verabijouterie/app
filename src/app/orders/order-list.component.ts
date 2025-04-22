@@ -28,13 +28,14 @@ export class OrderListComponent implements OnInit {
   orders: Order[] = [];
   displayedColumns: string[] = [
     'actions',
+    'client_name',
     'date_planned',
     'date_fulfilled',
-    'description',
-    'total24kProductOut',
+    'total_order_amount',
     'total24kOut',
-    'totalCashIn',
-    'totalBankIn'
+    'totalPaymentIn',
+    'remaining_amount',
+    'status'
   ];
 
   constructor(
@@ -58,6 +59,19 @@ export class OrderListComponent implements OnInit {
     });
   }
 
+  getStatusTranslation(status: string | null | undefined): string {
+    if (!status) return '';
+    
+    const statusMap: Record<string, string> = {
+      'ToBeOrdered': 'Sipariş Edilecek',
+      'AwaitingWholesaler': 'Toptancı Bekleniyor',
+      'AwaitingCustomer': 'Müşteri Bekleniyor',
+      'HandedOut': 'Teslim Edildi',
+      'Completed': 'Tamamlandı'
+    };
+    
+    return statusMap[status] || status;
+  }
 
   deleteOrder(id: number) {
     if (confirm('Are you sure you want to delete this order?')) {

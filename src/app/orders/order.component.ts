@@ -68,7 +68,6 @@ export class OrderComponent implements OnInit {
     client_name: '',
     client_phone: '',
     date_planned: new Date(),
-    date_fulfilled: new Date(),
     user_id: 0,
     transactions: [],
     total24kProductOut: 0,
@@ -100,7 +99,6 @@ export class OrderComponent implements OnInit {
       this.order.user_id = currentUser.id;
     }
     this.order.date_planned = new Date();
-    this.order.date_fulfilled = new Date();
 
     // Load products
     this.productsService.getProducts().subscribe({
@@ -136,7 +134,6 @@ export class OrderComponent implements OnInit {
           client_name: '',
           client_phone: '',
           date_planned: new Date(),
-          date_fulfilled: new Date(),
           user_id: currentUser?.id || 0,
           transactions: [],
           total24kProductOut: 0,
@@ -258,12 +255,23 @@ export class OrderComponent implements OnInit {
       }
     });
 
-    orderToSubmit.total24kProductOut = Number(total24kProductOut.toFixed(4));
-    orderToSubmit.total24kOut = Number(total24kOut.toFixed(4));
-    orderToSubmit.totalCashIn = Number(totalCashIn.toFixed(2));
-    orderToSubmit.totalBankIn = Number(totalBankIn.toFixed(2));
-    orderToSubmit.totalPaymentIn = Number((totalCashIn + totalBankIn).toFixed(2));
-    orderToSubmit.remaining_amount = Number((orderToSubmit.total_order_amount - orderToSubmit.totalPaymentIn).toFixed(2));
+    try {
+      orderToSubmit.total24kProductOut = Number(Number(total24kProductOut).toFixed(4));
+      orderToSubmit.total24kOut = Number(Number(total24kOut).toFixed(4));
+      orderToSubmit.totalCashIn = Number(Number(totalCashIn).toFixed(2));
+      orderToSubmit.totalBankIn = Number(Number(totalBankIn).toFixed(2));
+      orderToSubmit.totalPaymentIn = Number(Number(totalCashIn + totalBankIn).toFixed(2));
+      orderToSubmit.remaining_amount = Number(Number(orderToSubmit.total_order_amount - orderToSubmit.totalPaymentIn).toFixed(2));
+    } catch (error) {
+      console.error('Error formatting totals:', error);
+      // Provide fallback values
+      orderToSubmit.total24kProductOut = total24kProductOut;
+      orderToSubmit.total24kOut = total24kOut;
+      orderToSubmit.totalCashIn = totalCashIn;
+      orderToSubmit.totalBankIn = totalBankIn;
+      orderToSubmit.totalPaymentIn = totalCashIn + totalBankIn;
+      orderToSubmit.remaining_amount = orderToSubmit.total_order_amount - orderToSubmit.totalPaymentIn;
+    }
 
     if (this.isEditing && this.order.id) {
       this.orderService.updateOrder(this.order.id, orderToSubmit).subscribe({
@@ -362,7 +370,12 @@ export class OrderComponent implements OnInit {
   }
 
   isOrderValid(): boolean {
+
+    let isProductInTransactions = this.order.transactions.some(t => t.type === 'Product');
+
+
     return this.order.transactions.length > 0 
+    && isProductInTransactions
     && this.order.total_order_amount > 0 
     && this.order.client_name.trim() !== ''
     && this.order.client_phone.trim() !== ''

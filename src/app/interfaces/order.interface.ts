@@ -10,11 +10,13 @@ export interface Order {
   total_order_amount: number;
   remaining_amount: number;
   date_planned: Date;
-  date_fulfilled: Date;
+  date_fulfilled?: Date | null;
   transactions: Transaction[];
   total24kProductOut: number;
   total24kOut: number;	
   totalCashIn: number;
   totalBankIn: number;
   totalPaymentIn: number;
+  status?: 'ToBeOrdered' | 'AwaitingWholesaler' | 'AwaitingCustomer' | 'HandedOut' | 'Completed' | null;
+
 } 
