@@ -256,12 +256,12 @@ export class OrderComponent implements OnInit {
     });
 
     try {
-      orderToSubmit.total24kProductOut = Number(Number(total24kProductOut).toFixed(4));
-      orderToSubmit.total24kOut = Number(Number(total24kOut).toFixed(4));
-      orderToSubmit.totalCashIn = Number(Number(totalCashIn).toFixed(2));
-      orderToSubmit.totalBankIn = Number(Number(totalBankIn).toFixed(2));
-      orderToSubmit.totalPaymentIn = Number(Number(totalCashIn + totalBankIn).toFixed(2));
-      orderToSubmit.remaining_amount = Number(Number(orderToSubmit.total_order_amount - orderToSubmit.totalPaymentIn).toFixed(2));
+      orderToSubmit.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
+      orderToSubmit.total24kOut = parseFloat(total24kOut.toFixed(4));
+      orderToSubmit.totalCashIn = parseFloat(totalCashIn.toFixed(2));
+      orderToSubmit.totalBankIn = parseFloat(totalBankIn.toFixed(2));
+      orderToSubmit.totalPaymentIn = parseFloat((totalCashIn + totalBankIn).toFixed(2));
+      orderToSubmit.remaining_amount = parseFloat((orderToSubmit.total_order_amount - orderToSubmit.totalPaymentIn).toFixed(2));
     } catch (error) {
       console.error('Error formatting totals:', error);
       // Provide fallback values
@@ -316,7 +316,7 @@ export class OrderComponent implements OnInit {
       const total = this.order.transactions
         .filter(t => t.type === 'Product' && t.direction === 'Out')
         .reduce((sum, t) => sum + (t.weight24k || 0), 0);
-      return Number(Number(total).toFixed(4));
+      return parseFloat(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kProductOut', error);
       return 0;
@@ -332,7 +332,7 @@ export class OrderComponent implements OnInit {
       const total = this.order.transactions
         .filter(t => t.type === 'Cash' && t.direction === 'In')
         .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return Number(total).toFixed(2);
+      return total.toFixed(2);
     } catch (error) {
       console.error('Error in calculateTotalCashIn', error);
       return "0.00";
@@ -344,7 +344,7 @@ export class OrderComponent implements OnInit {
       const total = this.order.transactions
         .filter(t => t.type === 'Bank' && t.direction === 'In')
         .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return Number(total).toFixed(2);
+      return total.toFixed(2);
     } catch (error) {
       console.error('Error in calculateTotalBankIn', error);
       return "0.00";
@@ -353,7 +353,9 @@ export class OrderComponent implements OnInit {
 
   calculateTotalPaymentIn(): string {
     try {
-      return (Number(this.calculateTotalCashIn()) + Number(this.calculateTotalBankIn())).toFixed(2);
+      const cashTotal = parseFloat(this.calculateTotalCashIn());
+      const bankTotal = parseFloat(this.calculateTotalBankIn());
+      return (cashTotal + bankTotal).toFixed(2);
     } catch (error) {
       console.error('Error in calculateTotalPaymentIn', error);
       return "0.00";
@@ -362,7 +364,8 @@ export class OrderComponent implements OnInit {
 
   calculateRemainingAmount(): string {
     try {
-      return (this.order.total_order_amount - Number(this.calculateTotalPaymentIn())).toFixed(2);
+      const paymentTotal = parseFloat(this.calculateTotalPaymentIn());
+      return (this.order.total_order_amount - paymentTotal).toFixed(2);
     } catch (error) {
       console.error('Error in calculateRemainingAmount', error);
       return "0.00";

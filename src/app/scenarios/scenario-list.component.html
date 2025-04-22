@@ -78,25 +78,25 @@
         <!-- Total Cash In Column -->
         <ng-container matColumnDef="totalCashIn">
           <th mat-header-cell *matHeaderCellDef>Toplam Nakit Giriş (€)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.totalCashIn }}</td>
+          <td mat-cell *matCellDef="let scenario">{{ scenario.totalCashIn | number:'1.2-2' }}</td>
         </ng-container>
 
         <!-- Total Cash Out Column -->
         <ng-container matColumnDef="totalCashOut">
           <th mat-header-cell *matHeaderCellDef>Toplam Nakit Çıkış (€)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.totalCashOut }}</td>
+          <td mat-cell *matCellDef="let scenario">{{ scenario.totalCashOut | number:'1.2-2' }}</td>
         </ng-container>
 
         <!-- Total Bank In Column -->
         <ng-container matColumnDef="totalBankIn">
           <th mat-header-cell *matHeaderCellDef>Toplam Banka Girişi (€)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.totalBankIn }}</td>
+          <td mat-cell *matCellDef="let scenario">{{ scenario.totalBankIn | number:'1.2-2' }}</td>
         </ng-container>
 
         <!-- Total Bank Out Column -->
         <ng-container matColumnDef="totalBankOut">
           <th mat-header-cell *matHeaderCellDef>Toplam Banka Çıkışı (€)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.totalBankOut }}</td>
+          <td mat-cell *matCellDef="let scenario">{{ scenario.totalBankOut | number:'1.2-2' }}</td>
         </ng-container>
 
 

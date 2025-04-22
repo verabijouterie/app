@@ -289,16 +289,16 @@ export class ScenarioComponent implements OnInit {
       }
     });
 
-    scenarioToSubmit.total24kProductIn = Number(total24kProductIn.toFixed(4));
-    scenarioToSubmit.total24kProductOut = Number(total24kProductOut.toFixed(4));
-    scenarioToSubmit.total24kScrapIn = Number(total24kScrapIn.toFixed(4));
-    scenarioToSubmit.total24kScrapOut = Number(total24kScrapOut.toFixed(4));
-    scenarioToSubmit.total24kIn = Number(total24kIn.toFixed(4));
-    scenarioToSubmit.total24kOut = Number(total24kOut.toFixed(4));
-    scenarioToSubmit.totalCashIn = Number(totalCashIn.toFixed(2));
-    scenarioToSubmit.totalCashOut = Number(totalCashOut.toFixed(2));
-    scenarioToSubmit.totalBankIn = Number(totalBankIn.toFixed(2));
-    scenarioToSubmit.totalBankOut = Number(totalBankOut.toFixed(2));
+    scenarioToSubmit.total24kProductIn = parseFloat(total24kProductIn.toFixed(4));
+    scenarioToSubmit.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
+    scenarioToSubmit.total24kScrapIn = parseFloat(total24kScrapIn.toFixed(4));
+    scenarioToSubmit.total24kScrapOut = parseFloat(total24kScrapOut.toFixed(4));
+    scenarioToSubmit.total24kIn = parseFloat(total24kIn.toFixed(4));
+    scenarioToSubmit.total24kOut = parseFloat(total24kOut.toFixed(4));
+    scenarioToSubmit.totalCashIn = parseFloat(totalCashIn.toFixed(2));
+    scenarioToSubmit.totalCashOut = parseFloat(totalCashOut.toFixed(2));
+    scenarioToSubmit.totalBankIn = parseFloat(totalBankIn.toFixed(2));
+    scenarioToSubmit.totalBankOut = parseFloat(totalBankOut.toFixed(2));
 
     if (this.isEditing && this.scenario.id) {
       this.scenarioService.updateScenario(this.scenario.id, scenarioToSubmit).subscribe({
@@ -346,7 +346,7 @@ export class ScenarioComponent implements OnInit {
           const weight = Number(t.weight24k || 0);
           return sum + (isNaN(weight) ? 0 : weight);
         }, 0);
-      return Number(total.toFixed(4));
+      return parseFloat(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kProductIn', error);
       return 0;
@@ -361,7 +361,7 @@ export class ScenarioComponent implements OnInit {
           const weight = Number(t.weight24k || 0);
           return sum + (isNaN(weight) ? 0 : weight);
         }, 0);
-      return Number(total.toFixed(4));
+      return parseFloat(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kProductOut', error);
       return 0;
@@ -376,7 +376,7 @@ export class ScenarioComponent implements OnInit {
           const weight = Number(t.weight24k || 0);
           return sum + (isNaN(weight) ? 0 : weight);
         }, 0);
-      return Number(total.toFixed(4));
+      return parseFloat(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kScrapIn', error);
       return 0;
@@ -391,7 +391,7 @@ export class ScenarioComponent implements OnInit {
           const weight = Number(t.weight24k || 0);
           return sum + (isNaN(weight) ? 0 : weight);
         }, 0);
-      return Number(total.toFixed(4));
+      return parseFloat(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kScrapOut', error);
       return 0;
@@ -403,7 +403,7 @@ export class ScenarioComponent implements OnInit {
       const productIn = this.calculateTotal24kProductIn();
       const scrapIn = this.calculateTotal24kScrapIn();
       const total = (isNaN(productIn) ? 0 : productIn) + (isNaN(scrapIn) ? 0 : scrapIn);
-      return Number(total.toFixed(4));
+      return parseFloat(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kIn', error);
       return 0;
@@ -415,7 +415,7 @@ export class ScenarioComponent implements OnInit {
       const productOut = this.calculateTotal24kProductOut();
       const scrapOut = this.calculateTotal24kScrapOut();
       const total = (isNaN(productOut) ? 0 : productOut) + (isNaN(scrapOut) ? 0 : scrapOut);
-      return Number(total.toFixed(4));
+      return parseFloat(total.toFixed(4));
     } catch (error) {
       console.error('Error in calculateTotal24kOut', error);
       return 0;
@@ -427,7 +427,7 @@ export class ScenarioComponent implements OnInit {
       const total = this.scenario.transactions
         .filter(t => t.type === 'Cash' && t.direction === 'In')
         .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return Number(total).toFixed(2);
+      return total.toFixed(2);
     } catch (error) {
       console.error('Error in calculateTotalCashIn', error);
       return "0.00";
@@ -439,7 +439,7 @@ export class ScenarioComponent implements OnInit {
       const total = this.scenario.transactions
         .filter(t => t.type === 'Cash' && t.direction === 'Out')
         .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return Number(total).toFixed(2);
+      return total.toFixed(2);
     } catch (error) {
       console.error('Error in calculateTotalCashOut', error);
       return "0.00";
@@ -451,7 +451,7 @@ export class ScenarioComponent implements OnInit {
       const total = this.scenario.transactions
         .filter(t => t.type === 'Bank' && t.direction === 'In')
         .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return Number(total).toFixed(2);
+      return total.toFixed(2);
     } catch (error) {
       console.error('Error in calculateTotalBankIn', error);
       return "0.00";
@@ -463,7 +463,7 @@ export class ScenarioComponent implements OnInit {
       const total = this.scenario.transactions
         .filter(t => t.type === 'Bank' && t.direction === 'Out')
         .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return Number(total).toFixed(2);
+      return total.toFixed(2);
     } catch (error) {
       console.error('Error in calculateTotalBankOut', error);
       return "0.00";
@@ -471,11 +471,25 @@ export class ScenarioComponent implements OnInit {
   }
 
   calculateTotalPaymentIn(): string {
-    return (Number(this.calculateTotalCashIn()) + Number(this.calculateTotalBankIn())).toFixed(2);
+    try {
+      const cashTotal = parseFloat(this.calculateTotalCashIn());
+      const bankTotal = parseFloat(this.calculateTotalBankIn());
+      return (cashTotal + bankTotal).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateTotalPaymentIn', error);
+      return "0.00";
+    }
   }
 
   calculateTotalPaymentOut(): string {
-    return (Number(this.calculateTotalCashOut()) + Number(this.calculateTotalBankOut())).toFixed(2);
+    try {
+      const cashTotal = parseFloat(this.calculateTotalCashOut());
+      const bankTotal = parseFloat(this.calculateTotalBankOut());
+      return (cashTotal + bankTotal).toFixed(2);
+    } catch (error) {
+      console.error('Error in calculateTotalPaymentOut', error);
+      return "0.00";
+    }
   }
 
   formatAmount(amount: any): string {
