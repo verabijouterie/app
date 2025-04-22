@@ -118,6 +118,16 @@ export class OrderComponent implements OnInit {
         this.orderService.getOrder(Number(orderId)).subscribe({
           next: (order) => {
             this.order = order;
+            
+            // Ensure all product transactions have a status
+            this.order.transactions = this.order.transactions.map(t => {
+              if (t.type === 'Product' && !t.status) {
+                console.log('Initializing missing status for product transaction');
+                return { ...t, status: 'ToBeOrdered' };
+              }
+              return t;
+            });
+            
           },
           error: (error) => {
             console.error('Error loading order:', error);
@@ -164,7 +174,12 @@ export class OrderComponent implements OnInit {
 
   onTransactionSubmit(transaction: Transaction) {
     if (this.editingTransactionIndex !== null) {
-      // Update existing transaction
+      // Update existing transaction but preserve the status if it exists
+      const existingTransaction = this.order.transactions[this.editingTransactionIndex];
+      if (transaction.type === 'Product') {
+        // Keep the existing status if it exists, otherwise set to default
+        transaction.status = existingTransaction.status || 'ToBeOrdered';
+      }
       this.order.transactions = this.order.transactions.map((t, i) => 
         i === this.editingTransactionIndex ? transaction : t
       );
@@ -172,7 +187,9 @@ export class OrderComponent implements OnInit {
     } else {
       // Add new transaction
       if(transaction.type === 'Product') {
-        transaction.status = 'ToBeOrdered';
+        // Ensure new product transactions have a status
+        transaction.status = transaction.status || 'ToBeOrdered';
+        console.log('Setting status for new transaction:', transaction.status);
       }
       this.order.transactions = [...this.order.transactions, transaction];
     }
@@ -212,6 +229,14 @@ export class OrderComponent implements OnInit {
       ...this.order,
       transactions: this.order.transactions.map(transaction => ({...transaction}))
     };
+
+    // Ensure all product transactions have a status
+    orderToSubmit.transactions = orderToSubmit.transactions.map(transaction => {
+      if (transaction.type === 'Product' && !transaction.status) {
+        transaction.status = 'ToBeOrdered';
+      }
+      return transaction;
+    });
 
     orderToSubmit.transactions.forEach(transaction => {
       if(transaction.type === 'Product') {
