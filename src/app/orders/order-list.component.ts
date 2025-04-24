@@ -31,6 +31,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 })
 export class OrderListComponent implements OnInit {
   orders: Order[] = [];
+  pageSize = 10;
+  currentPage = 1;
+  loading = false;
+  allLoaded = false;
+  totalOrders = 0;
+
   displayedColumns: string[] = [
     'actions',
     'id',
@@ -56,14 +62,28 @@ export class OrderListComponent implements OnInit {
   }
 
   loadOrders() {
-    this.orderService.getOrders().subscribe({
+    if (this.loading || this.allLoaded) return;
+
+    this.loading = true;
+
+    this.orderService.getOrders(this.currentPage, this.pageSize).subscribe({
       next: (orders) => {
-        this.orders = orders;
+        this.totalOrders+= orders.length;
+        this.allLoaded = orders.length < this.pageSize;
+        
+        this.orders = [...this.orders, ...orders];
+        this.currentPage++;
+        this.loading = false;
       },
       error: (error) => {
         console.error('Error loading orders:', error);
+        this.loading = false;
       }
     });
+  }
+
+  loadMore() {
+    this.loadOrders();
   }
 
   getStatusTranslation(status: string | null | undefined): string {

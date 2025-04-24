@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Scenario } from '../interfaces/scenario.interface';
 import { environment } from '../../environments/environment';
@@ -11,8 +11,13 @@ export class ScenarioService {
 
   constructor(private http: HttpClient) { }
 
-  getScenarios(): Observable<Scenario[]> {
-    return this.http.get<Scenario[]>(`${this.apiUrl}/scenarios`);
+
+  getScenarios(page: number = 1, pageSize: number = 10): Observable<Scenario[]> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+    
+    return this.http.get<Scenario[]>(`${this.apiUrl}/scenarios`, { params });
   }
 
   getScenario(id: number): Observable<Scenario> {

@@ -30,6 +30,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 })
 export class ScenarioListComponent implements OnInit {
   scenarios: Scenario[] = [];
+  pageSize = 10;
+  currentPage = 1;
+  loading = false;
+  allLoaded = false;
+  totalScenarios = 0;
+
   displayedColumns: string[] = [
     'actions',
     'date',
@@ -58,14 +64,30 @@ export class ScenarioListComponent implements OnInit {
   }
 
   loadScenarios() {
-    this.scenarioService.getScenarios().subscribe({
+    if (this.loading || this.allLoaded) return;
+
+    this.loading = true;
+
+    this.scenarioService.getScenarios(this.currentPage, this.pageSize).subscribe({
       next: (scenarios) => {
-        this.scenarios = scenarios;
+        this.totalScenarios+= scenarios.length;
+        this.allLoaded = scenarios.length < this.pageSize;
+        
+        this.scenarios = [...this.scenarios, ...scenarios];
+        this.currentPage++;
+        this.loading = false;
+        
+
       },
       error: (error) => {
         console.error('Error loading scenarios:', error);
+        this.loading = false;
       }
     });
+  }
+
+  loadMore() {
+    this.loadScenarios();
   }
 
   deleteScenario(id: number) {
@@ -102,4 +124,7 @@ export class ScenarioListComponent implements OnInit {
   createNewScenario() {
     this.router.navigate(['/scenarios/new']);
   }
+
+
+
 } 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Order } from '../interfaces/order.interface';
 import { environment } from '../../environments/environment';
@@ -11,8 +11,12 @@ export class OrderService {
 
   constructor(private http: HttpClient) { }
 
-  getOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.apiUrl}/orders`);
+  getOrders(page: number = 1, pageSize: number = 10): Observable<Order[]> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
+      
+    return this.http.get<Order[]>(`${this.apiUrl}/orders`, { params });
   }
 
   getOrder(id: number): Observable<Order> {
