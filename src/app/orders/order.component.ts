@@ -104,20 +104,7 @@ export class OrderComponent implements OnInit {
     }
     this.order.date_planned = new Date();
 
-    // Load products
-    this.productsService.getProducts().subscribe({
-      next: (products) => {
-        this.products = products;
-      },
-      error: (error) => {
-        this.snackBar.open('Ürünler yüklenirken bir hata oluştu', 'Kapat', {
-          duration: 3000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
+    this.loadProducts();
 
     // Handle route parameters
     this.route.params.subscribe(params => {
@@ -170,6 +157,23 @@ export class OrderComponent implements OnInit {
       }
     });
   }
+
+  loadProducts() {
+    this.productsService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+      },
+      error: (error) => {
+        this.snackBar.open('Ürünler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
+
 
   openTransactionDrawer(type: 'Product' | 'Cash' | 'Bank', direction: 'In' | 'Out') {
     this.drawerType = type;

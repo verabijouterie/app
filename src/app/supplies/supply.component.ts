@@ -18,6 +18,10 @@ import { AuthService } from '../services/auth.service';
 import { ProductsService } from '../services/products.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Supply } from '../interfaces/supply.interface';
+import { WholesalerService } from '../services/wholesaler.service';
+import { Wholesaler } from '../interfaces/wholesaler.interface';
+import { GoldRateService } from '../services/gold-rate.services';
+
 export const MY_FORMATS = {
   parse: {
     dateInput: 'DD/MM/YYYY',
@@ -59,14 +63,17 @@ export class SupplyComponent implements OnInit {
   skipDrawerAnimation = true;
   drawerType?: 'Product' | 'Scrap' | 'Cash' | 'Bank';
   drawerDirection?: 'In' | 'Out';
-  
+  wholesalers: Wholesaler[] = [];
+  defaultGoldRate = 0;
+
   supply: Supply = {
     id: undefined,
     date: new Date(),
     user_id: 0,
     description: '',
     transactions: [],
-    
+    wholesaler_id: 0,
+
     total24kProductIn: 0,
     total24kProductOut: 0,
     total24kScrapIn: 0,
@@ -85,7 +92,9 @@ export class SupplyComponent implements OnInit {
     private supplyService: SupplyService,
     private authService: AuthService,
     private productsService: ProductsService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private wholesalersService: WholesalerService,
+    private goldRateService: GoldRateService
   ) {}
 
   ngOnInit() {
@@ -101,21 +110,9 @@ export class SupplyComponent implements OnInit {
     }
     this.supply.date = new Date();
 
-    // Load products
-    this.productsService.getProducts().subscribe({
-      next: (products) => {
-        this.products = products;
-      },
-      error: (error) => {
-        this.snackBar.open('Ürünler yüklenirken bir hata oluştu', 'Kapat', {
-          duration: 3000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['error-snackbar']
-        });
-      }
-    });
-
+    this.loadWholesalers();
+    this.loadProducts();
+    this.loadDefaultGoldRate();
     // Handle route parameters
     this.route.params.subscribe(params => {
       const supplyId = params['id'];
@@ -124,6 +121,13 @@ export class SupplyComponent implements OnInit {
         this.supplyService.getSupply(Number(supplyId)).subscribe({
           next: (supply) => {
             this.supply = supply;
+            // Ensure all product transactions have a agreed_gold_rate
+            this.supply.transactions = this.supply.transactions.map(t => {
+              if ((t.type === 'Cash' || t.type === 'Bank') && !t.agreed_gold_rate) {
+                return { ...t, agreed_gold_rate: this.defaultGoldRate };
+              }
+              return t;
+            });
           },
           error: (error) => {
             this.snackBar.open('Senaryo yüklenirken bir hata oluştu', 'Kapat', {
@@ -132,17 +136,18 @@ export class SupplyComponent implements OnInit {
               verticalPosition: 'top',
               panelClass: ['error-snackbar']
             });
-            // Redirect to scenarios list if scenario not found
-            this.router.navigate(['/scenarios']);
+            // Redirect to supplies list if supply not found
+            this.router.navigate(['/supplies']);
           }
         });
       } else {
         this.isEditing = false;
-        // Reset scenario for new creation
+        // Reset  for new creation
         this.supply = {
           id: undefined,
           date: new Date(),
           user_id: currentUser?.id || 0,
+          wholesaler_id: 0,
           description: '',
           transactions: [],
           total24kProductIn: 0,
@@ -156,6 +161,50 @@ export class SupplyComponent implements OnInit {
           totalBankIn: 0,
           totalBankOut: 0,
         };
+      }
+    });
+  }
+
+  loadWholesalers() {
+    this.wholesalersService.getWholesalers().subscribe({
+      next: (wholesalers) => {
+        this.wholesalers = wholesalers;
+      },
+      error: (error) => {
+        this.snackBar.open('Toptan Alıcılar yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
+
+  loadProducts() {
+    this.productsService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+      },
+      error: (error) => {
+        this.snackBar.open('Ürünler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
+
+  loadDefaultGoldRate() {
+    this.goldRateService.getGoldRates().subscribe({
+      next: (goldRate) => {
+        if (Array.isArray(goldRate)) {
+          this.defaultGoldRate = goldRate[0]?.rate || 0;
+        } else {
+          this.defaultGoldRate = goldRate?.rate || 0;
+        }
       }
     });
   }
@@ -176,13 +225,23 @@ export class SupplyComponent implements OnInit {
 
   onTransactionSubmit(transaction: Transaction) {
     if (this.editingTransactionIndex !== null) {
-      // Update existing transaction
+      // Update existing transaction but preserve the agreed_gold_rate if it exists
+      const existingTransaction = this.supply.transactions[this.editingTransactionIndex];
+      if (transaction.type === 'Cash' || transaction.type === 'Bank') {
+        // Keep the existing agreed_gold_rate if it exists, otherwise set to default
+        transaction.agreed_gold_rate = existingTransaction.agreed_gold_rate || this.defaultGoldRate;
+      }
+
       this.supply.transactions = this.supply.transactions.map((t, i) => 
         i === this.editingTransactionIndex ? transaction : t
       );
       this.editingTransactionIndex = null;
     } else {
       // Add new transaction
+      if(transaction.type === 'Cash' || transaction.type === 'Bank') {
+        // Ensure new cash/bank transactions have a agreed_gold_rate
+        transaction.agreed_gold_rate = transaction.agreed_gold_rate || this.defaultGoldRate;
+      }
       this.supply.transactions = [...this.supply.transactions, transaction];
     }
     
@@ -216,11 +275,19 @@ export class SupplyComponent implements OnInit {
       return;
     }
 
-    // Create a deep clone of the scenario and its transactions
+    // Create a deep clone of the supply and its transactions
     const supplyToSubmit = {
       ...this.supply,
       transactions: this.supply.transactions.map(transaction => ({...transaction}))
     };
+
+    // Ensure all product transactions have a agreed_gold_rate
+    supplyToSubmit.transactions = supplyToSubmit.transactions.map(transaction => {
+      if ((transaction.type === 'Cash' || transaction.type === 'Bank') && !transaction.agreed_gold_rate) {
+        transaction.agreed_gold_rate = this.defaultGoldRate;
+      }
+      return transaction;
+    });
 
     supplyToSubmit.transactions.forEach(transaction => {
       if(transaction.type === 'Product' || transaction.type === 'Scrap') {
@@ -579,5 +646,20 @@ export class SupplyComponent implements OnInit {
     if (amount === null || amount === undefined) return "0.00";
     const num = Number(amount);
     return isNaN(num) ? "0.00" : num.toFixed(2);
+  }
+
+  isOrderValid(): boolean {
+
+    let allMoneyTransactionsHaveAgreedGoldRate = this.supply.transactions.every(t => t.type === 'Cash' || t.type === 'Bank' && t.agreed_gold_rate !== null && t.agreed_gold_rate !== undefined && t.agreed_gold_rate > 0);
+
+    return this.supply.transactions.length > 0 
+    && allMoneyTransactionsHaveAgreedGoldRate
+    && this.supply.total24kIn > 0 
+    && this.supply.total24kOut > 0 
+    && this.supply.totalCashIn > 0 
+    && this.supply.totalCashOut > 0 
+    && this.supply.totalBankIn > 0 
+    && this.supply.totalBankOut > 0 
+    && this.supply.wholesaler_id !== 0;
   }
 } 

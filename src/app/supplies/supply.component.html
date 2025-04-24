@@ -2,17 +2,36 @@
   <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
     <p class="text-base text-gray-500 mb-8">Yeni bir toptan alışveriş oluşturun.</p>
 
+
+    <!-- Wholesaler Section -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
+      <div class="col-span-full space-y-1.5">
+        <label for="wholesaler" class="block text-sm font-medium text-gray-900">Toptan Satıcı</label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <mat-select [(ngModel)]="supply.wholesaler_id" name="wholesaler" id="wholesaler">
+            <mat-option *ngFor="let wholesaler of wholesalers" [value]="wholesaler.id">
+              {{wholesaler.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+
     <form (ngSubmit)="onSubmit()" class="space-y-8">
       <!-- Basic Info Section -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
         <div class="col-span-full space-y-1.5">
           <label for="description" class="block text-sm font-medium text-gray-900">Açıklama</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <textarea matInput rows="1" [(ngModel)]="supply.description" name="description"
-              id="description"></textarea>
+            <textarea matInput rows="1" [(ngModel)]="supply.description" name="description" id="description"></textarea>
           </mat-form-field>
         </div>
       </div>
+
+
+
+
 
       <!-- Transactions Section -->
       <div class="border-t border-gray-900/10 pt-2">
@@ -81,9 +100,14 @@
                 <span class="text-sm text-gray-500">
                   <ng-container *ngIf="transaction.type === 'Product'">
                     {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}}
-                    <ng-container *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0">{{transaction.weight}}g</ng-container>
-                    <ng-container *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0 && transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">, </ng-container>
-                    <ng-container *ngIf="transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">{{transaction.carat}} ayar</ng-container>
+                    <ng-container
+                      *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0">{{transaction.weight}}g</ng-container>
+                    <ng-container
+                      *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0 && transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">,
+                    </ng-container>
+                    <ng-container
+                      *ngIf="transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">{{transaction.carat}}
+                      ayar</ng-container>
                     <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Scrap'">
@@ -101,6 +125,9 @@
             </div>
 
             <div class="flex items-center gap-x-1">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-40" *ngIf="transaction.type === 'Cash' || transaction.type === 'Bank'">
+                <input matInput type="number" [(ngModel)]="transaction.agreed_gold_rate" [name]="'agreed_gold_rate_' + i">
+              </mat-form-field>
               <button type="button" (click)="editTransaction(i)"
                 class="rounded-md p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
                 <mat-icon class="h-4 w-4">edit</mat-icon>
@@ -187,11 +214,12 @@
           class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
           İptal
         </button>
-        <button type="submit" [disabled]="supply.transactions.length === 0"
+        <button type="submit" [disabled]="supply.transactions.length === 0 || supply.wholesaler_id === 0"
           class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
           {{isEditing ? 'Toptan Alışverişi güncelle' : 'Toptan Alışveriş oluştur'}}
         </button>
       </div>
+
     </form>
   </div>
 </div>
