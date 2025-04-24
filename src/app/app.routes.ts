@@ -17,6 +17,8 @@ import { CategoriesComponent } from './categories/categories.component';
 import { OrderListComponent } from './orders/order-list.component';
 import { OrderComponent } from './orders/order.component';
 import { WholesalersComponent } from './wholesalers/wholesaler.component';
+import { SupplyListComponent } from './supplies/supply-list.component';
+import { SupplyComponent } from './supplies/supply.component';
 export const routes: Routes = [
   {
     path: '',
@@ -32,6 +34,9 @@ export const routes: Routes = [
       { path: 'orders', component: OrderListComponent },
       { path: 'orders/new', component: OrderComponent },
       { path: 'orders/:id', component: OrderComponent },
+      { path: 'supplies', component: SupplyListComponent },
+      { path: 'supplies/new', component: SupplyComponent },
+      { path: 'supplies/:id', component: SupplyComponent },
       { path: 'transaction', component: TransactionComponent },
       { path: 'products', component: ProductsComponent },
       { path: 'roles', component: RolesComponent },

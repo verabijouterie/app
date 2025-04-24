@@ -1,0 +1,206 @@
+<div class="max-w-3xl mx-auto px-4 py-10">
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
+    <p class="text-base text-gray-500 mb-8">Yeni bir toptan alışveriş oluşturun.</p>
+
+    <form (ngSubmit)="onSubmit()" class="space-y-8">
+      <!-- Basic Info Section -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
+        <div class="col-span-full space-y-1.5">
+          <label for="description" class="block text-sm font-medium text-gray-900">Açıklama</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <textarea matInput rows="1" [(ngModel)]="supply.description" name="description"
+              id="description"></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Transactions Section -->
+      <div class="border-t border-gray-900/10 pt-2">
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Left Column -->
+          <div class="space-y-3">
+            <!-- Product In -->
+            <button type="button" (click)="openTransactionDrawer('Product', 'In')"
+              class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Ürün Al</span>
+            </button>
+            <!-- Product Out -->
+            <button type="button" (click)="openTransactionDrawer('Product', 'Out')"
+              class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Ürün Sat</span>
+            </button>
+            <!-- Cash In -->
+            <button type="button" (click)="openTransactionDrawer('Cash', 'In')"
+              class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Nakit Giriş</span>
+            </button>
+            <!-- Cash Out -->
+            <button type="button" (click)="openTransactionDrawer('Cash', 'Out')"
+              class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Nakit Çıkış</span>
+            </button>
+          </div>
+
+          <!-- Right Column -->
+          <div class="space-y-3">
+            <!-- Scrap In -->
+            <button type="button" (click)="openTransactionDrawer('Scrap', 'In')"
+              class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Hurda Al</span>
+            </button>
+            <!-- Scrap Out -->
+            <button type="button" (click)="openTransactionDrawer('Scrap', 'Out')"
+              class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Hurda Sat</span>
+            </button>
+            <!-- Bank In -->
+            <button type="button" (click)="openTransactionDrawer('Bank', 'In')"
+              class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Banka Girişi</span>
+            </button>
+            <!-- Bank Out -->
+            <button type="button" (click)="openTransactionDrawer('Bank', 'Out')"
+              class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Banka Çıkışı</span>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="supply.transactions.length > 0" class="mt-6 space-y-1" cdkDropList
+          (cdkDropListDropped)="drop($event)">
+          <div *ngFor="let transaction of supply.transactions; let i = index"
+            class="group flex items-center justify-between gap-x-4 rounded-lg py-0 px-3 shadow-sm ring-1 ring-gray-900/5"
+            [ngClass]="{'bg-green-100': transaction.direction === 'In', 'bg-red-100': transaction.direction === 'Out'}"
+            cdkDrag>
+            <div class="flex items-center gap-x-2">
+              <mat-icon cdkDragHandle
+                class="text-gray-400 cursor-move opacity-0 group-hover:opacity-100 transition h-5 w-5 text-sm">
+                drag_indicator
+              </mat-icon>
+              <div class="flex items-center gap-x-2">
+                <span class="text-sm text-gray-500">
+                  <ng-container *ngIf="transaction.type === 'Product'">
+                    {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}}
+                    <ng-container *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0">{{transaction.weight}}g</ng-container>
+                    <ng-container *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0 && transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">, </ng-container>
+                    <ng-container *ngIf="transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">{{transaction.carat}} ayar</ng-container>
+                    <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
+                  </ng-container>
+                  <ng-container *ngIf="transaction.type === 'Scrap'">
+                    {{transaction.weight}}g, {{transaction.carat}} ayar
+                    <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
+                  </ng-container>
+                  <ng-container *ngIf="transaction.type === 'Cash'">
+                    Nakit: {{formatAmount(transaction.amount)}} EUR
+                  </ng-container>
+                  <ng-container *ngIf="transaction.type === 'Bank'">
+                    Banka: {{formatAmount(transaction.amount)}} EUR
+                  </ng-container>
+                </span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-x-1">
+              <button type="button" (click)="editTransaction(i)"
+                class="rounded-md p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                <mat-icon class="h-4 w-4">edit</mat-icon>
+              </button>
+              <button type="button" (click)="deleteTransaction(i)"
+                class="rounded-md p-1 text-gray-600 hover:text-red-600 hover:bg-red-50">
+                <mat-icon class="h-4 w-4">delete</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Totals Section -->
+        <div *ngIf="supply.transactions.length > 0" class="mt-8 space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Gold Totals -->
+            <div class="space-y-2">
+              <h3 class="text-sm font-medium text-gray-900">Altın Toplamları (24K)</h3>
+              <div class="space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Toplam Alınan Ürünler:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kProductIn()}}g</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Toplam Satılan Ürünler:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kProductOut()}}g</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Toplam Alınan Hurda:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kScrapIn()}}g</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Toplam Satılan Hurda:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kScrapOut()}}g</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam Alınan Altın:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kIn()}}g</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam Satılan Altın:</span>
+                  <span class="text-sm font-medium">{{calculateTotal24kOut()}}g</span>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Cash/Bank Totals -->
+            <div class="space-y-2">
+              <h3 class="text-sm font-medium text-gray-900">Ödeme Toplamları</h3>
+              <div class="space-y-1">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Toplam Alınan Nakit Ödeme:</span>
+                  <span class="text-sm font-medium">{{calculateTotalCashIn()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Toplam Yapılan Nakit Ödeme:</span>
+                  <span class="text-sm font-medium">{{calculateTotalCashOut()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Toplam Alınan Banka Ödemesi:</span>
+                  <span class="text-sm font-medium">{{calculateTotalBankIn()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Toplam Yapılan Banka Ödemesi:</span>
+                  <span class="text-sm font-medium">{{calculateTotalBankOut()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam Alınan Ödeme:</span>
+                  <span class="text-sm font-medium">{{calculateTotalPaymentIn()}} EUR</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam Yapılan Ödeme:</span>
+                  <span class="text-sm font-medium">{{calculateTotalPaymentOut()}} EUR</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-x-6 pt-6 border-t border-gray-900/10">
+        <button type="button" (click)="navigateToSupplies()"
+          class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
+          İptal
+        </button>
+        <button type="submit" [disabled]="supply.transactions.length === 0"
+          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+          {{isEditing ? 'Toptan Alışverişi güncelle' : 'Toptan Alışveriş oluştur'}}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<app-drawer [isOpen]="isDrawerOpen" [skipAnimation]="skipDrawerAnimation"
+  [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()">
+  <app-transaction
+    [transaction]="editingTransactionIndex !== null ? supply.transactions[editingTransactionIndex] : undefined"
+    [type]="drawerType" [direction]="drawerDirection" (transactionSubmit)="onTransactionSubmit($event)"
+    (cancel)="onDrawerClose()">
+  </app-transaction>
+</app-drawer>

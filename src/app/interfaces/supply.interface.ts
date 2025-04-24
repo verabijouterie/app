@@ -1,6 +1,6 @@
 import { Transaction } from './transaction.interface';
 
-export interface Scenario {
+export interface Supply {
   id?: number;
   date: Date;
   user_id: number;

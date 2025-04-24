@@ -268,7 +268,6 @@ export class TransactionComponent implements OnInit, OnChanges {
 
   private handleProductCarat(product: Product) {
 
-
     if (product.carat !== null && product.carat !== undefined) {
       this.formTransaction.carat = Number(product.carat);
       this.isCaratDisabled = true;
@@ -283,8 +282,6 @@ export class TransactionComponent implements OnInit, OnChanges {
     } else {
       this.caratOptions = CARAT_OPTIONS;
     }
-    
-
   }
 
 
