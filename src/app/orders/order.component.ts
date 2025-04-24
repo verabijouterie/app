@@ -19,6 +19,8 @@ import { Order } from '../interfaces/order.interface';
 import { OrderService } from '../services/order.service';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
 export const MY_FORMATS = {
   parse: {
     dateInput: 'DD/MM/YYYY',
@@ -46,7 +48,8 @@ export const MY_FORMATS = {
         DrawerComponent,
         TransactionComponent,
         MatDatepickerModule,
-        MatNativeDateModule
+        MatNativeDateModule,
+        MatSnackBarModule
     ],
     standalone: true,
     templateUrl: './order.component.html',
@@ -84,7 +87,8 @@ export class OrderComponent implements OnInit {
     private router: Router,
     private orderService: OrderService,
     private authService: AuthService,
-    private productsService: ProductsService
+    private productsService: ProductsService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -106,7 +110,12 @@ export class OrderComponent implements OnInit {
         this.products = products;
       },
       error: (error) => {
-        console.error('Error loading products:', error);
+        this.snackBar.open('Ürünler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
       }
     });
 
@@ -122,7 +131,6 @@ export class OrderComponent implements OnInit {
             // Ensure all product transactions have a status
             this.order.transactions = this.order.transactions.map(t => {
               if (t.type === 'Product' && !t.status) {
-                console.log('Initializing missing status for product transaction');
                 return { ...t, status: 'ToBeOrdered' };
               }
               return t;
@@ -130,7 +138,12 @@ export class OrderComponent implements OnInit {
             
           },
           error: (error) => {
-            console.error('Error loading order:', error);
+            this.snackBar.open('Sipariş yüklenirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
             // Redirect to orders list if order not found
             this.router.navigate(['/orders']);
           }
@@ -189,7 +202,6 @@ export class OrderComponent implements OnInit {
       if(transaction.type === 'Product') {
         // Ensure new product transactions have a status
         transaction.status = transaction.status || 'ToBeOrdered';
-        console.log('Setting status for new transaction:', transaction.status);
       }
       this.order.transactions = [...this.order.transactions, transaction];
     }
@@ -288,7 +300,12 @@ export class OrderComponent implements OnInit {
       orderToSubmit.totalPaymentIn = parseFloat((totalCashIn + totalBankIn).toFixed(2));
       orderToSubmit.remaining_amount = parseFloat((orderToSubmit.total_order_amount - orderToSubmit.totalPaymentIn).toFixed(2));
     } catch (error) {
-      console.error('Error formatting totals:', error);
+      this.snackBar.open('Toplam değerler hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       // Provide fallback values
       orderToSubmit.total24kProductOut = total24kProductOut;
       orderToSubmit.total24kOut = total24kOut;
@@ -304,7 +321,12 @@ export class OrderComponent implements OnInit {
           this.router.navigate(['/orders']);
         },
         error: (error) => {
-          console.error('Error updating order:', error);
+          this.snackBar.open('Sipariş güncellenirken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          });
         }
       });
     } else {
@@ -313,7 +335,12 @@ export class OrderComponent implements OnInit {
           this.router.navigate(['/orders']);
         },
         error: (error) => {
-          console.error('Error creating order:', error);
+          this.snackBar.open('Sipariş oluşturulurken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          });
         }
       });
     }
@@ -343,7 +370,12 @@ export class OrderComponent implements OnInit {
         .reduce((sum, t) => sum + (t.weight24k || 0), 0);
       return parseFloat(total.toFixed(4));
     } catch (error) {
-      console.error('Error in calculateTotal24kProductOut', error);
+      this.snackBar.open('24k ürün çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return 0;
     }
   }
@@ -359,7 +391,12 @@ export class OrderComponent implements OnInit {
         .reduce((sum, t) => sum + (t.amount || 0), 0);
       return total.toFixed(2);
     } catch (error) {
-      console.error('Error in calculateTotalCashIn', error);
+      this.snackBar.open('Nakit girişi hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }
@@ -371,7 +408,12 @@ export class OrderComponent implements OnInit {
         .reduce((sum, t) => sum + (t.amount || 0), 0);
       return total.toFixed(2);
     } catch (error) {
-      console.error('Error in calculateTotalBankIn', error);
+      this.snackBar.open('Banka girişi hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }
@@ -382,7 +424,12 @@ export class OrderComponent implements OnInit {
       const bankTotal = parseFloat(this.calculateTotalBankIn());
       return (cashTotal + bankTotal).toFixed(2);
     } catch (error) {
-      console.error('Error in calculateTotalPaymentIn', error);
+      this.snackBar.open('Toplam ödeme hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }
@@ -392,7 +439,12 @@ export class OrderComponent implements OnInit {
       const paymentTotal = parseFloat(this.calculateTotalPaymentIn());
       return (this.order.total_order_amount - paymentTotal).toFixed(2);
     } catch (error) {
-      console.error('Error in calculateRemainingAmount', error);
+      this.snackBar.open('Kalan miktar hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }

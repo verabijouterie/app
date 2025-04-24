@@ -71,7 +71,14 @@ export class UsersComponent implements OnInit {
       next: (users) => {
         this.users = users;
       },
-      error: (error) => console.error('Error loading users:', error)
+      error: (error) => {
+        this.snackBar.open('Kullanıcılar yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
     });
   }
 
@@ -80,7 +87,14 @@ export class UsersComponent implements OnInit {
       next: (roles) => {
         this.roles = roles;
       },
-      error: (error) => console.error('Error loading roles:', error)
+      error: (error) => {
+        this.snackBar.open('Roller yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
     });
   }
 
@@ -119,7 +133,15 @@ export class UsersComponent implements OnInit {
             this.loadUsers();
             this.onDrawerClose();
           },
-          error: (error) => console.error('Error updating user:', error)
+          error: (error) => {
+            this.loadUsers();
+            this.snackBar.open('Kullanıcı güncellenirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
+          }
         });
       } else {
         this.userService.createUser(user).subscribe({
@@ -127,7 +149,15 @@ export class UsersComponent implements OnInit {
             this.loadUsers();
             this.onDrawerClose();
           },
-          error: (error) => console.error('Error creating user:', error)
+          error: (error) => {
+            this.loadUsers();
+            this.snackBar.open('Kullanıcı oluşturulurken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
+          }
         });
       }
     }

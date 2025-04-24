@@ -76,7 +76,12 @@ export class OrderListComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading orders:', error);
+        this.snackBar.open('Siparişler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
         this.loading = false;
       }
     });

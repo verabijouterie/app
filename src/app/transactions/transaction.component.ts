@@ -14,6 +14,7 @@ import { Observable, of, Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { CARAT_OPTIONS, CARAT_PURITY_MAP_GOLD, CARAT_PURITY_MAP_SCRAP } from '../config/constants';
 import { ProductsService } from '../services/products.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
     selector: 'app-transaction',
@@ -28,7 +29,8 @@ import { ProductsService } from '../services/products.service';
         MatSelectModule,
         MatButtonModule,
         MatCardModule,
-        MatAutocompleteModule
+        MatAutocompleteModule,
+        MatSnackBarModule
     ]
 })
 export class TransactionComponent implements OnInit, OnChanges {
@@ -64,7 +66,7 @@ export class TransactionComponent implements OnInit, OnChanges {
 
   private productControlSubscription?: Subscription;
 
-  constructor(private productsService: ProductsService) {
+  constructor(private productsService: ProductsService, private snackBar: MatSnackBar) {
     this.productControl = new FormControl<string | Product>('');
     this.filteredProducts = of([]); // Initialize with empty observable
   }
@@ -134,7 +136,12 @@ export class TransactionComponent implements OnInit, OnChanges {
         );
       },
       error: (error) => {
-        console.error('Error loading products:', error);
+        this.snackBar.open('Ürünler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }

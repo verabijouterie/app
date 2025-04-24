@@ -78,7 +78,12 @@ export class PermissionsComponent implements OnInit {
         // Sort groups by row_index
         this.permissionGroups = groups.sort((a, b) => (a.row_index || 0) - (b.row_index || 0));
       },
-      error: (error) => console.error('Error loading permission groups:', error)
+      error: (error) => this.snackBar.open('İzin grupları yüklenirken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      })
     });
   }
 
@@ -88,7 +93,12 @@ export class PermissionsComponent implements OnInit {
         // Sort permissions by row_index
         this.permissions = permissions.sort((a, b) => (a.row_index || 0) - (b.row_index || 0));
       },
-      error: (error) => console.error('Error loading permissions:', error)
+      error: (error) => this.snackBar.open('İzinler yüklenirken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      })
     });
   }
 
@@ -214,7 +224,12 @@ export class PermissionsComponent implements OnInit {
             this.loadPermissionGroups();
             this.onPermissionGroupDrawerClose();
           },
-          error: (error) => console.error('Error updating permission group:', error)
+          error: (error) => this.snackBar.open('İzin grubu güncellenirken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          })
         });
       } else {
         // Set row_index to the current count of permission groups
@@ -225,7 +240,12 @@ export class PermissionsComponent implements OnInit {
             this.loadPermissionGroups();
             this.onPermissionGroupDrawerClose();
           },
-          error: (error) => console.error('Error creating permission group:', error)
+          error: (error) => this.snackBar.open('İzin grubu oluşturulurken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          })
         });
       }
     }
@@ -242,7 +262,12 @@ export class PermissionsComponent implements OnInit {
             this.loadPermissions();
             this.onPermissionDrawerClose();
           },
-          error: (error) => console.error('Error updating permission:', error)
+          error: (error) => this.snackBar.open('İzin güncellenirken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          })
         });
       } else {
         this.permissionService.createPermission(permission).subscribe({
@@ -250,7 +275,12 @@ export class PermissionsComponent implements OnInit {
             this.loadPermissions();
             this.onPermissionDrawerClose();
           },
-          error: (error) => console.error('Error creating permission:', error)
+          error: (error) => this.snackBar.open('İzin oluşturulurken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          })
         });
       }
     }
@@ -279,7 +309,12 @@ export class PermissionsComponent implements OnInit {
     groups.forEach((group, index) => {
       group.row_index = index;
       this.permissionGroupService.updatePermissionGroup(group.id, group).subscribe({
-        error: (error) => console.error('Error updating permission group order:', error)
+        error: (error) => this.snackBar.open('İzin grubu sıralaması güncellenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        })
       });
     });
     
@@ -298,7 +333,12 @@ export class PermissionsComponent implements OnInit {
       permissions.forEach((permission, index) => {
         permission.row_index = index;
         this.permissionService.updatePermission(permission.id!, permission).subscribe({
-          error: (error) => console.error('Error updating permission order:', error)
+          error: (error) => this.snackBar.open('İzin sıralaması güncellenirken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          })
         });
       });
     } else {
@@ -314,7 +354,12 @@ export class PermissionsComponent implements OnInit {
       previousPermissions.forEach((permission, index) => {
         permission.row_index = index;
         this.permissionService.updatePermission(permission.id!, permission).subscribe({
-          error: (error) => console.error('Error updating permission order:', error)
+          error: (error) => this.snackBar.open('İzin sıralaması güncellenirken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          })
         });
       });
       
@@ -326,7 +371,12 @@ export class PermissionsComponent implements OnInit {
         permission.row_index = index;
         permission.permission_group_id = parseInt(event.container.id);
         this.permissionService.updatePermission(permission.id!, permission).subscribe({
-          error: (error) => console.error('Error updating permission order:', error)
+          error: (error) => this.snackBar.open('İzin sıralaması güncellenirken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          })
         });
       });
     }

@@ -94,7 +94,12 @@ export class ProductsComponent implements OnInit {
         }));
       },
       error: (error) => {
-        console.error('Error loading data:', error);
+        this.snackBar.open('Veriler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
       }
     });
 
@@ -158,7 +163,12 @@ export class ProductsComponent implements OnInit {
             this.onDrawerClose();
           },
           error: (error) => {
-            console.error('Error updating product:', error);
+            this.snackBar.open('Ürün güncellenirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       } else {
@@ -168,7 +178,12 @@ export class ProductsComponent implements OnInit {
             this.onDrawerClose();
           },
           error: (error) => {
-            console.error('Error creating product:', error);
+            this.snackBar.open('Ürün oluşturulurken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }
@@ -196,7 +211,12 @@ export class ProductsComponent implements OnInit {
           this.categoryControl.setValue(category);
         },
         error: (error) => {
-          console.error('Error loading category:', error);
+          this.snackBar.open('Kategori yüklenirken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          });
         }
       });
     }
@@ -266,7 +286,12 @@ export class ProductsComponent implements OnInit {
         }));
       },
       error: (error) => {
-        console.error('Error refreshing data:', error);
+        this.snackBar.open('Veriler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }

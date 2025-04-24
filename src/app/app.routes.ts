@@ -16,7 +16,7 @@ import { NoAuthGuard } from './guards/no-auth.guard';
 import { CategoriesComponent } from './categories/categories.component';
 import { OrderListComponent } from './orders/order-list.component';
 import { OrderComponent } from './orders/order.component';
-
+import { WholesalersComponent } from './wholesalers/wholesaler.component';
 export const routes: Routes = [
   {
     path: '',
@@ -38,6 +38,7 @@ export const routes: Routes = [
       { path: 'permissions', component: PermissionsComponent },
       { path: 'users', component: UsersComponent },
       { path: 'categories', component: CategoriesComponent },
+      { path: 'wholesalers', component: WholesalersComponent },
     ]
   },
   {

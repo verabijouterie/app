@@ -17,7 +17,7 @@ import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { TransactionComponent } from '../transactions/transaction.component';
 import { AuthService } from '../services/auth.service';
 import { ProductsService } from '../services/products.service';
-
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 export const MY_FORMATS = {
   parse: {
     dateInput: 'DD/MM/YYYY',
@@ -43,7 +43,8 @@ export const MY_FORMATS = {
         MatIconModule,
         DragDropModule,
         DrawerComponent,
-        TransactionComponent
+        TransactionComponent,
+        MatSnackBarModule
     ],
     standalone: true,
     templateUrl: './scenario.component.html',
@@ -83,7 +84,8 @@ export class ScenarioComponent implements OnInit {
     private router: Router,
     private scenarioService: ScenarioService,
     private authService: AuthService,
-    private productsService: ProductsService
+    private productsService: ProductsService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -105,7 +107,12 @@ export class ScenarioComponent implements OnInit {
         this.products = products;
       },
       error: (error) => {
-        console.error('Error loading products:', error);
+        this.snackBar.open('Ürünler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
       }
     });
 
@@ -119,7 +126,12 @@ export class ScenarioComponent implements OnInit {
             this.scenario = scenario;
           },
           error: (error) => {
-            console.error('Error loading scenario:', error);
+            this.snackBar.open('Senaryo yüklenirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
             // Redirect to scenarios list if scenario not found
             this.router.navigate(['/scenarios']);
           }
@@ -306,7 +318,12 @@ export class ScenarioComponent implements OnInit {
           this.router.navigate(['/scenarios']);
         },
         error: (error) => {
-          console.error('Error updating scenario:', error);
+          this.snackBar.open('Senaryo güncellenirken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          });
         }
       });
     } else {
@@ -315,7 +332,12 @@ export class ScenarioComponent implements OnInit {
           this.router.navigate(['/scenarios']);
         },
         error: (error) => {
-          console.error('Error creating scenario:', error);
+          this.snackBar.open('Senaryo oluşturulurken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          });
         }
       });
     }
@@ -348,7 +370,12 @@ export class ScenarioComponent implements OnInit {
         }, 0);
       return parseFloat(total.toFixed(4));
     } catch (error) {
-      console.error('Error in calculateTotal24kProductIn', error);
+      this.snackBar.open('24k ürün girişi hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return 0;
     }
   }
@@ -363,7 +390,12 @@ export class ScenarioComponent implements OnInit {
         }, 0);
       return parseFloat(total.toFixed(4));
     } catch (error) {
-      console.error('Error in calculateTotal24kProductOut', error);
+      this.snackBar.open('24k ürün çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return 0;
     }
   }
@@ -378,7 +410,12 @@ export class ScenarioComponent implements OnInit {
         }, 0);
       return parseFloat(total.toFixed(4));
     } catch (error) {
-      console.error('Error in calculateTotal24kScrapIn', error);
+      this.snackBar.open('24k çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return 0;
     }
   }
@@ -393,7 +430,12 @@ export class ScenarioComponent implements OnInit {
         }, 0);
       return parseFloat(total.toFixed(4));
     } catch (error) {
-      console.error('Error in calculateTotal24kScrapOut', error);
+      this.snackBar.open('24k çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return 0;
     }
   }
@@ -405,7 +447,12 @@ export class ScenarioComponent implements OnInit {
       const total = (isNaN(productIn) ? 0 : productIn) + (isNaN(scrapIn) ? 0 : scrapIn);
       return parseFloat(total.toFixed(4));
     } catch (error) {
-      console.error('Error in calculateTotal24kIn', error);
+      this.snackBar.open('24k girişi hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return 0;
     }
   }
@@ -417,7 +464,12 @@ export class ScenarioComponent implements OnInit {
       const total = (isNaN(productOut) ? 0 : productOut) + (isNaN(scrapOut) ? 0 : scrapOut);
       return parseFloat(total.toFixed(4));
     } catch (error) {
-      console.error('Error in calculateTotal24kOut', error);
+      this.snackBar.open('24k çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return 0;
     }
   }
@@ -429,7 +481,12 @@ export class ScenarioComponent implements OnInit {
         .reduce((sum, t) => sum + (t.amount || 0), 0);
       return total.toFixed(2);
     } catch (error) {
-      console.error('Error in calculateTotalCashIn', error);
+      this.snackBar.open('Nakit girişi hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }
@@ -441,7 +498,12 @@ export class ScenarioComponent implements OnInit {
         .reduce((sum, t) => sum + (t.amount || 0), 0);
       return total.toFixed(2);
     } catch (error) {
-      console.error('Error in calculateTotalCashOut', error);
+      this.snackBar.open('Nakit çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }
@@ -453,7 +515,12 @@ export class ScenarioComponent implements OnInit {
         .reduce((sum, t) => sum + (t.amount || 0), 0);
       return total.toFixed(2);
     } catch (error) {
-      console.error('Error in calculateTotalBankIn', error);
+      this.snackBar.open('Banka girişi hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }
@@ -465,7 +532,12 @@ export class ScenarioComponent implements OnInit {
         .reduce((sum, t) => sum + (t.amount || 0), 0);
       return total.toFixed(2);
     } catch (error) {
-      console.error('Error in calculateTotalBankOut', error);
+      this.snackBar.open('Banka çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }
@@ -476,7 +548,12 @@ export class ScenarioComponent implements OnInit {
       const bankTotal = parseFloat(this.calculateTotalBankIn());
       return (cashTotal + bankTotal).toFixed(2);
     } catch (error) {
-      console.error('Error in calculateTotalPaymentIn', error);
+      this.snackBar.open('Ödeme girişi hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }
@@ -487,7 +564,12 @@ export class ScenarioComponent implements OnInit {
       const bankTotal = parseFloat(this.calculateTotalBankOut());
       return (cashTotal + bankTotal).toFixed(2);
     } catch (error) {
-      console.error('Error in calculateTotalPaymentOut', error);
+      this.snackBar.open('Ödeme çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      });
       return "0.00";
     }
   }

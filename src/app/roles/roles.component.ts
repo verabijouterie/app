@@ -81,7 +81,12 @@ export class RolesComponent implements OnInit {
           }
         }
       },
-      error: (error) => console.error('Error loading roles:', error)
+      error: (error) => this.snackBar.open('Roller yüklenirken bir hata oluştu', 'Kapat', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+        panelClass: ['error-snackbar']
+      })
     });
   }
 
@@ -90,7 +95,14 @@ export class RolesComponent implements OnInit {
       next: (groups) => {
         this.permissionGroups = groups.sort((a, b) => (a.row_index || 0) - (b.row_index || 0));
       },
-      error: (error) => console.error('Error loading permission groups:', error)
+      error: (error) => {
+        this.snackBar.open('İzin grupları yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
     });
   }
 
@@ -99,7 +111,14 @@ export class RolesComponent implements OnInit {
       next: (permissions) => {
         this.permissions = permissions.sort((a, b) => (a.row_index || 0) - (b.row_index || 0));
       },
-      error: (error) => console.error('Error loading permissions:', error)
+      error: (error) => {
+        this.snackBar.open('İzinler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
+      }
     });
   }
 
@@ -135,7 +154,14 @@ export class RolesComponent implements OnInit {
             this.loadRoles();
             this.onDrawerClose();
           },
-          error: (error) => console.error('Error updating role:', error)
+          error: (error) => {
+            this.snackBar.open('Rol güncellenirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
+          }
         });
       } else {
         this.roleService.createRole(role).subscribe({
@@ -143,7 +169,14 @@ export class RolesComponent implements OnInit {
             this.loadRoles();
             this.onDrawerClose();
           },
-          error: (error) => console.error('Error creating role:', error)
+          error: (error) => {
+            this.snackBar.open('Rol oluşturulurken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
+          }
         });
       }
     }
@@ -222,9 +255,7 @@ export class RolesComponent implements OnInit {
 
   checkPermission(id: number | undefined): boolean {
     if (id === undefined) return false;
-    console.log(`Checking permission ${id} (${typeof id}), Set has:`, Array.from(this.selectedPermissions));
     const result = this.selectedPermissions.has(id);
-    console.log(`Result for ${id}: ${result}`);
     return result;
   }
 } 

@@ -80,7 +80,12 @@ export class ScenarioListComponent implements OnInit {
 
       },
       error: (error) => {
-        console.error('Error loading scenarios:', error);
+        this.snackBar.open('Alışverişler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
         this.loading = false;
       }
     });

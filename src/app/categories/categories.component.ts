@@ -66,7 +66,12 @@ export class CategoriesComponent implements OnInit {
         this.categories = categories;
       },
       error: (error) => {
-        console.error('Error loading categories:', error);
+        this.snackBar.open('Kategoriler yüklenirken bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
@@ -100,7 +105,12 @@ export class CategoriesComponent implements OnInit {
             this.onDrawerClose();
           },
           error: (error) => {
-            console.error('Error updating category:', error);
+            this.snackBar.open('Kategori güncellenirken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       } else {
@@ -110,7 +120,12 @@ export class CategoriesComponent implements OnInit {
             this.onDrawerClose();
           },
           error: (error) => {
-            console.error('Error creating category:', error);
+            this.snackBar.open('Kategori oluşturulurken bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
           }
         });
       }

@@ -7,7 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AuthService, LoginCredentials, ApiError } from '../services/auth.service';
-
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-signup',
   standalone: true,
@@ -18,7 +18,8 @@ import { AuthService, LoginCredentials, ApiError } from '../services/auth.servic
     MatIconModule,
     CommonModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatSnackBarModule
   ],
   templateUrl: './signup.component.html'
 })
@@ -30,7 +31,8 @@ export class SignupComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -48,7 +50,12 @@ export class SignupComponent {
           this.router.navigate(['/dashboard']);
         },
         error: (error: ApiError) => {
-          console.error('Login failed:', error.message);
+          this.snackBar.open('Giriş yapılırken bir hata oluştu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['error-snackbar']
+          });
           this.isLoading = false;
         },
         complete: () => {
