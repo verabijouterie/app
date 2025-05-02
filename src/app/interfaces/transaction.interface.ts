@@ -4,12 +4,12 @@ import { CARAT_OPTIONS } from "../config/constants";
 
 export interface Transaction {
   id?: number;
-  type: "Product" | "Scrap" | "Cash" | "Bank";
+  type: "Product" | "Scrap" | "Cash" | "Bank" | "Money";
   direction: "In" | "Out";
   row_index?: number;
   product_id?: number;
   product?: Product;
-  weight?: number; // in grams
+  weight_brut?: number; // in grams
   carat?: typeof CARAT_OPTIONS[number];//
   amount?: number; // in euro
   quantity?: number;

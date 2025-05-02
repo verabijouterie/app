@@ -48,29 +48,37 @@
       </div>
 
       <div class="space-y-1">
-        <label for="carat" class="block text-sm font-medium text-gray-900">Altın Ayarı (Opsiyonel)</label>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <mat-select formControlName="carat" id="carat">
-            <mat-option [value]="null">Belirtilmedi</mat-option>
-            <mat-option *ngFor="let carat of caratOptions" [value]="carat">
-              {{carat}}K
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+        <mat-checkbox formControlName="is_gold" name="is_gold" class="text-sm font-medium text-gray-900">
+          Ürün altın mı?
+        </mat-checkbox>
       </div>
 
-      <div class="space-y-1">
-        <label for="weight" class="block text-sm font-medium text-gray-900">Altın Ağırlığı (gram) (Opsiyonel)</label>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput type="number" formControlName="weight" min="0" step="0.01" id="weight">
-        </mat-form-field>
-      </div>
+      <div *ngIf="productForm.get('is_gold')?.value">
+        <div class="space-y-1">
+          <label for="carat" class="block text-sm font-medium text-gray-900">Altın Ayarı (Opsiyonel)</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <mat-select formControlName="carat" id="carat">
+              <mat-option [value]="null">Belirtilmedi</mat-option>
+              <mat-option *ngFor="let carat of caratOptions" [value]="carat">
+                {{carat}}K
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
 
-      <div class="space-y-1" *ngIf="productForm.get('weight')?.value && productForm.get('carat')?.value">
-        <label for="total24k" class="text-sm font-medium text-gray-900 inline">24K Olarak Toplam Ağırlık (gram): </label>
-        <span class="text-gray-900 text-base inline">
-          {{calculateTotal24k(productForm.get('weight')?.value, productForm.get('carat')?.value) || 'Hesaplanmadı'}}
-        </span>
+        <div class="space-y-1">
+          <label for="weight_brut" class="block text-sm font-medium text-gray-900">Altın Brüt Ağırlığı (gram) (Opsiyonel)</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <input matInput type="number" formControlName="weight_brut" min="0" step="0.01" id="weight_brut">
+          </mat-form-field>
+        </div>
+
+        <div class="space-y-1" *ngIf="productForm.get('weight_brut')?.value && productForm.get('carat')?.value">
+          <label for="total24k" class="text-sm font-medium text-gray-900 inline">24K Olarak Toplam Ağırlık (gram): </label>
+          <span class="text-gray-900 text-base inline">
+            {{calculateTotal24k(productForm.get('weight_brut')?.value, productForm.get('carat')?.value) || 'Hesaplanmadı'}}
+          </span>
+        </div>
       </div>
     </div>
 

@@ -36,9 +36,9 @@
             <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onProductSelected($event)">
               <mat-option *ngFor="let product of filteredProducts | async" [value]="product">
                 {{product.name}}
-                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && product.weight !== undefined && product.weight !== null && product.weight > 0">({{product.carat}} ayar, {{product.weight}}g)</ng-container>
-                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && (!product.weight || product.weight === 0)">({{product.carat}} ayar)</ng-container>
-                <ng-container *ngIf="(!product.carat || product.carat === null) && product.weight !== undefined && product.weight !== null && product.weight > 0">({{product.weight}}g)</ng-container>
+                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && product.weight_brut !== undefined && product.weight_brut !== null && product.weight_brut > 0">({{product.carat}} ayar, {{product.weight_brut}}g)</ng-container>
+                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && (!product.weight_brut || product.weight_brut === 0)">({{product.carat}} ayar)</ng-container>
+                <ng-container *ngIf="(!product.carat || product.carat === null) && product.weight_brut !== undefined && product.weight_brut !== null && product.weight_brut > 0">({{product.weight_brut}}g)</ng-container>
               </mat-option>
             </mat-autocomplete>
           </mat-form-field>
@@ -59,7 +59,7 @@
         <div class="space-y-1">
           <label for="weight" class="block text-sm font-medium text-gray-900">Altın Ağırlığı (gram)</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight" name="weight"
+            <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight_brut" name="weight_brut"
               [disabled]="isWeightDisabled" (input)="calculateTotal24KWeight()" (change)="calculateTotal24KWeight()"
               (focus)="selectWeightInput($event)">
           </mat-form-field>
@@ -98,9 +98,9 @@
         </div>
 
         <div class="space-y-1">
-          <label for="weight" class="block text-sm font-medium text-gray-900">Ağırlık (gram)</label>
+          <label for="weight_brut" class="block text-sm font-medium text-gray-900">Ağırlık (gram)</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight" name="weight"
+            <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight_brut" name="weight_brut"
               (input)="calculateTotal24KWeight()" (focus)="selectWeightInput($event)">
           </mat-form-field>
         </div>

@@ -6,6 +6,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Product } from '../interfaces/product.interface';
 import { ProductListComponent } from './product-list.component';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
@@ -32,6 +33,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatSelectModule,
     MatButtonModule,
     MatAutocompleteModule,
+    MatCheckboxModule,
     ProductListComponent,
     DrawerComponent,
     MatDialogModule,
@@ -62,8 +64,9 @@ export class ProductsComponent implements OnInit {
     this.productForm = this.fb.group({
       id: [null],
       name: ['', Validators.required],
+      is_gold: [false],
       carat: [null],
-      weight: [null],
+      weight_brut: [null],
       category_id: [null, Validators.required]
     });
 
@@ -87,9 +90,10 @@ export class ProductsComponent implements OnInit {
           })
         );
 
-        // Map products with categories and set products
+        // Map products with categories and set products, converting is_gold to boolean
         this.products = products.map(product => ({
           ...product,
+          is_gold: Boolean(product.is_gold),
           category: product.category_id ? categories.find(c => c.id === product.category_id) : undefined
         }));
       },
@@ -103,6 +107,16 @@ export class ProductsComponent implements OnInit {
       }
     });
 
+    // Subscribe to is_gold changes
+    this.productForm.get('is_gold')?.valueChanges.subscribe(isGold => {
+      if (!isGold) {
+        this.productForm.patchValue({
+          carat: null,
+          weight_brut: null
+        });
+      }
+    });
+
     setTimeout(() => {
       this.skipDrawerAnimation = false;
     }, 100);
@@ -110,7 +124,7 @@ export class ProductsComponent implements OnInit {
 
   private _filterCategories(value: string): Category[] {
     const filterValue = value.toLowerCase();
-    return this.categories.filter(category => 
+    return this.categories.filter(category =>
       category.name.toLowerCase().includes(filterValue)
     );
   }
@@ -134,8 +148,9 @@ export class ProductsComponent implements OnInit {
     if (!this.editMode) {
       this.productForm.reset({
         carat: null,
-        weight: null,
-        category_id: null
+        weight_brut: null,
+        category_id: null,
+        is_gold: false
       });
     }
     this.isDrawerOpen = true;
@@ -152,8 +167,11 @@ export class ProductsComponent implements OnInit {
       const product: Product = {
         ...formValue,
         id: this.editMode ? this.selectedProductId! : null,
-        weight24k: formValue.weight && formValue.carat ? 
-          this.calculateTotal24k(formValue.weight, formValue.carat) : undefined
+        is_gold: formValue.is_gold ? 1 : 0,
+        carat: !formValue.is_gold ? null : formValue.carat,
+        weight_brut: !formValue.is_gold ? null : formValue.weight_brut,
+        weight24k: formValue.weight_brut && formValue.carat ? 
+          this.calculateTotal24k(formValue.weight_brut, formValue.carat) : undefined
       };
 
       if (this.editMode && product.id) {
@@ -197,8 +215,9 @@ export class ProductsComponent implements OnInit {
       id: product.id,
       name: product.name,
       carat: product.carat ? parseInt(product.carat.toString()) : null,
-      weight: product.weight,
-      category_id: product.category_id
+      weight_brut: product.weight_brut,
+      category_id: product.category_id,
+      is_gold: Boolean(product.is_gold)
     });
 
     // Set the initial category value in the autocomplete
@@ -236,7 +255,7 @@ export class ProductsComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.products = this.products.filter(product => product.id !== id);
-        
+
         this.productsService.deleteProduct(id).subscribe({
           next: () => {
           },
@@ -258,18 +277,20 @@ export class ProductsComponent implements OnInit {
   resetForm(): void {
     this.productForm.reset({
       carat: null,
-      weight: null,
-      category_id: null
+      weight_brut: null,
+      category_id: null,
+      is_gold: false
     });
     this.categoryControl.reset();
     this.editMode = false;
     this.selectedProductId = null;
   }
 
-  calculateTotal24k(weight: number | null, carat: number | null) {
-    if (!weight || !carat) return undefined;
-    const purity = this.caratPurityMapGold[carat as keyof typeof this.caratPurityMapGold] || 0;
-    const weight24K = weight * purity;
+  calculateTotal24k(weight_brut: number | null, carat: number | null) {
+    if (!weight_brut || !carat) return undefined;
+    const purity = this.caratPurityMapGold[carat as keyof typeof this.caratPurityMapGold] || undefined;
+    if(!purity) return undefined  ;
+    const weight24K = weight_brut * purity;
     return parseFloat(weight24K.toFixed(4));
   }
 

@@ -1,4 +1,4 @@
-export const CARAT_OPTIONS: number[] = [22, 21, 18, 14, 9, 8, 24, 0];
+export const CARAT_OPTIONS: number[] = [22, 21, 18, 14, 9, 8, 24];
 
 export const CARAT_PURITY_MAP_GOLD: { [key: number]: number } = {
   24: 0.999,
@@ -7,8 +7,7 @@ export const CARAT_PURITY_MAP_GOLD: { [key: number]: number } = {
   18: 0.750,
   14: 0.585,
   9: 0.375,
-  8: 0.333,
-  0: 0.000
+  8: 0.333
 }; 
 
 
@@ -19,8 +18,7 @@ export const CARAT_PURITY_MAP_SCRAP: { [key: number]: number } = {
   18: 0.730,
   14: 0.565,
   9: 0.350,
-  8: 0.300,
-  0: 0.000
+  8: 0.300
 }; 
 
 

@@ -19,6 +19,7 @@ import { OrderComponent } from './orders/order.component';
 import { WholesalersComponent } from './wholesalers/wholesaler.component';
 import { SupplyListComponent } from './supplies/supply-list.component';
 import { SupplyComponent } from './supplies/supply.component';
+
 export const routes: Routes = [
   {
     path: '',
@@ -43,7 +44,7 @@ export const routes: Routes = [
       { path: 'permissions', component: PermissionsComponent },
       { path: 'users', component: UsersComponent },
       { path: 'categories', component: CategoriesComponent },
-      { path: 'wholesalers', component: WholesalersComponent },
+      { path: 'wholesalers', component: WholesalersComponent }
     ]
   },
   {

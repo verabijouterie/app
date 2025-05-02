@@ -57,8 +57,8 @@ export class ScenarioComponent implements OnInit {
   isEditing: boolean = false;
   isDrawerOpen = false;
   skipDrawerAnimation = true;
-  drawerType?: 'Product' | 'Scrap' | 'Cash' | 'Bank';
-  drawerDirection?: 'In' | 'Out';
+  transactionType?: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
+  transactionDirection?: 'In' | 'Out';
   
   scenario: Scenario = {
     id: undefined,
@@ -160,9 +160,9 @@ export class ScenarioComponent implements OnInit {
     });
   }
 
-  openTransactionDrawer(type: 'Product' | 'Scrap' | 'Cash' | 'Bank', direction: 'In' | 'Out') {
-    this.drawerType = type;
-    this.drawerDirection = direction;
+  openTransactionDrawer(type: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money', direction: 'In' | 'Out') {
+    this.transactionType = type;
+    this.transactionDirection = direction;
     this.isDrawerOpen = true;
   }
 
@@ -198,8 +198,8 @@ export class ScenarioComponent implements OnInit {
   editTransaction(index: number) {
     this.editingTransactionIndex = index;
     const transaction = this.scenario.transactions[index];
-    this.drawerType = transaction.type;
-    this.drawerDirection = transaction.direction;
+    this.transactionType = transaction.type;
+    this.transactionDirection = transaction.direction;
     this.isDrawerOpen = true;
   }
 
@@ -235,7 +235,7 @@ export class ScenarioComponent implements OnInit {
       }
       if(transaction.type === 'Cash' || transaction.type === 'Bank') {
         delete transaction.product_id;
-        delete transaction.weight;
+        delete transaction.weight_brut;
         delete transaction.carat;
         delete transaction.quantity;
         delete transaction.weight24k;

@@ -62,8 +62,8 @@ export class OrderComponent implements OnInit {
   isEditing: boolean = false;
   isDrawerOpen = false;
   skipDrawerAnimation = true;
-  drawerType?: 'Product' | 'Scrap' | 'Cash' | 'Bank';
-  drawerDirection?: 'In' | 'Out';
+  transactionType?: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
+  transactionDirection?: 'In' | 'Out';
   
   order: Order = {
     id: undefined,
@@ -175,9 +175,9 @@ export class OrderComponent implements OnInit {
   }
 
 
-  openTransactionDrawer(type: 'Product' | 'Cash' | 'Bank', direction: 'In' | 'Out') {
-    this.drawerType = type;
-    this.drawerDirection = direction;
+  openTransactionDrawer(type: 'Product' | 'Cash' | 'Bank' | 'Money', direction: 'In' | 'Out') {
+    this.transactionType = type;
+    this.transactionDirection = direction;
     this.isDrawerOpen = true;
   }
 
@@ -222,8 +222,8 @@ export class OrderComponent implements OnInit {
   editTransaction(index: number) {
     this.editingTransactionIndex = index;
     const transaction = this.order.transactions[index];
-    this.drawerType = transaction.type;
-    this.drawerDirection = transaction.direction;
+    this.transactionType = transaction.type;
+    this.transactionDirection = transaction.direction;
     this.isDrawerOpen = true;
   }
 
@@ -264,7 +264,7 @@ export class OrderComponent implements OnInit {
       }
       if(transaction.type === 'Cash' || transaction.type === 'Bank') {
         delete transaction.product_id;
-        delete transaction.weight;
+        delete transaction.weight_brut;
         delete transaction.carat;
         delete transaction.quantity;
         delete transaction.weight24k;

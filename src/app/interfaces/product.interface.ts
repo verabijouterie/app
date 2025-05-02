@@ -4,11 +4,11 @@ import { Category } from "./category.interface";
 
 export interface Product {
   id?: number;
+  is_gold: boolean;
   name: string;
   carat?: typeof CARAT_OPTIONS[number];//
-  weight?: number;
+  weight_brut?: number;
   weight24k?: number;
-  inventory?: number;
   category_id?: number;
   category?: Category;
 } 

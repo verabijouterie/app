@@ -61,8 +61,8 @@ export class SupplyComponent implements OnInit {
   isEditing: boolean = false;
   isDrawerOpen = false;
   skipDrawerAnimation = true;
-  drawerType?: 'Product' | 'Scrap' | 'Cash' | 'Bank';
-  drawerDirection?: 'In' | 'Out';
+  transactionType?: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
+  transactionDirection?: 'In' | 'Out';
   wholesalers: Wholesaler[] = [];
   defaultGoldRate = 0;
 
@@ -209,9 +209,9 @@ export class SupplyComponent implements OnInit {
     });
   }
 
-  openTransactionDrawer(type: 'Product' | 'Scrap' | 'Cash' | 'Bank', direction: 'In' | 'Out') {
-    this.drawerType = type;
-    this.drawerDirection = direction;
+  openTransactionDrawer(type: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money', direction: 'In' | 'Out') {
+    this.transactionType = type;
+    this.transactionDirection = direction;
     this.isDrawerOpen = true;
   }
 
@@ -257,8 +257,8 @@ export class SupplyComponent implements OnInit {
   editTransaction(index: number) {
     this.editingTransactionIndex = index;
     const transaction = this.supply.transactions[index];
-    this.drawerType = transaction.type;
-    this.drawerDirection = transaction.direction;
+    this.transactionType = transaction.type;
+    this.transactionDirection = transaction.direction;
     this.isDrawerOpen = true;
   }
 
@@ -302,7 +302,7 @@ export class SupplyComponent implements OnInit {
       }
       if(transaction.type === 'Cash' || transaction.type === 'Bank') {
         delete transaction.product_id;
-        delete transaction.weight;
+        delete transaction.weight_brut;
         delete transaction.carat;
         delete transaction.quantity;
         delete transaction.weight24k;

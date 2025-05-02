@@ -101,9 +101,9 @@
                   <ng-container *ngIf="transaction.type === 'Product'">
                     {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}}
                     <ng-container
-                      *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0">{{transaction.weight}}g</ng-container>
+                      *ngIf="transaction.weight_brut !== undefined && transaction.weight_brut !== null && transaction.weight_brut > 0">{{transaction.weight_brut}}g</ng-container>
                     <ng-container
-                      *ngIf="transaction.weight !== undefined && transaction.weight !== null && transaction.weight > 0 && transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">,
+                      *ngIf="transaction.weight_brut !== undefined && transaction.weight_brut !== null && transaction.weight_brut > 0 && transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">,
                     </ng-container>
                     <ng-container
                       *ngIf="transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">{{transaction.carat}}
@@ -111,7 +111,7 @@
                     <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Scrap'">
-                    {{transaction.weight}}g, {{transaction.carat}} ayar
+                    {{transaction.weight_brut}}g, {{transaction.carat}} ayar
                     <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
                   </ng-container>
                   <ng-container *ngIf="transaction.type === 'Cash'">
@@ -228,7 +228,7 @@
   [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()">
   <app-transaction
     [transaction]="editingTransactionIndex !== null ? supply.transactions[editingTransactionIndex] : undefined"
-    [type]="drawerType" [direction]="drawerDirection" (transactionSubmit)="onTransactionSubmit($event)"
+    [type]="transactionType!" [direction]="transactionDirection!" (transactionSubmit)="onTransactionSubmit($event)"
     (cancel)="onDrawerClose()">
   </app-transaction>
 </app-drawer>
