@@ -17,21 +17,21 @@ import { ProductsService } from '../services/products.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
-    selector: 'app-transaction',
-    standalone: true,
-    templateUrl: './transaction.component.html',
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatCardModule,
-        MatAutocompleteModule,
-        MatSnackBarModule
-    ]
+  selector: 'app-transaction',
+  standalone: true,
+  templateUrl: './transaction.component.html',
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatAutocompleteModule,
+    MatSnackBarModule
+  ]
 })
 export class TransactionComponent implements OnInit, OnChanges {
   @Output() transactionSubmit = new EventEmitter<Transaction>();
@@ -39,12 +39,13 @@ export class TransactionComponent implements OnInit, OnChanges {
   @Input() transaction?: Transaction;
   @Input() type!: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
   @Input() direction!: 'In' | 'Out';
-  
+  @Input() context!: 'Supply' | 'Order' | 'Scenario';
+
   products: Product[] = [];
   selectedProduct: Product | null = null;
   productControl = new FormControl<string | Product>('');
   filteredProducts: Observable<Product[]>;
-  
+
   caratOptions = CARAT_OPTIONS.map(carat => Number(carat));
   caratPurityMapGold = CARAT_PURITY_MAP_GOLD;
   caratPurityMapScrap = CARAT_PURITY_MAP_SCRAP;
@@ -52,6 +53,7 @@ export class TransactionComponent implements OnInit, OnChanges {
   formTransaction: Transaction = {
     type: this.type,
     direction: this.direction,
+    context: this.context,
     weight_brut: 0,
     carat: undefined,
     amount: 0,
@@ -69,11 +71,12 @@ export class TransactionComponent implements OnInit, OnChanges {
   constructor(private productsService: ProductsService, private snackBar: MatSnackBar) {
     this.productControl = new FormControl<string | Product>('');
     this.filteredProducts = of([]); // Initialize with empty observable
+
   }
 
   ngOnInit() {
     this.loadProducts();
-    
+
     // Subscribe to productControl value changes
     this.productControlSubscription = this.productControl.valueChanges.subscribe(value => {
       if (!value) {
@@ -91,13 +94,29 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+
+
+    // Handle changes to type and direction inputs
+    if (changes['type'] && this.type) {
+      this.formTransaction.type = this.type;
+    }
+
+    if (changes['direction'] && this.direction) {
+      this.formTransaction.direction = this.direction;
+    }
+
+    if (changes['context'] && this.context) {
+      this.formTransaction.context = this.context;
+    }
+
+
     if (changes['transaction'] && this.transaction) {
 
       this.formTransaction = { ...this.transaction };
       if (this.formTransaction.product) {
         this.selectedProduct = this.formTransaction.product;
         this.productControl.setValue(this.formTransaction.product);
-        
+
         this.handleProductCarat(this.formTransaction.product);
         this.handleProductWeight(this.formTransaction.product);
 
@@ -105,14 +124,8 @@ export class TransactionComponent implements OnInit, OnChanges {
         this.formTransaction.carat = Number(this.transaction?.carat);
       }
     }
-    
-    // Handle changes to type and direction inputs
-    if (changes['type'] && this.type) {
-      this.formTransaction.type = this.type;
-    }
-    if (changes['direction'] && this.direction) {
-      this.formTransaction.direction = this.direction;
-    }
+
+
   }
 
   ngOnDestroy() {
@@ -148,13 +161,13 @@ export class TransactionComponent implements OnInit, OnChanges {
 
   private _filter(value: string): Product[] {
     const filterValue = value.toLowerCase();
-    return this.products.filter(product => 
+    return this.products.filter(product =>
       product.name.toLowerCase().includes(filterValue)
     );
   }
 
 
-  displayFn = (product: Product | string): string => {    
+  displayFn = (product: Product | string): string => {
     if (!product) return '';
     if (typeof product === 'string') return product;
     const caratInfo = product.carat && product.carat > 0 ? `${product.carat} carat` : '';
@@ -170,7 +183,7 @@ export class TransactionComponent implements OnInit, OnChanges {
       this.selectedProduct = product;
       this.formTransaction.product = product;
       this.formTransaction.product_id = product.id;
-      
+
       this.handleProductCarat(product);
       this.handleProductWeight(product);
 
@@ -180,12 +193,12 @@ export class TransactionComponent implements OnInit, OnChanges {
 
   checkFormValidity() {
     if (this.formTransaction.type === 'Product') {
-      return !this.formTransaction.product_id || 
-             this.formTransaction.carat === undefined || 
-             this.formTransaction.weight_brut === undefined || 
-             !this.formTransaction.quantity || 
-             (!this.isWeightDisabled && this.formTransaction.weight_brut <= 0) ||
-             (!this.isCaratDisabled && this.formTransaction.carat === 0);
+      return !this.formTransaction.product_id ||
+        this.formTransaction.carat === undefined ||
+        this.formTransaction.weight_brut === undefined ||
+        !this.formTransaction.quantity ||
+        (!this.isWeightDisabled && this.formTransaction.weight_brut <= 0) ||
+        (!this.isCaratDisabled && this.formTransaction.carat === 0);
     } else if (this.formTransaction.type === 'Scrap') {
       return !this.formTransaction.weight24k || this.formTransaction.weight24k === 0;
     } else if (this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank') {
@@ -220,14 +233,14 @@ export class TransactionComponent implements OnInit, OnChanges {
       }
     }
     else if (this.formTransaction.type === 'Scrap') {
-      if (this.formTransaction.weight_brut && this.formTransaction.carat && 
-          this.formTransaction.weight_brut > 0 && this.formTransaction.carat > 0) {
+      if (this.formTransaction.weight_brut && this.formTransaction.carat &&
+        this.formTransaction.weight_brut > 0 && this.formTransaction.carat > 0) {
         const purity = this.caratPurityMapScrap[this.formTransaction.carat as keyof typeof this.caratPurityMapScrap] || 0;
         const weightAs24K = this.formTransaction.weight_brut * purity;
         this.formTransaction.weight24k = parseFloat(weightAs24K.toFixed(4));
       } else {
         this.formTransaction.weight24k = 0;
-      } 
+      }
     }
     else {
       this.formTransaction.weight24k = 0;
@@ -250,8 +263,9 @@ export class TransactionComponent implements OnInit, OnChanges {
     this.isWeightDisabled = false;
     this.formTransaction = {
       id: undefined,
-      type: this.formTransaction.type,
-      direction: this.formTransaction.direction,
+      type: this.type,
+      direction: this.direction,
+      context: this.context,
       weight_brut: 0,
       carat: undefined,
       amount: 0,
@@ -277,7 +291,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     }
 
     //Never allow the user to select 0 carat. that must allways be set from the products page
-    if(!this.isCaratDisabled) {
+    if (!this.isCaratDisabled) {
       this.caratOptions = CARAT_OPTIONS.filter(carat => carat !== 0);
     } else {
       this.caratOptions = CARAT_OPTIONS;
@@ -298,7 +312,5 @@ export class TransactionComponent implements OnInit, OnChanges {
       this.formTransaction.weight_brut = 0;
       this.isWeightDisabled = false;
     }
-
-
   }
 }

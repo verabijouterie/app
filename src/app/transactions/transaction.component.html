@@ -1,53 +1,45 @@
 <div>
   <form (ngSubmit)="onSubmit($event)" class="space-y-6">
     <div class="grid grid-cols-1 gap-4">
-      @if (!type) {
-        <div class="space-y-1">
-          <label for="type" class="block text-sm font-medium text-gray-900">Tür</label>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-select [(ngModel)]="formTransaction.type" name="type" (selectionChange)="resetForm()">
-              <mat-option value="Product">Ürün</mat-option>
-              <mat-option value="Scrap">Hurda</mat-option>
-              <mat-option value="Cash">Nakit</mat-option>
-              <mat-option value="Bank">Banka</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-      }
 
-      @if (!direction) {
-        <div class="space-y-1">
-          <label for="direction" class="block text-sm font-medium text-gray-900">Yön</label>
-          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-select [(ngModel)]="formTransaction.direction" name="direction">
-              <mat-option value="In">Giriş</mat-option>
-              <mat-option value="Out">Çıkış</mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
+      @if (formTransaction.type === 'Product' && selectedProduct) {
+        {{selectedProduct.is_gold}}
       }
 
       @if (formTransaction.type === 'Product') {
         <div class="space-y-1">
           <label for="product" class="block text-sm font-medium text-gray-900">Ürün</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <input type="text" matInput [formControl]="productControl" [matAutocomplete]="auto"
-              placeholder="Ürün seçin">
-            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="onProductSelected($event)">
+            <input type="text" matInput [formControl]="productControl" [matAutocomplete]="auto" placeholder="Ürün seçin">
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn"
+              (optionSelected)="onProductSelected($event)">
               <mat-option *ngFor="let product of filteredProducts | async" [value]="product">
                 {{product.name}}
-                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && product.weight_brut !== undefined && product.weight_brut !== null && product.weight_brut > 0">({{product.carat}} ayar, {{product.weight_brut}}g)</ng-container>
-                <ng-container *ngIf="product.carat !== undefined && product.carat !== null && (!product.weight_brut || product.weight_brut === 0)">({{product.carat}} ayar)</ng-container>
-                <ng-container *ngIf="(!product.carat || product.carat === null) && product.weight_brut !== undefined && product.weight_brut !== null && product.weight_brut > 0">({{product.weight_brut}}g)</ng-container>
+                @if (product.is_gold) {
+                  @if (product.carat !== undefined && product.carat !== null && product.weight_brut !== undefined &&
+                  product.weight_brut !== null && product.weight_brut > 0) {
+                  <ng-container>({{product.carat}} ayar, {{product.weight_brut}}g)</ng-container>
+                  }
+                  @if (product.carat !== undefined && product.carat !== null && (!product.weight_brut || product.weight_brut
+                  === 0)) {
+                  <ng-container>({{product.carat}} ayar)</ng-container>
+                  }
+                  @if ((!product.carat || product.carat === null) && product.weight_brut !== undefined &&
+                  product.weight_brut !== null && product.weight_brut > 0) {
+                  <ng-container>({{product.weight_brut}}g)</ng-container>
+                  }
+                }
               </mat-option>
             </mat-autocomplete>
           </mat-form-field>
         </div>
+      }
 
+      @if (formTransaction.type === 'Product' && selectedProduct?.is_gold) {
         <div class="space-y-1">
-          <label for="carat" class="block text-sm font-medium text-gray-900">Altın Ayarı</label>
+          <label for="carat" class="block text-sm font-medium text-gray-900">Ayar</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <mat-select [(ngModel)]="formTransaction.carat" name="carat" [disabled]="isCaratDisabled" 
+            <mat-select [(ngModel)]="formTransaction.carat" name="carat" [disabled]="isCaratDisabled"
               (selectionChange)="calculateTotal24KWeight()" (closed)="calculateTotal24KWeight()">
               <mat-option *ngFor="let carat of caratOptions" [value]="carat">
                 {{ carat }}
@@ -55,31 +47,70 @@
             </mat-select>
           </mat-form-field>
         </div>
+      }
+
+      @if (formTransaction.type === 'Product' && selectedProduct?.is_gold) {
+        <div class="space-y-1">
+          <label for="weight" class="block text-sm font-medium text-gray-900">Tek ürün brüt altın ağırlığı (gram)</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+              <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight_brut" name="weight_brut"
+                [disabled]="isWeightDisabled" (input)="calculateTotal24KWeight()" (change)="calculateTotal24KWeight()"
+                (focus)="selectWeightInput($event)">
+          </mat-form-field>
+        </div>
+      }
+
+      <div class="space-y-1">
+        <label for="quantity" class="block text-sm font-medium text-gray-900">
+          @if (formTransaction.direction === 'In') {
+            Alınan Ürün Adeti
+          }
+          @if (formTransaction.direction === 'Out') {
+            Satılan Ürün Adeti
+          }
+        </label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <input matInput type="number" name="quantity" [(ngModel)]="formTransaction.quantity" min="1" step="1"
+            (focus)="selectQuantity($event)" (input)="calculateTotal24KWeight()">
+        </mat-form-field>
+      </div>
+
+        @if (formTransaction.context === 'Supply' && formTransaction.type === 'Product' && selectedProduct?.is_gold) {
+          <div class="space-y-1">
+            <label for="agreed_milliemes" class="block text-sm font-medium text-gray-900">Satış Milyemi</label>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+              <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.agreed_milliemes"
+                name="agreed_milliemes" (input)="calculateTotal24KWeight()" (change)="calculateTotal24KWeight()"
+                (focus)="selectWeightInput($event)">
+            </mat-form-field>
+          </div>
+        }
 
         <div class="space-y-1">
-          <label for="weight" class="block text-sm font-medium text-gray-900">Altın Ağırlığı (gram)</label>
+          <label for="agreed_price" class="block text-sm font-medium text-gray-900">Satış Fiyatı</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight_brut" name="weight_brut"
-              [disabled]="isWeightDisabled" (input)="calculateTotal24KWeight()" (change)="calculateTotal24KWeight()"
+            <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.aggreed_price"
+              name="aggreed_price" (input)="calculateTotal24KWeight()" (change)="calculateTotal24KWeight()"
               (focus)="selectWeightInput($event)">
           </mat-form-field>
         </div>
 
         <div class="space-y-1">
-          <label for="quantity" class="block text-sm font-medium text-gray-900">Adet</label>
+          <label for="agreed_weight24k" class="block text-sm font-medium text-gray-900">Satış 24K Ağırlığı</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <input matInput type="number" name="quantity" [(ngModel)]="formTransaction.quantity" min="1"
-              step="1" (focus)="selectQuantity($event)" (input)="calculateTotal24KWeight()">
+            <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.agreed_weight24k"
+              name="agreed_weight24k" (input)="calculateTotal24KWeight()" (change)="calculateTotal24KWeight()"
+              (focus)="selectWeightInput($event)">
           </mat-form-field>
         </div>
-      }
 
-      @if (formTransaction.type === 'Cash' || formTransaction.type === 'Bank') {
+
+      @if (formTransaction.type === 'Cash' || formTransaction.type === 'Bank' || formTransaction.type === 'Money') {
         <div class="space-y-1">
           <label for="amount" class="block text-sm font-medium text-gray-900">Tutar</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-            <input matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01"
-              name="amount" (focus)="selectAmountInput($event)">
+            <input matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01" name="amount"
+              (focus)="selectAmountInput($event)">
             <span matSuffix>EUR</span>
           </mat-form-field>
         </div>
@@ -107,12 +138,12 @@
       }
 
       @if (formTransaction.type === 'Product' || formTransaction.type === 'Scrap') {
-        <div class="space-y-1">
-          <label for="weight24k" class="text-sm font-medium text-gray-900 inline">24K Toplam Ağırlık (gram): </label>
-          <span class="text-gray-900 text-base inline">
-            {{formTransaction.weight24k}}
-          </span>
-        </div>
+      <div class="space-y-1">
+        <label for="weight24k" class="text-sm font-medium text-gray-900 inline">24K Toplam Ağırlık (gram): </label>
+        <span class="text-gray-900 text-base inline">
+          {{formTransaction.weight24k}}
+        </span>
+      </div>
       }
     </div>
 

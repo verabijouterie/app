@@ -228,7 +228,7 @@
   [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()">
   <app-transaction
     [transaction]="editingTransactionIndex !== null ? supply.transactions[editingTransactionIndex] : undefined"
-    [type]="transactionType!" [direction]="transactionDirection!" (transactionSubmit)="onTransactionSubmit($event)"
+    [type]="transactionType!" [direction]="transactionDirection!" [context]="'Supply'" (transactionSubmit)="onTransactionSubmit($event)"
     (cancel)="onDrawerClose()">
   </app-transaction>
 </app-drawer>
