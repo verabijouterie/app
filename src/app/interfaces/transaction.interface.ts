@@ -23,8 +23,8 @@ export interface Transaction {
   carat?: typeof CARAT_OPTIONS[number];
   weight24k?: number; // in gram
   agreed_milliemes?: number;
-  aggreed_price?: number;
   agreed_weight24k?: number;
+  agreed_price?: number;
 
 
   paiable_as_cash_only?: boolean;

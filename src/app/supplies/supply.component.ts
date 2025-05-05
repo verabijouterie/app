@@ -121,13 +121,6 @@ export class SupplyComponent implements OnInit {
         this.supplyService.getSupply(Number(supplyId)).subscribe({
           next: (supply) => {
             this.supply = supply;
-            // Ensure all product transactions have a agreed_gold_rate
-            this.supply.transactions = this.supply.transactions.map(t => {
-              if ((t.type === 'Cash' || t.type === 'Bank') && !t.agreed_gold_rate) {
-                return { ...t, agreed_gold_rate: this.defaultGoldRate };
-              }
-              return t;
-            });
           },
           error: (error) => {
             this.snackBar.open('Senaryo yüklenirken bir hata oluştu', 'Kapat', {
@@ -224,24 +217,14 @@ export class SupplyComponent implements OnInit {
   }
 
   onTransactionSubmit(transaction: Transaction) {
+    console.log("Inside Supply onTransactionSubmit:", JSON.stringify(transaction, null, 2));
     if (this.editingTransactionIndex !== null) {
-      // Update existing transaction but preserve the agreed_gold_rate if it exists
-      const existingTransaction = this.supply.transactions[this.editingTransactionIndex];
-      if (transaction.type === 'Cash' || transaction.type === 'Bank') {
-        // Keep the existing agreed_gold_rate if it exists, otherwise set to default
-        transaction.agreed_gold_rate = existingTransaction.agreed_gold_rate || this.defaultGoldRate;
-      }
-
       this.supply.transactions = this.supply.transactions.map((t, i) => 
         i === this.editingTransactionIndex ? transaction : t
       );
       this.editingTransactionIndex = null;
     } else {
       // Add new transaction
-      if(transaction.type === 'Cash' || transaction.type === 'Bank') {
-        // Ensure new cash/bank transactions have a agreed_gold_rate
-        transaction.agreed_gold_rate = transaction.agreed_gold_rate || this.defaultGoldRate;
-      }
       this.supply.transactions = [...this.supply.transactions, transaction];
     }
     
@@ -281,13 +264,6 @@ export class SupplyComponent implements OnInit {
       transactions: this.supply.transactions.map(transaction => ({...transaction}))
     };
 
-    // Ensure all product transactions have a agreed_gold_rate
-    supplyToSubmit.transactions = supplyToSubmit.transactions.map(transaction => {
-      if ((transaction.type === 'Cash' || transaction.type === 'Bank') && !transaction.agreed_gold_rate) {
-        transaction.agreed_gold_rate = this.defaultGoldRate;
-      }
-      return transaction;
-    });
 
     supplyToSubmit.transactions.forEach(transaction => {
       if(transaction.type === 'Product' || transaction.type === 'Scrap') {
@@ -300,7 +276,7 @@ export class SupplyComponent implements OnInit {
           delete transaction.quantity;
         }
       }
-      if(transaction.type === 'Cash' || transaction.type === 'Bank') {
+      if(transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
         delete transaction.product_id;
         delete transaction.weight_brut;
         delete transaction.carat;
@@ -423,9 +399,6 @@ export class SupplyComponent implements OnInit {
     }));
   }
 
-  getProductById(id: number): Product | undefined {
-    return this.products.find(p => p.id === id);
-  }
 
   calculateTotal24kProductIn(): number {
     try {
@@ -650,10 +623,8 @@ export class SupplyComponent implements OnInit {
 
   isOrderValid(): boolean {
 
-    let allMoneyTransactionsHaveAgreedGoldRate = this.supply.transactions.every(t => t.type === 'Cash' || t.type === 'Bank' && t.agreed_gold_rate !== null && t.agreed_gold_rate !== undefined && t.agreed_gold_rate > 0);
 
     return this.supply.transactions.length > 0 
-    && allMoneyTransactionsHaveAgreedGoldRate
     && this.supply.total24kIn > 0 
     && this.supply.total24kOut > 0 
     && this.supply.totalCashIn > 0 

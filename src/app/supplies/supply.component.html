@@ -17,6 +17,16 @@
       </div>
     </div>
 
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
+      <div class="col-span-full space-y-1.5">
+        <label for="defaultGoldRate" class="block text-sm font-medium text-gray-900">Varsayılan Altın Kuru</label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <input matInput type="number" [(ngModel)]="defaultGoldRate" name="defaultGoldRate" id="defaultGoldRate"
+            placeholder="Varsayılan Altın Oranı Girin">
+        </mat-form-field>
+      </div>
+    </div>
+
 
     <form (ngSubmit)="onSubmit()" class="space-y-8">
       <!-- Basic Info Section -->
@@ -28,8 +38,6 @@
           </mat-form-field>
         </div>
       </div>
-
-
 
 
 
@@ -98,36 +106,63 @@
               </mat-icon>
               <div class="flex items-center gap-x-2">
                 <span class="text-sm text-gray-500">
-                  <ng-container *ngIf="transaction.type === 'Product'">
-                    {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}}
-                    <ng-container
-                      *ngIf="transaction.weight_brut !== undefined && transaction.weight_brut !== null && transaction.weight_brut > 0">{{transaction.weight_brut}}g</ng-container>
-                    <ng-container
-                      *ngIf="transaction.weight_brut !== undefined && transaction.weight_brut !== null && transaction.weight_brut > 0 && transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">,
-                    </ng-container>
-                    <ng-container
-                      *ngIf="transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0">{{transaction.carat}}
-                      ayar</ng-container>
-                    <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
-                  </ng-container>
-                  <ng-container *ngIf="transaction.type === 'Scrap'">
-                    {{transaction.weight_brut}}g, {{transaction.carat}} ayar
-                    <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
-                  </ng-container>
-                  <ng-container *ngIf="transaction.type === 'Cash'">
-                    Nakit: {{formatAmount(transaction.amount)}} EUR
-                  </ng-container>
-                  <ng-container *ngIf="transaction.type === 'Bank'">
-                    Banka: {{formatAmount(transaction.amount)}} EUR
-                  </ng-container>
+
+                  @if (transaction.type === 'Product') {
+                  {{transaction.quantity}} x {{transaction.product?.name}}
+                  }
+                  @if (transaction.type === 'Scrap') {
+                  {{transaction.weight_brut}}g Hurda
+                  }
+                  @if (transaction.type === 'Cash') {
+                  {{formatAmount(transaction.amount)}} EUR Nakit Ödeme
+                  }
+                  @if (transaction.type === 'Bank') {
+                  {{formatAmount(transaction.amount)}} EUR Banka Ödemesi
+                  }
+                  @if ((transaction.type === 'Product' && transaction.product?.is_gold) || (transaction.type ===
+                  'Scrap')) {
+                  <br />
+                  Ayar: {{transaction.carat}}
+                  }
+                  @if (transaction.type === 'Product' && transaction.product?.is_gold) {
+                  <br />
+                  Brüt ağırlık: {{transaction.weight_brut}}g
+                  }
+                  @if (transaction.type === 'Product' || (transaction.type === 'Scrap')) {
+                  <br />
+                  Euro bazında tutar: {{transaction.agreed_price}} EUR
+                  }
+                  @if ((transaction.type === 'Product' && transaction.product?.is_gold) || (transaction.type ===
+                  'Scrap')) {
+                  <br />
+                  Milyem: {{transaction.agreed_milliemes}}
+                  }
+                  @if ((transaction.type === 'Product' && transaction.product?.is_gold) || (transaction.type ===
+                  'Scrap')) {
+                  <br />
+                  Gerçek has altın ağırlığı: {{transaction.weight24k}}g
+                  }
+                  @if ((transaction.type === 'Product' && transaction.product?.is_gold) || (transaction.type ===
+                  'Scrap')) {
+                  <br />
+                  Milyeme göre has altın ağırlığı: {{transaction.agreed_weight24k}}g
+                  }
+                  @if (!transaction.paiable_as_cash_only && (transaction.type === 'Product' &&
+                  !transaction.product?.is_gold) || (transaction.type === 'Cash') || (transaction.type === 'Bank')) {
+                  <br />
+                  Kura göre tutarin has altın ağırlığı: {{transaction.agreed_weight24k}}g
+                  }
+                  @if (transaction.paiable_as_cash_only) {
+                  <br />
+                  Para ile ödeme yapilacak
+                  }
+
+
                 </span>
               </div>
             </div>
 
             <div class="flex items-center gap-x-1">
-              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-40" *ngIf="transaction.type === 'Cash' || transaction.type === 'Bank'">
-                <input matInput type="number" [(ngModel)]="transaction.agreed_gold_rate" [name]="'agreed_gold_rate_' + i">
-              </mat-form-field>
               <button type="button" (click)="editTransaction(i)"
                 class="rounded-md p-1 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
                 <mat-icon class="h-4 w-4">edit</mat-icon>
@@ -223,12 +258,11 @@
     </form>
   </div>
 </div>
-
 <app-drawer [isOpen]="isDrawerOpen" [skipAnimation]="skipDrawerAnimation"
   [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()">
   <app-transaction
     [transaction]="editingTransactionIndex !== null ? supply.transactions[editingTransactionIndex] : undefined"
-    [type]="transactionType!" [direction]="transactionDirection!" [context]="'Supply'" (transactionSubmit)="onTransactionSubmit($event)"
-    (cancel)="onDrawerClose()">
+    [type]="transactionType!" [direction]="transactionDirection!" [context]="'Supply'"
+    [agreedGoldRate]="defaultGoldRate" (transactionSubmit)="onTransactionSubmit($event)" (cancel)="onDrawerClose()">
   </app-transaction>
 </app-drawer>
