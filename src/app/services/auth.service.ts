@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, catchError, Observable, tap, timer, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface LoginCredentials {
@@ -24,12 +24,6 @@ export interface RefreshTokenResponse {
   token: string;
 }
 
-export interface ApiError {
-  message: string;
-  status: number;
-  error?: any;
-}
-
 @Injectable({
   providedIn: 'root'
 })
@@ -37,21 +31,29 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<AuthResponse['user'] | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
   private refreshTimer: any;
+  private authChannel = new BroadcastChannel('auth'); // ✅ Sync channel
 
   constructor(private http: HttpClient) {
-    // Check for stored token and user data on service initialization
     const storedUser = localStorage.getItem('currentUser');
     if (storedUser) {
       this.currentUserSubject.next(JSON.parse(storedUser));
       this.startRefreshTimer();
     }
+
+    // ✅ Listen for token updates from other tabs
+    this.authChannel.onmessage = (event) => {
+      if (event.data.type === 'NEW_TOKEN') {
+        localStorage.setItem('token', event.data.token);
+        this.startRefreshTimer(); // Restart timer with the new token
+      }
+    };
   }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(
       `${environment.apiUrl}/auth/login.php`,
       credentials,
-      { withCredentials: true } // ✅ Required to accept cookie from API
+      { withCredentials: true }
     ).pipe(
       tap(response => {
         this.setAuthData(response);
@@ -60,9 +62,8 @@ export class AuthService {
     );
   }
 
-
   private setAuthData(response: AuthResponse): void {
-    localStorage.setItem('token', response.token); // ✅ Access token only
+    localStorage.setItem('token', response.token);
     localStorage.setItem('currentUser', JSON.stringify(response.user));
     this.currentUserSubject.next(response.user);
   }
@@ -81,12 +82,12 @@ export class AuthService {
         if (expiresIn > 0) {
           this.refreshTimer = setTimeout(() => this.refreshToken().subscribe(), expiresIn);
         } else {
-          // Token already expired or near-expired — refresh immediately
+          // Token already expired or near-expired
           this.refreshToken().subscribe();
         }
       } catch (error) {
-        console.warn('Failed to start refresh timer:', error);
-        this.logout(); // optional: handle invalid token case
+        console.warn('Failed to parse token:', error);
+        this.logout();
       }
     }
   }
@@ -95,7 +96,6 @@ export class AuthService {
     if (!token || token.split('.').length !== 3) {
       throw new Error('Invalid JWT token');
     }
-
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(window.atob(base64));
@@ -109,13 +109,13 @@ export class AuthService {
     ).pipe(
       tap(response => {
         localStorage.setItem('token', response.token);
-        this.startRefreshTimer(); // ✅ new access token, schedule next refresh
+        this.authChannel.postMessage({ type: 'NEW_TOKEN', token: response.token }); // ✅ Broadcast
+        this.startRefreshTimer();
       }),
-      // ❗ Add this to stop retrying if refresh fails
       catchError(error => {
-        console.warn('Refresh token failed, logging out.');
+        console.warn('Refresh failed:', error);
         this.logout();
-        return throwError(() => error); // propagate error if needed
+        return throwError(() => error);
       })
     );
   }
@@ -130,7 +130,6 @@ export class AuthService {
     this.currentUserSubject.next(null);
 
     this.http.post(`${environment.apiUrl}/auth/logout.php`, {}, { withCredentials: true }).subscribe();
-
   }
 
   get isLoggedIn(): boolean {
@@ -144,4 +143,4 @@ export class AuthService {
   get currentUser(): AuthResponse['user'] | null {
     return this.currentUserSubject.value;
   }
-} 
+}

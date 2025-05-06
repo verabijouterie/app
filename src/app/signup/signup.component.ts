@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { AuthService, LoginCredentials, ApiError } from '../services/auth.service';
+import { AuthService, LoginCredentials } from '../services/auth.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-signup',
@@ -49,7 +49,7 @@ export class SignupComponent {
         next: () => {
           this.router.navigate(['/dashboard']);
         },
-        error: (error: ApiError) => {
+        error: (error: any) => {
           this.snackBar.open('Giriş yapılırken bir hata oluştu', 'Kapat', {
             duration: 3000,
             horizontalPosition: 'end',
