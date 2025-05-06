@@ -48,13 +48,16 @@ export class AuthService {
   }
 
   login(credentials: LoginCredentials): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/auth/login.php`, credentials)
-      .pipe(
-        tap(response => {
-          this.setAuthData(response);
-          this.startRefreshTimer();
-        })
-      );
+    return this.http.post<AuthResponse>(
+      `${environment.apiUrl}/auth/login.php`,
+      credentials,
+      { withCredentials: true } // ✅ Required to accept cookie from API
+    ).pipe(
+      tap(response => {
+        this.setAuthData(response);
+        this.startRefreshTimer();
+      })
+    );
   }
 
 
