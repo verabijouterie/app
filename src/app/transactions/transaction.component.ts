@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChanges, ɵsetClassDebugInfo } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Transaction } from '../interfaces/transaction.interface';
