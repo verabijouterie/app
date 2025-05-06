@@ -57,53 +57,68 @@ export class AuthService {
       );
   }
 
+
   private setAuthData(response: AuthResponse): void {
-    localStorage.setItem('token', response.token);
+    localStorage.setItem('token', response.token); // ✅ Access token only
     localStorage.setItem('currentUser', JSON.stringify(response.user));
     this.currentUserSubject.next(response.user);
   }
 
   private startRefreshTimer(): void {
-    // Clear any existing timer
     if (this.refreshTimer) {
       clearTimeout(this.refreshTimer);
     }
 
-    // Set timer to refresh token 5 minutes before it expires
     const token = this.token;
     if (token) {
-      const tokenData = this.parseJwt(token);
-      const expiresIn = tokenData.exp * 1000 - Date.now() - 5 * 60 * 1000; // 5 minutes before expiry
-      
-      if (expiresIn > 0) {
-        this.refreshTimer = setTimeout(() => this.refreshToken(), expiresIn);
+      try {
+        const tokenData = this.parseJwt(token);
+        const expiresIn = tokenData.exp * 1000 - Date.now() - 5 * 60 * 1000;
+
+        if (expiresIn > 0) {
+          this.refreshTimer = setTimeout(() => this.refreshToken().subscribe(), expiresIn);
+        }
+      } catch (error) {
+        console.warn('Failed to start refresh timer:', error);
+        this.logout(); // optional: handle invalid token case
       }
     }
   }
 
   private parseJwt(token: string): any {
+    if (!token || token.split('.').length !== 3) {
+      throw new Error('Invalid JWT token');
+    }
+
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(window.atob(base64));
   }
 
-  refreshToken(): Observable<RefreshTokenResponse> {
-    return this.http.post<RefreshTokenResponse>(`${environment.apiUrl}/auth/refresh-token.php`, {})
-      .pipe(
-        tap(response => {
-          localStorage.setItem('token', response.token);
-          this.startRefreshTimer();
-        })
-      );
+  refreshToken(): Observable<{ token: string }> {
+    return this.http.post<{ token: string }>(
+      `${environment.apiUrl}/auth/refresh-token.php`,
+      {}, // no body needed
+      { withCredentials: true } // ⬅️ important: send cookies
+    ).pipe(
+      tap(response => {
+        localStorage.setItem('token', response.token);
+        this.startRefreshTimer();
+      })
+    );
   }
 
   logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
-    this.currentUserSubject.next(null);
     if (this.refreshTimer) {
       clearTimeout(this.refreshTimer);
     }
+
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    this.currentUserSubject.next(null);
+
+    this.http.post(`${environment.apiUrl}/auth/logout.php`, {}, { withCredentials: true }).subscribe();
+
   }
 
   get isLoggedIn(): boolean {
