@@ -80,6 +80,9 @@ export class AuthService {
 
         if (expiresIn > 0) {
           this.refreshTimer = setTimeout(() => this.refreshToken().subscribe(), expiresIn);
+        } else {
+          // Token already expired or near-expired — refresh immediately
+          this.refreshToken().subscribe();
         }
       } catch (error) {
         console.warn('Failed to start refresh timer:', error);
