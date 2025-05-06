@@ -20,6 +20,7 @@ export interface Transaction {
 
   //type product and scrap
   weight_brut?: number; // in grams
+  weight_brut_total?: number; // in grams
   carat?: typeof CARAT_OPTIONS[number];
   weight24k?: number; // in gram
   agreed_milliemes?: number;

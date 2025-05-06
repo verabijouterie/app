@@ -64,6 +64,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     agreed_weight24k: 0,
 
     weight_brut: 0,
+    weight_brut_total: 0,
     carat: undefined,
     amount: 0,
     quantity: 1,
@@ -75,27 +76,38 @@ export class TransactionComponent implements OnInit, OnChanges {
   isCaratDisabled = false;
   isWeightDisabled = false;
 
-  private productsSubscription?: Subscription;
-  private productControlSubscription?: Subscription;
+  private productsSubscription: Subscription | undefined;
+  private productControlSubscription: Subscription | undefined;
+  private filteredProductsSubscription: Subscription | undefined;
 
   constructor(private productsService: ProductsService, private snackBar: MatSnackBar) {
     this.productControl = new FormControl<string | Product>('');
     this.filteredProducts = of([]); // Initialize with empty observable
 
-    // Subscribe to value changes
-    this.productControlSubscription = this.productControl.valueChanges.subscribe(value => {
-      if (!value) {
-        this.selectedProduct = null;
-        this.formTransaction.product = undefined;
-        this.formTransaction.product_id = undefined;
-        this.onDataChanged('product');
+    // Subscribe to value changes with error handling
+    this.productControlSubscription = this.productControl.valueChanges.subscribe({
+      next: (value) => {
+        if (!value) {
+          this.selectedProduct = null;
+          this.formTransaction.product = undefined;
+          this.formTransaction.product_id = undefined;
+          this.onDataChanged('product');
+        }
+      },
+      error: (error) => {
+        console.error('Error in product control subscription:', error);
+        this.snackBar.open('Ürün seçiminde bir hata oluştu', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['error-snackbar']
+        });
       }
     });
   }
 
   ngOnInit() {
     this.loadProducts();
-
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -138,8 +150,22 @@ export class TransactionComponent implements OnInit, OnChanges {
             return name ? this._filter(name) : this.products;
           })
         );
+
+        // Subscribe to filtered products changes
+        this.filteredProductsSubscription = this.filteredProducts.subscribe({
+          error: (error) => {
+            console.error('Error in filtered products subscription:', error);
+            this.snackBar.open('Ürün filtrelemede bir hata oluştu', 'Kapat', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top',
+              panelClass: ['error-snackbar']
+            });
+          }
+        });
       },
       error: (error) => {
+        console.error('Error loading products:', error);
         this.snackBar.open('Ürünler yüklenirken bir hata oluştu', 'Kapat', {
           duration: 3000,
           horizontalPosition: 'end',
@@ -175,9 +201,7 @@ export class TransactionComponent implements OnInit, OnChanges {
       this.formTransaction.product_id = product.id;
       this.onDataChanged('product');
     }
-
   }
-
 
   isFormValid() {
     if (this.formTransaction.type === 'Product') {
@@ -256,7 +280,6 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   onDataChanged(field?: string) {
-
     switch (field) {
       case 'product':
         this.formTransaction.quantity = 1;
@@ -282,10 +305,12 @@ export class TransactionComponent implements OnInit, OnChanges {
             }
             if(this.selectedProduct.weight_brut) {
               this.formTransaction.weight_brut = Number(this.selectedProduct.weight_brut);
+              this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
               this.isWeightDisabled = true;
             }
             else {
               this.formTransaction.weight_brut = this.transaction?.weight_brut || 0;
+              this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
             }
             this.calculateWeight24k();
           }
@@ -300,12 +325,14 @@ export class TransactionComponent implements OnInit, OnChanges {
         break;
       case 'weight_brut':
         this.calculateWeight24k();
-        this.calculateAgreedWeight24AndPrice()
+        this.calculateAgreedWeight24AndPrice();
+        this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
         break;
       case 'quantity':
         if(this.formTransaction.type === 'Product' && this.selectedProduct?.is_gold) {
           this.calculateWeight24k();
-          this.calculateAgreedWeight24AndPrice()
+          this.calculateAgreedWeight24AndPrice();
+          this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
         }
         break;
       case 'agreed_milliemes':
@@ -325,7 +352,6 @@ export class TransactionComponent implements OnInit, OnChanges {
         break;
     }
   }
-
 
   calculateWeight24k() {
     if ((this.formTransaction.type === 'Product' && this.selectedProduct?.is_gold) || this.formTransaction.type === 'Scrap') {
@@ -374,7 +400,6 @@ export class TransactionComponent implements OnInit, OnChanges {
     event.stopPropagation();
     this.transactionSubmit.emit(this.formTransaction);
     this.resetForm();
-  
   }
 
   resetForm() {
@@ -393,6 +418,7 @@ export class TransactionComponent implements OnInit, OnChanges {
       agreed_price: 0,
       agreed_weight24k: 0,
       weight_brut: 0,
+      weight_brut_total: 0,
       carat: undefined,
       amount: 0,
       quantity: 1,
@@ -406,11 +432,15 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   ngOnDestroy() {
+    // Clean up all subscriptions
     if (this.productsSubscription) {
       this.productsSubscription.unsubscribe();
     }
     if (this.productControlSubscription) {
       this.productControlSubscription.unsubscribe();
+    }
+    if (this.filteredProductsSubscription) {
+      this.filteredProductsSubscription.unsubscribe();
     }
   }
 }

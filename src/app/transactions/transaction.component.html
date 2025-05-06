@@ -123,6 +123,16 @@
       </div>
       }
 
+      @if ((formTransaction.type === 'Product' && selectedProduct?.is_gold) ) {
+        <div class="space-y-1">
+          <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Toplam brüt altın miktarı (gram):
+          </label>
+          <span class="text-gray-900 text-base inline">
+            {{formTransaction.weight_brut_total}}
+          </span>
+        </div>
+        }
+
       <div class="space-y-1">
         <label for="agreed_weight24k" class="text-sm font-medium text-gray-900 inline">
           @if ((formTransaction.type === 'Product' && selectedProduct?.is_gold) || formTransaction.type === 'Scrap') {

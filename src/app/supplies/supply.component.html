@@ -126,7 +126,9 @@
                   }
                   @if (transaction.type === 'Product' && transaction.product?.is_gold) {
                   <br />
-                  Brüt ağırlık: {{transaction.weight_brut}}g
+                  Tek ürün brüt ağırlığı: {{transaction.weight_brut}}g
+                  <br />
+                  Toplam brüt ağırlık: {{transaction.weight_brut_total}}g
                   }
                   @if (transaction.type === 'Product' || (transaction.type === 'Scrap')) {
                   <br />

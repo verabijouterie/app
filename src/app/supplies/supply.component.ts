@@ -217,7 +217,7 @@ export class SupplyComponent implements OnInit {
   }
 
   onTransactionSubmit(transaction: Transaction) {
-    console.log("Inside Supply onTransactionSubmit:", JSON.stringify(transaction, null, 2));
+    //console.log("Inside Supply onTransactionSubmit:", JSON.stringify(transaction, null, 2));
     if (this.editingTransactionIndex !== null) {
       this.supply.transactions = this.supply.transactions.map((t, i) => 
         i === this.editingTransactionIndex ? transaction : t
@@ -233,6 +233,9 @@ export class SupplyComponent implements OnInit {
       ...t,
       row_index: index
     }));
+
+
+    console.log(this.supply.transactions);
 
     this.isDrawerOpen = false;
   }
