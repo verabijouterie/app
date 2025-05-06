@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap, timer } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, timer, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface LoginCredentials {
@@ -101,12 +101,18 @@ export class AuthService {
   refreshToken(): Observable<{ token: string }> {
     return this.http.post<{ token: string }>(
       `${environment.apiUrl}/auth/refresh-token.php`,
-      {}, // no body needed
-      { withCredentials: true } // ⬅️ important: send cookies
+      {},
+      { withCredentials: true }
     ).pipe(
       tap(response => {
         localStorage.setItem('token', response.token);
-        this.startRefreshTimer();
+        this.startRefreshTimer(); // ✅ new access token, schedule next refresh
+      }),
+      // ❗ Add this to stop retrying if refresh fails
+      catchError(error => {
+        console.warn('Refresh token failed, logging out.');
+        this.logout();
+        return throwError(() => error); // propagate error if needed
       })
     );
   }
