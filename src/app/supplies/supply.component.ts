@@ -35,24 +35,24 @@ export const MY_FORMATS = {
 };
 
 @Component({
-    selector: 'app-supply',
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatCardModule,
-        MatIconModule,
-        DragDropModule,
-        DrawerComponent,
-        TransactionComponent,
-        MatSnackBarModule
-    ],
-    standalone: true,
-    templateUrl: './supply.component.html',
-    styleUrls: ['./supply.component.scss']
+  selector: 'app-supply',
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    DragDropModule,
+    DrawerComponent,
+    TransactionComponent,
+    MatSnackBarModule
+  ],
+  standalone: true,
+  templateUrl: './supply.component.html',
+  styleUrls: ['./supply.component.scss']
 })
 export class SupplyComponent implements OnInit {
   @ViewChild(TransactionComponent) transactionComponent!: TransactionComponent;
@@ -95,7 +95,7 @@ export class SupplyComponent implements OnInit {
     private snackBar: MatSnackBar,
     private wholesalersService: WholesalerService,
     private goldRateService: GoldRateService
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Enable animations after initial load
@@ -174,6 +174,30 @@ export class SupplyComponent implements OnInit {
     });
   }
 
+
+  onDefaultGoldRateChange() {
+    this.supply.transactions.forEach(transaction => {
+      this.recalculateTransaction(transaction, this.defaultGoldRate);
+    });
+  }
+
+  recalculateTransaction(transaction: Transaction, goldRate: number) {
+    transaction.agreed_gold_rate = goldRate;
+    if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
+      transaction.agreed_weight24k = parseFloat(((transaction.amount || 0) / (transaction.agreed_gold_rate || 1)).toFixed(4));
+    }
+    if (transaction.type === 'Product' && !Boolean(transaction.product?.is_gold)) {
+      transaction.agreed_weight24k = parseFloat(((transaction.agreed_price || 0) / transaction.agreed_gold_rate).toFixed(4));
+    }
+    if ((transaction.type === 'Product' && Boolean(transaction.product?.is_gold)) || transaction.type === 'Scrap') {
+      transaction.agreed_weight24k = parseFloat(((transaction.weight_brut || 0) * ((transaction.agreed_milliemes || 0) / 1000) * (transaction.quantity || 1)).toFixed(4));
+      transaction.agreed_price = parseFloat(((transaction.agreed_gold_rate) * (transaction.agreed_weight24k || 0)).toFixed(2));
+    }
+
+
+
+  }
+
   loadProducts() {
     this.productsService.getProducts().subscribe({
       next: (products) => {
@@ -219,7 +243,7 @@ export class SupplyComponent implements OnInit {
   onTransactionSubmit(transaction: Transaction) {
     //console.log("Inside Supply onTransactionSubmit:", JSON.stringify(transaction, null, 2));
     if (this.editingTransactionIndex !== null) {
-      this.supply.transactions = this.supply.transactions.map((t, i) => 
+      this.supply.transactions = this.supply.transactions.map((t, i) =>
         i === this.editingTransactionIndex ? transaction : t
       );
       this.editingTransactionIndex = null;
@@ -227,7 +251,7 @@ export class SupplyComponent implements OnInit {
       // Add new transaction
       this.supply.transactions = [...this.supply.transactions, transaction];
     }
-    
+
     // Update row_index for all transactions to match their current position
     this.supply.transactions = this.supply.transactions.map((t, index) => ({
       ...t,
@@ -264,22 +288,22 @@ export class SupplyComponent implements OnInit {
     // Create a deep clone of the supply and its transactions
     const supplyToSubmit = {
       ...this.supply,
-      transactions: this.supply.transactions.map(transaction => ({...transaction}))
+      transactions: this.supply.transactions.map(transaction => ({ ...transaction }))
     };
 
 
     supplyToSubmit.transactions.forEach(transaction => {
-      if(transaction.type === 'Product' || transaction.type === 'Scrap') {
+      if (transaction.type === 'Product' || transaction.type === 'Scrap') {
         delete transaction.amount;
         if (transaction.type === 'Product') {
           transaction.product_id = transaction.product?.id;
           delete transaction.product;
         }
-        if(transaction.type === 'Scrap') {
+        if (transaction.type === 'Scrap') {
           delete transaction.quantity;
         }
       }
-      if(transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
+      if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
         delete transaction.product_id;
         delete transaction.weight_brut;
         delete transaction.carat;
@@ -301,11 +325,11 @@ export class SupplyComponent implements OnInit {
     let totalBankOut = 0;
 
     supplyToSubmit.transactions.forEach(transaction => {
-      if(transaction.type === 'Product') {
+      if (transaction.type === 'Product') {
         const weight = Number(transaction.weight24k || 0);
-        if(isNaN(weight)) return;
-        
-        if(transaction.direction === 'In') {
+        if (isNaN(weight)) return;
+
+        if (transaction.direction === 'In') {
           total24kProductIn += weight;
           total24kIn += weight;
         } else {
@@ -313,11 +337,11 @@ export class SupplyComponent implements OnInit {
           total24kOut += weight;
         }
       }
-      if(transaction.type === 'Scrap') {
+      if (transaction.type === 'Scrap') {
         const weight = Number(transaction.weight24k || 0);
-        if(isNaN(weight)) return;
-        
-        if(transaction.direction === 'In') {
+        if (isNaN(weight)) return;
+
+        if (transaction.direction === 'In') {
           total24kScrapIn += weight;
           total24kIn += weight;
         } else {
@@ -325,21 +349,21 @@ export class SupplyComponent implements OnInit {
           total24kOut += weight;
         }
       }
-      if(transaction.type === 'Cash') {
+      if (transaction.type === 'Cash') {
         const amount = Number(transaction.amount || 0);
-        if(isNaN(amount)) return;
-        
-        if(transaction.direction === 'In') {
+        if (isNaN(amount)) return;
+
+        if (transaction.direction === 'In') {
           totalCashIn += amount;
         } else {
           totalCashOut += amount;
         }
       }
-      if(transaction.type === 'Bank') {
+      if (transaction.type === 'Bank') {
         const amount = Number(transaction.amount || 0);
-        if(isNaN(amount)) return;
-        
-        if(transaction.direction === 'In') {
+        if (isNaN(amount)) return;
+
+        if (transaction.direction === 'In') {
           totalBankIn += amount;
         } else {
           totalBankOut += amount;
@@ -394,7 +418,7 @@ export class SupplyComponent implements OnInit {
     const movedItem = transactions[event.previousIndex];
     transactions.splice(event.previousIndex, 1);
     transactions.splice(event.currentIndex, 0, movedItem);
-    
+
     // Update row_index for all transactions to match their current position
     this.supply.transactions = transactions.map((t, index) => ({
       ...t,
@@ -627,13 +651,17 @@ export class SupplyComponent implements OnInit {
   isOrderValid(): boolean {
 
 
-    return this.supply.transactions.length > 0 
-    && this.supply.total24kIn > 0 
-    && this.supply.total24kOut > 0 
-    && this.supply.totalCashIn > 0 
-    && this.supply.totalCashOut > 0 
-    && this.supply.totalBankIn > 0 
-    && this.supply.totalBankOut > 0 
-    && this.supply.wholesaler_id !== 0;
+    return this.supply.transactions.length > 0
+      && this.supply.total24kIn > 0
+      && this.supply.total24kOut > 0
+      && this.supply.totalCashIn > 0
+      && this.supply.totalCashOut > 0
+      && this.supply.totalBankIn > 0
+      && this.supply.totalBankOut > 0
+      && this.supply.wholesaler_id !== 0;
+  }
+
+  isNaN(value: any): boolean {
+    return Number.isNaN(value);
   }
 } 

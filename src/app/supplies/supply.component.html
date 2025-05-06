@@ -21,8 +21,12 @@
       <div class="col-span-full space-y-1.5">
         <label for="defaultGoldRate" class="block text-sm font-medium text-gray-900">Varsayılan Altın Kuru</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput type="number" [(ngModel)]="defaultGoldRate" name="defaultGoldRate" id="defaultGoldRate"
-            placeholder="Varsayılan Altın Oranı Girin">
+          <input matInput type="number"
+          [(ngModel)]="defaultGoldRate"
+          name="defaultGoldRate"
+          id="defaultGoldRate"
+          placeholder="Varsayılan Altın Oranı Girin"
+          (ngModelChange)="onDefaultGoldRateChange()">
         </mat-form-field>
       </div>
     </div>
@@ -251,7 +255,7 @@
           class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
           İptal
         </button>
-        <button type="submit" [disabled]="supply.transactions.length === 0 || supply.wholesaler_id === 0"
+        <button type="submit" [disabled]="supply.transactions.length === 0 || supply.wholesaler_id === 0 || !defaultGoldRate || isNaN(defaultGoldRate) || defaultGoldRate < 0"
           class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
           {{isEditing ? 'Toptan Alışverişi güncelle' : 'Toptan Alışveriş oluştur'}}
         </button>
