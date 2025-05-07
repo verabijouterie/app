@@ -27,6 +27,7 @@
   [title]="editMode ? 'Toptan satıcıyı Düzenle' : 'Toptan satıcı Oluştur'"
   (close)="onDrawerClose()">
   <form [formGroup]="wholesalerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    
     <div class="space-y-1.5">
       <label for="name" class="block text-sm font-medium text-gray-900">Ad</label>
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -37,6 +38,10 @@
       </mat-form-field>
     </div>
 
+    <div class="space-y-1.5">
+      <label for="prefers_gold" class="block text-sm font-medium text-gray-900">Ödemelerde altın tercih ediyor mu?</label>
+      <mat-checkbox formControlName="prefers_gold" id="prefers_gold" >Evet</mat-checkbox>
+    </div>
 
     <div class="flex items-center justify-end gap-x-6">
       <button type="button" (click)="onDrawerClose()"

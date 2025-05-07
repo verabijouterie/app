@@ -12,10 +12,11 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Observable, of, Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { CARAT_OPTIONS, CARAT_PURITY_MAP_GOLD, CARAT_PURITY_MAP_SCRAP } from '../config/constants';
+import { CARAT_OPTIONS, CARAT_PURITY_MAP_GOLD } from '../config/constants';
 import { ProductsService } from '../services/products.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { Wholesaler } from '../interfaces/wholesaler.interface';
 
 @Component({
   selector: 'app-transaction',
@@ -43,6 +44,8 @@ export class TransactionComponent implements OnInit, OnChanges {
   @Input() direction!: 'In' | 'Out';
   @Input() context!: 'Supply' | 'Order' | 'Scenario';
   @Input() agreedGoldRate!: number;
+  @Input() wholesaler?: Wholesaler;
+  is_editing = false;
 
   products: Product[] = [];
   selectedProduct: Product | null = null;
@@ -51,7 +54,6 @@ export class TransactionComponent implements OnInit, OnChanges {
 
   caratOptions = CARAT_OPTIONS.map(carat => Number(carat));
   caratPurityMapGold = CARAT_PURITY_MAP_GOLD;
-  caratPurityMapScrap = CARAT_PURITY_MAP_SCRAP;
 
   formTransaction: Transaction = {
     type: this.type,
@@ -129,13 +131,27 @@ export class TransactionComponent implements OnInit, OnChanges {
       this.onDataChanged('agreed_gold_rate');
     }
 
-    if (changes['transaction'] && this.transaction) {
-      this.formTransaction = { ...this.transaction };
-      if (this.formTransaction.product) {
-        this.selectedProduct = this.formTransaction.product;
-        this.productControl.setValue(this.formTransaction.product);
+    if (changes['wholesaler'] && this.wholesaler) {
+      if (!this.transaction) {
+        this.formTransaction.paiable_as_cash_only = !(this.wholesaler?.prefers_gold ?? true);
       }
     }
+
+    if (changes['transaction']) {
+      if (!this.transaction) {
+        this.is_editing = false;
+      }
+      else {
+        this.is_editing = true;
+        this.formTransaction = { ...this.transaction };
+        if (this.formTransaction.product) {
+          this.selectedProduct = this.formTransaction.product;
+          this.productControl.setValue(this.formTransaction.product);
+        }
+      }
+    }
+
+
   }
 
   loadProducts(): void {
@@ -209,31 +225,16 @@ export class TransactionComponent implements OnInit, OnChanges {
         return false;
       }
 
-      if (!(this.formTransaction.quantity && Number.isInteger(this.formTransaction.quantity) && this.formTransaction.quantity > 0)) {
+      if (!(this.formTransaction.quantity && Number.isInteger(this.formTransaction.quantity) && this.formTransaction.quantity >= 0)) {
         return false;
       }
 
       if (this.formTransaction.agreed_price === undefined || isNaN(this.formTransaction.agreed_price) || this.formTransaction.agreed_price <= 0) {
         return false;
       }
-
-      if (this.selectedProduct?.is_gold) {
-        if (!this.formTransaction.carat) {
-          return false;
-        }
-        if (this.formTransaction.weight_brut === undefined || isNaN(this.formTransaction.weight_brut) || this.formTransaction.weight_brut <= 0) {
-          return false;
-        }
-        if (this.formTransaction.agreed_milliemes === undefined || isNaN(this.formTransaction.agreed_milliemes) || this.formTransaction.agreed_milliemes <= 0) {
-          return false;
-        }
-        if (this.formTransaction.agreed_price === undefined || isNaN(this.formTransaction.agreed_price) || this.formTransaction.agreed_price <= 0) {
-          return false;
-        }
-      }
     }
-    else if(this.formTransaction.type === 'Scrap') {
-      if (this.formTransaction.carat === undefined || isNaN(this.formTransaction.carat) || this.formTransaction.carat <= 0) {
+    else if (this.formTransaction.type === 'Scrap' || this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold) {
+      if (!this.formTransaction.carat) {
         return false;
       }
       if (this.formTransaction.weight_brut === undefined || isNaN(this.formTransaction.weight_brut) || this.formTransaction.weight_brut <= 0) {
@@ -246,7 +247,7 @@ export class TransactionComponent implements OnInit, OnChanges {
         return false;
       }
     }
-    else if((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') && this.formTransaction.agreed_gold_rate) {
+    else if ((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') && this.formTransaction.agreed_gold_rate) {
       if (this.formTransaction.amount === undefined || isNaN(this.formTransaction.amount) || this.formTransaction.amount <= 0) {
         return false;
       }
@@ -280,6 +281,8 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   onDataChanged(field?: string) {
+
+
     switch (field) {
       case 'product':
         this.formTransaction.quantity = 1;
@@ -287,7 +290,7 @@ export class TransactionComponent implements OnInit, OnChanges {
         this.formTransaction.agreed_price = 0;
         this.formTransaction.agreed_weight24k = 0;
         this.formTransaction.weight24k = 0;
-        this.formTransaction.paiable_as_cash_only = false;
+        this.formTransaction.paiable_as_cash_only = !this.is_editing ? !(this.wholesaler?.prefers_gold ?? true) : false;
         this.isCaratDisabled = false;
         this.isWeightDisabled = false;
         if (!this.selectedProduct) {
@@ -295,15 +298,15 @@ export class TransactionComponent implements OnInit, OnChanges {
           this.formTransaction.weight_brut = 0;
         }
         else {
-          if(this.selectedProduct.is_gold) {
-            if(this.selectedProduct.carat) {
+          if (this.selectedProduct.is_gold || this.selectedProduct.contains_gold) {
+            if (this.selectedProduct.carat) {
               this.formTransaction.carat = Number(this.selectedProduct.carat);
               this.isCaratDisabled = true;
             }
             else {
               this.formTransaction.carat = this.transaction?.carat || undefined;
             }
-            if(this.selectedProduct.weight_brut) {
+            if (this.selectedProduct.weight_brut) {
               this.formTransaction.weight_brut = Number(this.selectedProduct.weight_brut);
               this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
               this.isWeightDisabled = true;
@@ -315,7 +318,7 @@ export class TransactionComponent implements OnInit, OnChanges {
             this.calculateWeight24k();
           }
           else {
-            this.formTransaction.carat =  undefined;
+            this.formTransaction.carat = undefined;
             this.formTransaction.weight_brut = 0;
           }
         }
@@ -329,7 +332,7 @@ export class TransactionComponent implements OnInit, OnChanges {
         this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
         break;
       case 'quantity':
-        if(this.formTransaction.type === 'Product' && this.selectedProduct?.is_gold) {
+        if (this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold) {
           this.calculateWeight24k();
           this.calculateAgreedWeight24AndPrice();
           this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
@@ -339,22 +342,22 @@ export class TransactionComponent implements OnInit, OnChanges {
         this.calculateAgreedWeight24AndPrice();
         break;
       case 'agreed_price':
-        if((this.formTransaction.type === 'Product' && this.selectedProduct?.is_gold) || this.formTransaction.type === 'Scrap') {
+        if (this.selectedProduct?.is_gold || this.formTransaction.type === 'Scrap') {
           this.calculateAgreedWeight24AndMilliemes();
-        } 
-        else if(this.formTransaction.type === 'Product' && !this.selectedProduct?.is_gold) {
+        }
+        else if (!this.selectedProduct?.is_gold && !this.selectedProduct?.contains_gold) {
           this.calculateAgreedWeight24();
         }
         break;
       case 'amount':
-          this.calculateAgreedWeight24();
-      
+        this.calculateAgreedWeight24();
+
         break;
     }
   }
 
   calculateWeight24k() {
-    if ((this.formTransaction.type === 'Product' && this.selectedProduct?.is_gold) || this.formTransaction.type === 'Scrap') {
+    if (this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold || this.formTransaction.type === 'Scrap') {
       const purity = this.caratPurityMapGold[this.formTransaction.carat as keyof typeof this.caratPurityMapGold] || 0;
       const weightAs24K = (this.formTransaction.weight_brut || 0) * purity * (this.formTransaction.quantity || 1);
       this.formTransaction.weight24k = parseFloat(weightAs24K.toFixed(4));
@@ -362,8 +365,8 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   calculateAgreedWeight24AndPrice() {
-    if ( ((this.formTransaction.type === 'Product' && this.selectedProduct?.is_gold) || this.formTransaction.type === 'Scrap') && this.formTransaction.agreed_gold_rate && this.formTransaction.agreed_milliemes) {
-      this.formTransaction.agreed_weight24k = parseFloat(((this.formTransaction.weight_brut || 0) * ((this.formTransaction.agreed_milliemes)/1000) * (this.formTransaction.quantity || 1)).toFixed(4));
+    if ((this.selectedProduct?.is_gold || this.formTransaction.type === 'Scrap') && this.formTransaction.agreed_gold_rate && this.formTransaction.agreed_milliemes) {
+      this.formTransaction.agreed_weight24k = parseFloat(((this.formTransaction.weight_brut || 0) * ((this.formTransaction.agreed_milliemes) / 1000) * (this.formTransaction.quantity || 1)).toFixed(4));
       this.formTransaction.agreed_price = parseFloat(((this.formTransaction.agreed_gold_rate) * (this.formTransaction.agreed_weight24k || 0)).toFixed(2));
     }
     else {
@@ -376,7 +379,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     if (this.formTransaction.type === 'Product' && this.formTransaction.agreed_gold_rate && this.formTransaction.agreed_price) {
       this.formTransaction.agreed_weight24k = parseFloat((this.formTransaction.agreed_price / this.formTransaction.agreed_gold_rate).toFixed(4));
     }
-    else if((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') && this.formTransaction.agreed_gold_rate) {
+    else if ((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') && this.formTransaction.agreed_gold_rate) {
       this.formTransaction.agreed_weight24k = parseFloat(((this.formTransaction.amount || 0) / this.formTransaction.agreed_gold_rate).toFixed(4));
     }
     else {
@@ -385,7 +388,7 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   calculateAgreedWeight24AndMilliemes() {
-    if ( ((this.formTransaction.type === 'Product' && this.selectedProduct?.is_gold) || this.formTransaction.type === 'Scrap') && this.formTransaction.agreed_gold_rate && this.formTransaction.agreed_price) {
+    if ((this.selectedProduct?.is_gold || this.formTransaction.type === 'Scrap') && this.formTransaction.agreed_gold_rate && this.formTransaction.agreed_price) {
       this.formTransaction.agreed_weight24k = parseFloat((this.formTransaction.agreed_price / this.formTransaction.agreed_gold_rate).toFixed(4));
       this.formTransaction.agreed_milliemes = Math.round((this.formTransaction.agreed_weight24k / (this.formTransaction.weight_brut || 0) / (this.formTransaction.quantity || 1)) * 1000);
     }

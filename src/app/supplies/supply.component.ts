@@ -664,4 +664,8 @@ export class SupplyComponent implements OnInit {
   isNaN(value: any): boolean {
     return Number.isNaN(value);
   }
+
+  getWholesaler(id: number): Wholesaler | undefined {
+    return this.wholesalers.find(w => w.id === id);
+  }
 } 

@@ -13,7 +13,7 @@ import { WholesalerService } from '../services/wholesaler.service';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Wholesaler } from '../interfaces/wholesaler.interface';
-
+import { MatCheckboxModule } from '@angular/material/checkbox';
 @Component({
   selector: 'app-wholesalers',
   standalone: true,
@@ -29,8 +29,9 @@ import { Wholesaler } from '../interfaces/wholesaler.interface';
     MatDialogModule,
     WholesalerListComponent,
     DrawerComponent,
+    MatCheckboxModule,
     MatSnackBarModule
-  ],
+    ],
   templateUrl: './wholesaler.component.html'
 })
 export class WholesalersComponent implements OnInit {
@@ -49,6 +50,7 @@ export class WholesalersComponent implements OnInit {
   ) {
     this.wholesalerForm = this.fb.group({
       name: ['', Validators.required],
+      prefers_gold: [false]
     });
   }
 
@@ -62,7 +64,10 @@ export class WholesalersComponent implements OnInit {
   loadWholesalers(): void {
     this.wholesalerService.getWholesalers().subscribe({
       next: (wholesalers) => {
-        this.wholesalers = wholesalers;
+        this.wholesalers = wholesalers.map(wholesaler => ({
+          ...wholesaler,
+          prefers_gold: Boolean(wholesaler.prefers_gold)
+        }));
       },
       error: (error) => {
         this.snackBar.open('Toptan satıcılar yüklenirken bir hata oluştu', 'Kapat', {
@@ -139,6 +144,7 @@ export class WholesalersComponent implements OnInit {
     this.selectedWholesalerId = wholesaler.id;
     this.wholesalerForm.patchValue({
       name: wholesaler.name,
+      prefers_gold: Boolean(wholesaler.prefers_gold)
     });
     this.openWholesalerDrawer();
   }

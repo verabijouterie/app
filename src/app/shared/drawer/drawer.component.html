@@ -7,11 +7,8 @@
      [class.invisible]="!isOpen"
      [style.visibility]="isOpen ? 'visible' : 'hidden'">
   <!-- Background backdrop -->
-  <div class="fixed inset-0 bg-gray-500/5 backdrop-blur-sm cursor-pointer"
-       [class.transition-opacity]="!skipAnimation"
+  <div class="fixed inset-0 cursor-pointer"
        [class.duration-500]="!skipAnimation"
-       [class.opacity-0]="!isOpen"
-       [class.opacity-100]="isOpen"
        [class.pointer-events-none]="!isOpen"
        [class.pointer-events-auto]="isOpen"
        (mousedown)="onClose()"></div>

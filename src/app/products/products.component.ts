@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -65,10 +65,11 @@ export class ProductsComponent implements OnInit {
       id: [null],
       name: ['', Validators.required],
       is_gold: [false],
+      contains_gold: [false],
       carat: [null],
       weight_brut: [null],
       category_id: [null, Validators.required]
-    });
+    }, { validators: this.goldFieldsValidator });
 
     this.categoryControl = new FormControl<string | Category>('');
     this.filteredCategories = of([]);
@@ -90,10 +91,11 @@ export class ProductsComponent implements OnInit {
           })
         );
 
-        // Map products with categories and set products, converting is_gold to boolean
+        // Map products with categories and set products, converting is_gold and contains_gold to boolean
         this.products = products.map(product => ({
           ...product,
           is_gold: Boolean(product.is_gold),
+          contains_gold: Boolean(product.contains_gold),
           category: product.category_id ? categories.find(c => c.id === product.category_id) : undefined
         }));
       },
@@ -107,9 +109,20 @@ export class ProductsComponent implements OnInit {
       }
     });
 
+
+
     // Subscribe to is_gold changes
     this.productForm.get('is_gold')?.valueChanges.subscribe(isGold => {
-      if (!isGold) {
+      if (!isGold && this.productForm.get('contains_gold')?.value) {
+        this.productForm.patchValue({
+          carat: null,
+          weight_brut: null
+        });
+      }
+    });
+
+    this.productForm.get('contains_gold')?.valueChanges.subscribe(containsGold => {
+      if (!containsGold) {
         this.productForm.patchValue({
           carat: null,
           weight_brut: null
@@ -122,6 +135,33 @@ export class ProductsComponent implements OnInit {
     }, 100);
   }
 
+
+  onIsGoldChange() {
+    if (this.productForm.get('is_gold')?.value) {
+      this.productForm.patchValue({
+        contains_gold: false
+      });
+    } else if (!this.productForm.get('contains_gold')?.value) {
+      this.productForm.patchValue({
+        carat: null,
+        weight_brut: null
+      });
+    }
+  }
+
+  onContainsGoldChange() {
+    if (this.productForm.get('contains_gold')?.value) {
+      this.productForm.patchValue({
+        is_gold: false
+      });
+    } else if (!this.productForm.get('is_gold')?.value) {
+      this.productForm.patchValue({
+        carat: null,
+        weight_brut: null
+      });
+    }
+  }
+  
   private _filterCategories(value: string): Category[] {
     const filterValue = value.toLowerCase();
     return this.categories.filter(category =>
@@ -150,7 +190,8 @@ export class ProductsComponent implements OnInit {
         carat: null,
         weight_brut: null,
         category_id: null,
-        is_gold: false
+        is_gold: false,
+        contains_gold: false
       });
     }
     this.isDrawerOpen = true;
@@ -168,8 +209,9 @@ export class ProductsComponent implements OnInit {
         ...formValue,
         id: this.editMode ? this.selectedProductId! : null,
         is_gold: formValue.is_gold ? 1 : 0,
-        carat: !formValue.is_gold ? null : formValue.carat,
-        weight_brut: !formValue.is_gold ? null : formValue.weight_brut,
+        contains_gold: formValue.contains_gold ? 1 : 0,
+        carat: (formValue.is_gold || formValue.contains_gold) ? formValue.carat : null,
+        weight_brut: (formValue.is_gold || formValue.contains_gold) ? formValue.weight_brut : null,
         weight24k: formValue.weight_brut && formValue.carat ? 
           this.calculateTotal24k(formValue.weight_brut, formValue.carat) : undefined
       };
@@ -217,7 +259,8 @@ export class ProductsComponent implements OnInit {
       carat: product.carat ? parseInt(product.carat.toString()) : null,
       weight_brut: product.weight_brut,
       category_id: product.category_id,
-      is_gold: Boolean(product.is_gold)
+      is_gold: Boolean(product.is_gold),
+      contains_gold: Boolean(product.contains_gold)
     });
 
     // Set the initial category value in the autocomplete
@@ -279,7 +322,8 @@ export class ProductsComponent implements OnInit {
       carat: null,
       weight_brut: null,
       category_id: null,
-      is_gold: false
+      is_gold: false,
+      contains_gold: false
     });
     this.categoryControl.reset();
     this.editMode = false;
@@ -315,5 +359,16 @@ export class ProductsComponent implements OnInit {
         });
       }
     });
+  }
+
+  // Add the custom validator
+  private goldFieldsValidator(control: AbstractControl): ValidationErrors | null {
+    const isGold = control.get('is_gold')?.value;
+    const containsGold = control.get('contains_gold')?.value;
+
+    if (isGold && containsGold) {
+      return { goldFieldsConflict: true };
+    }
+    return null;
   }
 } 

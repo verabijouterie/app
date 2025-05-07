@@ -16,8 +16,8 @@
       <tbody class="divide-y divide-gray-200">
         <tr *ngFor="let product of products" class="hover:bg-gray-50">
           <td class="px-4 py-3 text-sm text-gray-900">
-            <mat-icon [class.text-green-500]="product.is_gold" [class.text-gray-400]="!product.is_gold">
-              {{product.is_gold ? 'check_circle' : 'cancel'}}
+            <mat-icon [class.text-green-500]="product.is_gold || product.contains_gold" [class.text-gray-400]="!(product.is_gold || product.contains_gold)">
+              {{product.is_gold || product.contains_gold ? 'check_circle' : 'cancel'}}
             </mat-icon>
           </td>
           <td class="px-4 py-3 text-sm text-gray-900">{{product.category?.name || '-'}}</td>

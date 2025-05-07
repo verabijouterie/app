@@ -9,6 +9,7 @@
         <label for="wholesaler" class="block text-sm font-medium text-gray-900">Toptan Satıcı</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <mat-select [(ngModel)]="supply.wholesaler_id" name="wholesaler" id="wholesaler">
+            <mat-option [value]="null">Belirtilmedi</mat-option>
             <mat-option *ngFor="let wholesaler of wholesalers" [value]="wholesaler.id">
               {{wholesaler.name}}
             </mat-option>
@@ -21,12 +22,8 @@
       <div class="col-span-full space-y-1.5">
         <label for="defaultGoldRate" class="block text-sm font-medium text-gray-900">Varsayılan Altın Kuru</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput type="number"
-          [(ngModel)]="defaultGoldRate"
-          name="defaultGoldRate"
-          id="defaultGoldRate"
-          placeholder="Varsayılan Altın Oranı Girin"
-          (ngModelChange)="onDefaultGoldRateChange()">
+          <input matInput type="number" [(ngModel)]="defaultGoldRate" name="defaultGoldRate" id="defaultGoldRate"
+            placeholder="Varsayılan Altın Oranı Girin" (ngModelChange)="onDefaultGoldRateChange()">
         </mat-form-field>
       </div>
     </div>
@@ -123,38 +120,40 @@
                   @if (transaction.type === 'Bank') {
                   {{formatAmount(transaction.amount)}} EUR Banka Ödemesi
                   }
-                  @if ((transaction.type === 'Product' && transaction.product?.is_gold) || (transaction.type ===
-                  'Scrap')) {
+                  @if (transaction.product?.is_gold || transaction.product?.contains_gold || transaction.type
+                  ==='Scrap') {
                   <br />
                   Ayar: {{transaction.carat}}
                   }
-                  @if (transaction.type === 'Product' && transaction.product?.is_gold) {
+                  @if (transaction.product?.is_gold || transaction.product?.contains_gold) {
                   <br />
-                  Tek ürün brüt ağırlığı: {{transaction.weight_brut}}g
+                  Tek ürün brüt altın ağırlığı: {{transaction.weight_brut}}g
                   <br />
-                  Toplam brüt ağırlık: {{transaction.weight_brut_total}}g
+                  Toplam brüt altın ağırlığı: {{transaction.weight_brut_total}}g
                   }
                   @if (transaction.type === 'Product' || (transaction.type === 'Scrap')) {
                   <br />
                   Euro bazında tutar: {{transaction.agreed_price}} EUR
                   }
-                  @if ((transaction.type === 'Product' && transaction.product?.is_gold) || (transaction.type ===
-                  'Scrap')) {
+                  @if ( transaction.product?.is_gold || transaction.type === 'Scrap') {
                   <br />
                   Milyem: {{transaction.agreed_milliemes}}
                   }
-                  @if ((transaction.type === 'Product' && transaction.product?.is_gold) || (transaction.type ===
-                  'Scrap')) {
+                  @if (transaction.product?.is_gold || transaction.type === 'Scrap') {
                   <br />
                   Gerçek has altın ağırlığı: {{transaction.weight24k}}g
                   }
-                  @if ((transaction.type === 'Product' && transaction.product?.is_gold) || (transaction.type ===
-                  'Scrap')) {
+                  @if (transaction.product?.is_gold || transaction.type === 'Scrap') {
                   <br />
                   Milyeme göre has altın ağırlığı: {{transaction.agreed_weight24k}}g
                   }
-                  @if (!transaction.paiable_as_cash_only && (transaction.type === 'Product' &&
-                  !transaction.product?.is_gold) || (transaction.type === 'Cash') || (transaction.type === 'Bank')) {
+                  @if (transaction.product?.contains_gold) {
+                  <br />
+                  Toplam icerdigi has altın ağırlığı: {{transaction.weight24k}}g
+                  }
+                  @if (!transaction.paiable_as_cash_only && !transaction.product?.is_gold &&
+                  !transaction.product?.contains_gold || (transaction.type === 'Cash') || (transaction.type === 'Bank'))
+                  {
                   <br />
                   Kura göre tutarin has altın ağırlığı: {{transaction.agreed_weight24k}}g
                   }
@@ -251,13 +250,14 @@
       </div>
 
       <div class="flex items-center justify-end gap-x-6 pt-6 border-t border-gray-900/10">
+        <button type="submit"
+          [disabled]="supply.transactions.length === 0 || supply.wholesaler_id === 0 || !defaultGoldRate || isNaN(defaultGoldRate) || defaultGoldRate < 0"
+          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+          {{isEditing ? 'Toptan Alışverişi güncelle' : 'Toptan Alışveriş oluştur'}}
+        </button>
         <button type="button" (click)="navigateToSupplies()"
           class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
           İptal
-        </button>
-        <button type="submit" [disabled]="supply.transactions.length === 0 || supply.wholesaler_id === 0 || !defaultGoldRate || isNaN(defaultGoldRate) || defaultGoldRate < 0"
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
-          {{isEditing ? 'Toptan Alışverişi güncelle' : 'Toptan Alışveriş oluştur'}}
         </button>
       </div>
 
@@ -269,6 +269,7 @@
   <app-transaction
     [transaction]="editingTransactionIndex !== null ? supply.transactions[editingTransactionIndex] : undefined"
     [type]="transactionType!" [direction]="transactionDirection!" [context]="'Supply'"
-    [agreedGoldRate]="defaultGoldRate" (transactionSubmit)="onTransactionSubmit($event)" (cancel)="onDrawerClose()">
+    [wholesaler]="getWholesaler(supply.wholesaler_id)" [agreedGoldRate]="defaultGoldRate"
+    (transactionSubmit)="onTransactionSubmit($event)" (cancel)="onDrawerClose()">
   </app-transaction>
 </app-drawer>

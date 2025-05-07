@@ -48,19 +48,26 @@
       </div>
 
       <div class="space-y-1">
-        <mat-checkbox formControlName="is_gold" name="is_gold" class="text-sm font-medium text-gray-900">
+        <mat-checkbox formControlName="is_gold" name="is_gold" class="text-sm font-medium text-gray-900" (change)="onIsGoldChange()">
           Ürün altın mı?
         </mat-checkbox>
+        <mat-checkbox formControlName="contains_gold" name="contains_gold" class="text-sm font-medium text-gray-900" (change)="onContainsGoldChange()">
+          Altın içeriyor mu? (Örnek: Pirlanta yüzük)
+        </mat-checkbox>
+        <div *ngIf="productForm.hasError('goldFieldsConflict')" class="text-red-500 text-sm mt-1">
+          Bir ürün aynı anda hem altın olamaz hem de altın içeremez.
+        </div>
       </div>
 
-      <div *ngIf="productForm.get('is_gold')?.value">
+      @if(productForm.get('is_gold')?.value || productForm.get('contains_gold')?.value) {
+      <div>
         <div class="space-y-1">
           <label for="carat" class="block text-sm font-medium text-gray-900">Altın Ayarı (Opsiyonel)</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <mat-select formControlName="carat" id="carat">
               <mat-option [value]="null">Belirtilmedi</mat-option>
               <mat-option *ngFor="let carat of caratOptions" [value]="carat">
-                {{carat}}K
+                {{carat}}
               </mat-option>
             </mat-select>
           </mat-form-field>
@@ -80,6 +87,7 @@
           </span>
         </div>
       </div>
+      }
     </div>
 
     <div class="flex items-center justify-end gap-x-4 pt-4 border-t border-gray-900/10">

@@ -10,15 +10,3 @@ export const CARAT_PURITY_MAP_GOLD: { [key: number]: number } = {
   8: 0.333
 }; 
 
-
-export const CARAT_PURITY_MAP_SCRAP: { [key: number]: number } = {
-  24: 0.985,
-  22: 0.910,
-  21: 0.850,
-  18: 0.730,
-  14: 0.565,
-  9: 0.350,
-  8: 0.300
-}; 
-
-

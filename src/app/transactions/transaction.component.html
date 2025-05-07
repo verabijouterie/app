@@ -10,7 +10,7 @@
             (optionSelected)="onProductSelected($event)">
             <mat-option *ngFor="let product of filteredProducts | async" [value]="product">
               {{product.name}}
-              @if (product.is_gold) {
+              @if (product.is_gold || product.contains_gold) {
               @if (product.carat !== undefined && product.carat !== null && product.weight_brut !== undefined &&
               product.weight_brut !== null && product.weight_brut > 0) {
               <ng-container>({{product.carat}} ayar, {{product.weight_brut}}g)</ng-container>
@@ -30,7 +30,7 @@
       </div>
       }
 
-      @if ((formTransaction.type === 'Product' && selectedProduct?.is_gold) || formTransaction.type === 'Scrap') {
+      @if ((selectedProduct?.is_gold || selectedProduct?.contains_gold) || formTransaction.type === 'Scrap') {
       <div class="space-y-1">
         <label for="carat" class="block text-sm font-medium text-gray-900">Ayar</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -44,19 +44,20 @@
       </div>
       }
 
-      @if ((formTransaction.type === 'Product' && selectedProduct?.is_gold) || formTransaction.type === 'Scrap') {
+      @if ((selectedProduct?.is_gold || selectedProduct?.contains_gold) || formTransaction.type === 'Scrap') {
       <div class="space-y-1">
         <label for="weight" class="block text-sm font-medium text-gray-900">
           @if (formTransaction.type === 'Product') {
-          Tek ürün brüt altın ağırlığı (gram)
+          Tek ürün brüt altın ağırlığı
           }
           @if (formTransaction.type === 'Scrap') {
-          Hurda Brüt ağırlığı (gram)
+          Hurda Brüt ağırlığı
           }
         </label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.weight_brut" name="weight_brut"
             [disabled]="isWeightDisabled" (input)="onDataChanged('weight_brut')" (focus)="selectWeightInput($event)">
+          <span matSuffix class="text-gray-500 ml-1 pr-2">g</span>
         </mat-form-field>
       </div>
       }
@@ -78,8 +79,7 @@
       </div>
       }
 
-      @if (formTransaction.context === 'Supply' && ((formTransaction.type === 'Product' && selectedProduct?.is_gold) ||
-      formTransaction.type === 'Scrap') ) {
+      @if (formTransaction.context === 'Supply' && (selectedProduct?.is_gold || formTransaction.type === 'Scrap')) {
       <div class="space-y-1">
         <label for="agreed_milliemes" class="block text-sm font-medium text-gray-900">Anlaşılan Milyem</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -89,13 +89,13 @@
       </div>
       }
 
-      @if (formTransaction.context === 'Supply' && ((formTransaction.type === 'Product' && selectedProduct) ||
-      formTransaction.type === 'Scrap') ) {
+      @if (formTransaction.context === 'Supply' && ( selectedProduct || formTransaction.type === 'Scrap') ) {
       <div class="space-y-1">
-        <label for="agreed_price" class="block text-sm font-medium text-gray-900">Euro bazında tutar</label>
+        <label for="agreed_price" class="block text-sm font-medium text-gray-900">Tutar</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.agreed_price"
             name="agreed_price" (input)="onDataChanged('agreed_price')" (focus)="selectPriceInput($event)">
+          <span matSuffix class="text-gray-500 ml-1 pr-2">EUR</span>
         </mat-form-field>
       </div>
       }
@@ -109,51 +109,54 @@
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <input matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01" name="amount"
             (focus)="selectAmountInput($event)" (input)="onDataChanged('amount')">
-          <span matSuffix>EUR</span>
+          <span matSuffix class="text-gray-500 ml-1 pr-2">EUR</span>
         </mat-form-field>
       </div>
       }
 
-      @if (selectedProduct) {
+
       <div class="space-y-1">
         <mat-checkbox [(ngModel)]="formTransaction.paiable_as_cash_only"
           (change)="onDataChanged('paiable_as_cash_only')" name="paiable_as_cash_only">
           Sadece Nakit Olarak Ödenebilir
         </mat-checkbox>
       </div>
-      }
 
-      @if ((formTransaction.type === 'Product' && selectedProduct?.is_gold) ) {
-        <div class="space-y-1">
-          <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Toplam brüt altın miktarı (gram):
-          </label>
-          <span class="text-gray-900 text-base inline">
-            {{formTransaction.weight_brut_total}}
-          </span>
-        </div>
-        }
 
+      @if (selectedProduct?.is_gold || selectedProduct?.contains_gold) {
       <div class="space-y-1">
-        <label for="agreed_weight24k" class="text-sm font-medium text-gray-900 inline">
-          @if ((formTransaction.type === 'Product' && selectedProduct?.is_gold) || formTransaction.type === 'Scrap') {
-          Anlaşılan milyeme göre has altın miktarı (gram):
-          }
-          @if ((formTransaction.type === 'Product' && !selectedProduct?.is_gold) || formTransaction.type === 'Cash' || formTransaction.type === 'Bank' || formTransaction.type === 'Money') {
-          Anlaşılan kura göre has altın miktarı (gram):
-          }
+        <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Toplam brüt altın miktarı:
         </label>
         <span class="text-gray-900 text-base inline">
-          {{formTransaction.agreed_weight24k}}
+          {{formTransaction.weight_brut_total}}g
         </span>
       </div>
-
-
-      @if ((formTransaction.type === 'Product' && selectedProduct?.is_gold) || formTransaction.type === 'Scrap') {
+      }
+      @if (!selectedProduct?.contains_gold) {
       <div class="space-y-1">
-        <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Has altın miktarı (gram):
+        <label for="agreed_weight24k" class="text-sm font-medium text-gray-900 inline">
+          @if (selectedProduct?.is_gold || formTransaction.type === 'Scrap') {
+          Anlaşılan milyeme göre has altın miktarı:
+          }
+          @if (formTransaction.type !== 'Scrap' && (!(selectedProduct?.is_gold || selectedProduct?.contains_gold)) ||
+          formTransaction.type === 'Cash' ||
+          formTransaction.type === 'Bank' || formTransaction.type === 'Money') {
+          Anlaşılan kura göre has altın miktarı:
+          }
         </label>
         <span class="text-gray-900 text-base inline">
-          {{formTransaction.weight24k}}
+          {{formTransaction.agreed_weight24k}}g
+        </span>
+      </div>
+      }
+
+
+      @if ( (selectedProduct?.is_gold || selectedProduct?.contains_gold) || formTransaction.type === 'Scrap') {
+      <div class="space-y-1">
+        <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Has altın miktarı:
+        </label>
+        <span class="text-gray-900 text-base inline">
+          {{formTransaction.weight24k}}g
         </span>
       </div>
       }
@@ -163,14 +166,14 @@
     </div>
 
     <div class="flex items-center justify-end gap-x-4">
-      <button type="button" (click)="onCancel()"
-        class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
-        İptal
-      </button>
       <button type="submit"
         class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
         [disabled]="!isFormValid()">
         {{ transaction ? 'İşlemi güncelle' : 'İşlem oluştur' }}
+      </button>
+      <button type="button" (click)="onCancel()"
+        class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
+        İptal
       </button>
     </div>
   </form>
