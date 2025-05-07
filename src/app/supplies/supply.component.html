@@ -265,11 +265,14 @@
   </div>
 </div>
 <app-drawer [isOpen]="isDrawerOpen" [skipAnimation]="skipDrawerAnimation"
-  [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()">
+  [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()"
+  (animationComplete)="onDrawerAnimationComplete($event)">
   <app-transaction
     [transaction]="editingTransactionIndex !== null ? supply.transactions[editingTransactionIndex] : undefined"
     [type]="transactionType!" [direction]="transactionDirection!" [context]="'Supply'"
     [wholesaler]="getWholesaler(supply.wholesaler_id)" [agreedGoldRate]="defaultGoldRate"
+    [isOpen]="isDrawerOpen"
+    [isAnimationComplete]="isDrawerAnimationComplete"
     (transactionSubmit)="onTransactionSubmit($event)" (cancel)="onDrawerClose()">
   </app-transaction>
 </app-drawer>

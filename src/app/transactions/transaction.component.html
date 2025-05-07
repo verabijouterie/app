@@ -5,7 +5,7 @@
       <div class="space-y-1">
         <label for="product" class="block text-sm font-medium text-gray-900">Ürün</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input type="text" matInput [formControl]="productControl" [matAutocomplete]="auto" placeholder="Ürün seçin">
+          <input #productInput type="text" matInput [formControl]="productControl" [matAutocomplete]="auto" placeholder="Ürün seçin">
           <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn"
             (optionSelected)="onProductSelected($event)">
             <mat-option *ngFor="let product of filteredProducts | async" [value]="product">
@@ -34,7 +34,7 @@
       <div class="space-y-1">
         <label for="carat" class="block text-sm font-medium text-gray-900">Ayar</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <mat-select [(ngModel)]="formTransaction.carat" name="carat" [disabled]="isCaratDisabled"
+          <mat-select #caratSelect [(ngModel)]="formTransaction.carat" name="carat" [disabled]="isCaratDisabled"
             (selectionChange)="onDataChanged('carat')">
             <mat-option *ngFor="let carat of caratOptions" [value]="carat">
               {{ carat }}
@@ -107,7 +107,7 @@
       <div class="space-y-1">
         <label for="amount" class="block text-sm font-medium text-gray-900">Tutar</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01" name="amount"
+          <input #amountInput matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01" name="amount"
             (focus)="selectAmountInput($event)" (input)="onDataChanged('amount')">
           <span matSuffix class="text-gray-500 ml-1 pr-2">EUR</span>
         </mat-form-field>

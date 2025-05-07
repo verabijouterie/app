@@ -60,7 +60,8 @@ export class SupplyComponent implements OnInit {
   editingTransactionIndex: number | null = null;
   isEditing: boolean = false;
   isDrawerOpen = false;
-  skipDrawerAnimation = true;
+  skipDrawerAnimation = false;
+  isDrawerAnimationComplete = false;
   transactionType?: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
   transactionDirection?: 'In' | 'Out';
   wholesalers: Wholesaler[] = [];
@@ -233,11 +234,19 @@ export class SupplyComponent implements OnInit {
   }
 
   onDrawerClose() {
-    this.isDrawerOpen = false;
-    this.editingTransactionIndex = null;
-    if (this.transactionComponent) {
-      this.transactionComponent.resetForm();
+    // Only reset after animation completes
+    if (this.isDrawerOpen) {
+      this.isDrawerOpen = false;
+      this.skipDrawerAnimation = false;
+      this.editingTransactionIndex = null;
+      if (this.transactionComponent) {
+        this.transactionComponent.resetForm();
+      }
     }
+  }
+
+  onDrawerAnimationComplete(isOpen: boolean) {
+    this.isDrawerAnimationComplete = isOpen;
   }
 
   onTransactionSubmit(transaction: Transaction) {

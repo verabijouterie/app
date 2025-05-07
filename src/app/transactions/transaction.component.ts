@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit, OnChanges, SimpleChanges, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Transaction } from '../interfaces/transaction.interface';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelectModule, MatSelect } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { Product } from '../interfaces/product.interface';
@@ -45,6 +45,9 @@ export class TransactionComponent implements OnInit, OnChanges {
   @Input() context!: 'Supply' | 'Order' | 'Scenario';
   @Input() agreedGoldRate!: number;
   @Input() wholesaler?: Wholesaler;
+  @Input() isOpen = false;
+  @Input() isAnimationComplete = false;
+
   is_editing = false;
 
   products: Product[] = [];
@@ -81,6 +84,11 @@ export class TransactionComponent implements OnInit, OnChanges {
   private productsSubscription: Subscription | undefined;
   private productControlSubscription: Subscription | undefined;
   private filteredProductsSubscription: Subscription | undefined;
+
+  @ViewChild('productInput') productInput!: ElementRef;
+  @ViewChild('caratSelect') caratSelect!: MatSelect;
+  @ViewChild('amountInput') amountInput!: ElementRef;
+
 
   constructor(private productsService: ProductsService, private snackBar: MatSnackBar) {
     this.productControl = new FormControl<string | Product>('');
@@ -152,6 +160,27 @@ export class TransactionComponent implements OnInit, OnChanges {
     }
 
 
+    if (changes['isAnimationComplete']) {
+      if (this.isAnimationComplete && this.isOpen) {
+        if (this.formTransaction.type === 'Product') {
+          const input = this.productInput.nativeElement;
+          input.readOnly = true;
+          input.focus();
+          setTimeout(() => {
+            input.readOnly = false;
+          }, 100);
+        }
+        else if (this.formTransaction.type === 'Scrap') {
+          if (!this.is_editing) {
+            this.formTransaction.carat = this.caratOptions[0];
+          }
+          this.caratSelect.focus();
+        }
+        else if (this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') {
+          this.amountInput.nativeElement.focus();
+        }
+      }
+    }
   }
 
   loadProducts(): void {
@@ -281,8 +310,6 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   onDataChanged(field?: string) {
-
-
     switch (field) {
       case 'product':
         this.formTransaction.quantity = 1;
@@ -351,7 +378,6 @@ export class TransactionComponent implements OnInit, OnChanges {
         break;
       case 'amount':
         this.calculateAgreedWeight24();
-
         break;
     }
   }

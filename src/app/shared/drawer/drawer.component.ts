@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { AnimationEvent } from '@angular/animations';
 
 @Component({
     selector: 'app-drawer',
@@ -15,8 +16,13 @@ export class DrawerComponent {
   @Input() skipAnimation = false;
   
   @Output() close = new EventEmitter<void>();
+  @Output() animationComplete = new EventEmitter<boolean>();
 
   onClose() {
     this.close.emit();
+  }
+
+  onTransitionEnd(event: any) {
+    this.animationComplete.emit(this.isOpen);
   }
 } 

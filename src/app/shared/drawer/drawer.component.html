@@ -7,8 +7,9 @@
      [class.invisible]="!isOpen"
      [style.visibility]="isOpen ? 'visible' : 'hidden'">
   <!-- Background backdrop -->
-  <div class="fixed inset-0 cursor-pointer"
-       [class.duration-500]="!skipAnimation"
+  <div class="fixed inset-0 cursor-pointer bg-black transition-opacity duration-500"
+       [class.opacity-70]="isOpen"
+       [class.opacity-0]="!isOpen"
        [class.pointer-events-none]="!isOpen"
        [class.pointer-events-auto]="isOpen"
        (mousedown)="onClose()"></div>
@@ -24,7 +25,8 @@
                [class.duration-500]="!skipAnimation"
                [class.sm:duration-700]="!skipAnimation"
                [class.translate-x-0]="isOpen"
-               [class.translate-x-full]="!isOpen">
+               [class.translate-x-full]="!isOpen"
+               (transitionend)="onTransitionEnd($event)">
             <div class="flex min-h-0 flex-1 flex-col overflow-y-scroll py-6">
               <div class="px-4 sm:px-6">
                 <div class="flex items-start justify-between">
