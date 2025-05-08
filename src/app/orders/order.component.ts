@@ -62,6 +62,7 @@ export class OrderComponent implements OnInit {
   isEditing: boolean = false;
   isDrawerOpen = false;
   skipDrawerAnimation = true;
+  isDrawerAnimationComplete = false;
   transactionType?: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
   transactionDirection?: 'In' | 'Out';
   
@@ -187,6 +188,10 @@ export class OrderComponent implements OnInit {
     if (this.transactionComponent) {
       this.transactionComponent.resetForm();
     }
+  }
+
+  onDrawerAnimationComplete(isOpen: boolean) {
+    this.isDrawerAnimationComplete = isOpen;
   }
 
   onTransactionSubmit(transaction: Transaction) {

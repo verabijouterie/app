@@ -203,11 +203,18 @@
   </div>
 </div>
 
-<app-drawer [isOpen]="isDrawerOpen" [skipAnimation]="skipDrawerAnimation"
-  [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()">
+<app-drawer
+  [isOpen]="isDrawerOpen"
+  [skipAnimation]="skipDrawerAnimation"
+  [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'"
+  (close)="onDrawerClose()"
+  (animationComplete)="onDrawerAnimationComplete($event)">
   <app-transaction
     [transaction]="editingTransactionIndex !== null ? order.transactions[editingTransactionIndex] : undefined"
-    [type]="transactionType!" [direction]="transactionDirection!" (transactionSubmit)="onTransactionSubmit($event)"
+    [type]="transactionType!" 
+    [direction]="transactionDirection!" 
+    [isAnimationComplete]="isDrawerAnimationComplete"
+    (transactionSubmit)="onTransactionSubmit($event)"
     (cancel)="onDrawerClose()">
   </app-transaction>
 </app-drawer>

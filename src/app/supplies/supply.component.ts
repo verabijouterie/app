@@ -60,7 +60,7 @@ export class SupplyComponent implements OnInit {
   editingTransactionIndex: number | null = null;
   isEditing: boolean = false;
   isDrawerOpen = false;
-  skipDrawerAnimation = false;
+  skipDrawerAnimation = true;
   isDrawerAnimationComplete = false;
   transactionType?: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
   transactionDirection?: 'In' | 'Out';
@@ -103,6 +103,8 @@ export class SupplyComponent implements OnInit {
     setTimeout(() => {
       this.skipDrawerAnimation = false;
     }, 100);
+
+
 
     // Set current user ID and date
     const currentUser = this.authService.currentUser;
