@@ -17,6 +17,9 @@ import { ProductsService } from '../services/products.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Wholesaler } from '../interfaces/wholesaler.interface';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
+
 
 @Component({
   selector: 'app-transaction',
@@ -33,8 +36,12 @@ import { Wholesaler } from '../interfaces/wholesaler.interface';
     MatCardModule,
     MatAutocompleteModule,
     MatSnackBarModule,
-    MatCheckboxModule
-  ]
+    MatCheckboxModule,
+    MatDatepickerModule
+  ],
+  providers: [
+    provideNativeDateAdapter()
+  ],
 })
 export class TransactionComponent implements OnInit, OnChanges {
   @Output() transactionSubmit = new EventEmitter<Transaction>();
@@ -58,11 +65,12 @@ export class TransactionComponent implements OnInit, OnChanges {
   caratOptions = CARAT_OPTIONS.map(carat => Number(carat));
   caratPurityMapGold = CARAT_PURITY_MAP_GOLD;
 
+  today: Date = new Date();
   formTransaction: Transaction = {
+    id: null,
+    date: this.today.toISOString(),
     type: this.type,
     direction: this.direction,
-    context: this.context,
-    agreed_gold_rate: this.agreedGoldRate,
 
     agreed_milliemes: 0,
     agreed_price: 0,
@@ -70,20 +78,22 @@ export class TransactionComponent implements OnInit, OnChanges {
 
     weight_brut: 0,
     weight_brut_total: 0,
-    carat: undefined,
+    carat: null,
     amount: 0,
     quantity: 1,
-    product: undefined,
+    product: null,
+    product_id: null,
     weight24k: 0,
-    status: null
+    status: null,
+    paiable_as_cash_only: false
   };
 
   isCaratDisabled = false;
   isWeightDisabled = false;
 
-  private productsSubscription: Subscription | undefined;
-  private productControlSubscription: Subscription | undefined;
-  private filteredProductsSubscription: Subscription | undefined;
+  private productsSubscription: Subscription | null = null;
+  private productControlSubscription: Subscription | null = null;
+  private filteredProductsSubscription: Subscription | null = null;
 
   @ViewChild('productInput') productInput!: ElementRef;
   @ViewChild('caratSelect') caratSelect!: MatSelect;
@@ -94,13 +104,24 @@ export class TransactionComponent implements OnInit, OnChanges {
     this.productControl = new FormControl<string | Product>('');
     this.filteredProducts = of([]); // Initialize with empty observable
 
+    const formatted = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Paris',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(new Date());
+    this.today = new Date(formatted + 'T00:00:00');
+    this.formTransaction.date = this.today.toISOString();
+
+    //console.log(this.today.toISOString());
+
     // Subscribe to value changes with error handling
     this.productControlSubscription = this.productControl.valueChanges.subscribe({
       next: (value) => {
         if (!value) {
           this.selectedProduct = null;
-          this.formTransaction.product = undefined;
-          this.formTransaction.product_id = undefined;
+          this.formTransaction.product = null;
+          this.formTransaction.product_id = null;
           this.onDataChanged('product');
         }
       },
@@ -131,23 +152,23 @@ export class TransactionComponent implements OnInit, OnChanges {
     }
 
     if (changes['context'] && this.context) {
-      this.formTransaction.context = this.context;
     }
 
     if (changes['agreedGoldRate'] && this.agreedGoldRate) {
-      this.formTransaction.agreed_gold_rate = this.agreedGoldRate;
       this.onDataChanged('agreed_gold_rate');
     }
 
     if (changes['wholesaler'] && this.wholesaler) {
       if (!this.transaction) {
         this.formTransaction.paiable_as_cash_only = !(this.wholesaler?.prefers_gold ?? true);
+
       }
     }
 
     if (changes['transaction']) {
       if (!this.transaction) {
         this.is_editing = false;
+        this.formTransaction.date = this.today.toISOString();
       }
       else {
         this.is_editing = true;
@@ -258,7 +279,7 @@ export class TransactionComponent implements OnInit, OnChanges {
         return false;
       }
 
-      if (this.formTransaction.agreed_price === undefined || isNaN(this.formTransaction.agreed_price) || this.formTransaction.agreed_price <= 0) {
+      if (this.formTransaction.agreed_price === null || isNaN(this.formTransaction.agreed_price) || this.formTransaction.agreed_price <= 0) {
         return false;
       }
     }
@@ -266,18 +287,18 @@ export class TransactionComponent implements OnInit, OnChanges {
       if (!this.formTransaction.carat) {
         return false;
       }
-      if (this.formTransaction.weight_brut === undefined || isNaN(this.formTransaction.weight_brut) || this.formTransaction.weight_brut <= 0) {
+      if (this.formTransaction.weight_brut === null || isNaN(this.formTransaction.weight_brut) || this.formTransaction.weight_brut <= 0) {
         return false;
       }
-      if (this.formTransaction.agreed_milliemes === undefined || isNaN(this.formTransaction.agreed_milliemes) || this.formTransaction.agreed_milliemes <= 0) {
+      if (this.formTransaction.agreed_milliemes === null || isNaN(this.formTransaction.agreed_milliemes) || this.formTransaction.agreed_milliemes <= 0) {
         return false;
       }
-      if (this.formTransaction.agreed_price === undefined || isNaN(this.formTransaction.agreed_price) || this.formTransaction.agreed_price <= 0) {
+      if (this.formTransaction.agreed_price === null || isNaN(this.formTransaction.agreed_price) || this.formTransaction.agreed_price <= 0) {
         return false;
       }
     }
-    else if ((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') && this.formTransaction.agreed_gold_rate) {
-      if (this.formTransaction.amount === undefined || isNaN(this.formTransaction.amount) || this.formTransaction.amount <= 0) {
+    else if ((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') && this.agreedGoldRate) {
+      if (this.formTransaction.amount === null || isNaN(this.formTransaction.amount) || this.formTransaction.amount <= 0) {
         return false;
       }
     }
@@ -321,7 +342,7 @@ export class TransactionComponent implements OnInit, OnChanges {
         this.isCaratDisabled = false;
         this.isWeightDisabled = false;
         if (!this.selectedProduct) {
-          this.formTransaction.carat = undefined;
+          this.formTransaction.carat = null;
           this.formTransaction.weight_brut = 0;
         }
         else {
@@ -331,7 +352,7 @@ export class TransactionComponent implements OnInit, OnChanges {
               this.isCaratDisabled = true;
             }
             else {
-              this.formTransaction.carat = this.transaction?.carat || undefined;
+              this.formTransaction.carat = this.transaction?.carat || null;
             }
             if (this.selectedProduct.weight_brut) {
               this.formTransaction.weight_brut = Number(this.selectedProduct.weight_brut);
@@ -345,7 +366,7 @@ export class TransactionComponent implements OnInit, OnChanges {
             this.calculateWeight24k();
           }
           else {
-            this.formTransaction.carat = undefined;
+            this.formTransaction.carat = null;
             this.formTransaction.weight_brut = 0;
           }
         }
@@ -369,7 +390,7 @@ export class TransactionComponent implements OnInit, OnChanges {
         this.calculateAgreedWeight24AndPrice();
         break;
       case 'agreed_price':
-        if (this.selectedProduct?.is_gold || this.formTransaction.type === 'Scrap') {
+        if (this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold || this.formTransaction.type === 'Scrap') {
           this.calculateAgreedWeight24AndMilliemes();
         }
         else if (!this.selectedProduct?.is_gold && !this.selectedProduct?.contains_gold) {
@@ -391,9 +412,9 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   calculateAgreedWeight24AndPrice() {
-    if ((this.selectedProduct?.is_gold || this.formTransaction.type === 'Scrap') && this.formTransaction.agreed_gold_rate && this.formTransaction.agreed_milliemes) {
+    if ((this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold || this.formTransaction.type === 'Scrap') && this.agreedGoldRate && this.formTransaction.agreed_milliemes) {
       this.formTransaction.agreed_weight24k = parseFloat(((this.formTransaction.weight_brut || 0) * ((this.formTransaction.agreed_milliemes) / 1000) * (this.formTransaction.quantity || 1)).toFixed(4));
-      this.formTransaction.agreed_price = parseFloat(((this.formTransaction.agreed_gold_rate) * (this.formTransaction.agreed_weight24k || 0)).toFixed(2));
+      this.formTransaction.agreed_price = parseFloat(((this.agreedGoldRate) * (this.formTransaction.agreed_weight24k || 0)).toFixed(2));
     }
     else {
       this.formTransaction.agreed_weight24k = 0;
@@ -402,11 +423,11 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   calculateAgreedWeight24() {
-    if (this.formTransaction.type === 'Product' && this.formTransaction.agreed_gold_rate && this.formTransaction.agreed_price) {
-      this.formTransaction.agreed_weight24k = parseFloat((this.formTransaction.agreed_price / this.formTransaction.agreed_gold_rate).toFixed(4));
+    if (this.formTransaction.type === 'Product' && this.agreedGoldRate && this.formTransaction.agreed_price) {
+      this.formTransaction.agreed_weight24k = parseFloat((this.formTransaction.agreed_price / this.agreedGoldRate).toFixed(4));
     }
-    else if ((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') && this.formTransaction.agreed_gold_rate) {
-      this.formTransaction.agreed_weight24k = parseFloat(((this.formTransaction.amount || 0) / this.formTransaction.agreed_gold_rate).toFixed(4));
+    else if ((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') && this.agreedGoldRate) {
+      this.formTransaction.agreed_weight24k = parseFloat(((this.formTransaction.amount || 0) / this.agreedGoldRate).toFixed(4));
     }
     else {
       this.formTransaction.agreed_weight24k = 0;
@@ -414,8 +435,8 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   calculateAgreedWeight24AndMilliemes() {
-    if ((this.selectedProduct?.is_gold || this.formTransaction.type === 'Scrap') && this.formTransaction.agreed_gold_rate && this.formTransaction.agreed_price) {
-      this.formTransaction.agreed_weight24k = parseFloat((this.formTransaction.agreed_price / this.formTransaction.agreed_gold_rate).toFixed(4));
+    if ((this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold || this.formTransaction.type === 'Scrap') && this.agreedGoldRate && this.formTransaction.agreed_price) {
+      this.formTransaction.agreed_weight24k = parseFloat((this.formTransaction.agreed_price / this.agreedGoldRate).toFixed(4));
       this.formTransaction.agreed_milliemes = Math.round((this.formTransaction.agreed_weight24k / (this.formTransaction.weight_brut || 0) / (this.formTransaction.quantity || 1)) * 1000);
     }
     else {
@@ -427,11 +448,20 @@ export class TransactionComponent implements OnInit, OnChanges {
   onSubmit(event: Event) {
     event.preventDefault();
     event.stopPropagation();
-    this.transactionSubmit.emit(this.formTransaction);
+    const transactionToSubmit = {
+      ...this.formTransaction,
+      id: this.formTransaction.id || null,
+      paiable_as_cash_only: this.formTransaction.paiable_as_cash_only ?? !(this.wholesaler?.prefers_gold ?? true),
+      product: this.formTransaction.product || null,
+      carat: this.formTransaction.carat || null,
+      status: this.formTransaction.status || null
+    };
+    this.transactionSubmit.emit(transactionToSubmit);
     this.resetForm();
   }
 
   resetForm() {
+
     this.selectedProduct = null;
     this.productControl.setValue('');
     this.isCaratDisabled = false;
@@ -441,14 +471,15 @@ export class TransactionComponent implements OnInit, OnChanges {
     this.isWeightDisabled = false;
     this.formTransaction = {
       ...this.formTransaction,
-      id: undefined,
-      product: undefined,
+      date: this.today.toISOString(),
+      id: null,
+      product: null,
       agreed_milliemes: 0,
       agreed_price: 0,
       agreed_weight24k: 0,
       weight_brut: 0,
       weight_brut_total: 0,
-      carat: undefined,
+      carat: null,
       amount: 0,
       quantity: 1,
       weight24k: 0,

@@ -216,32 +216,7 @@ export class ScenarioComponent implements OnInit {
       return;
     }
 
-    // Create a deep clone of the scenario and its transactions
-    const scenarioToSubmit = {
-      ...this.scenario,
-      transactions: this.scenario.transactions.map(transaction => ({...transaction}))
-    };
 
-    scenarioToSubmit.transactions.forEach(transaction => {
-      if(transaction.type === 'Product' || transaction.type === 'Scrap') {
-        delete transaction.amount;
-        if (transaction.type === 'Product') {
-          transaction.product_id = transaction.product?.id;
-          delete transaction.product;
-        }
-        if(transaction.type === 'Scrap') {
-          delete transaction.quantity;
-        }
-      }
-      if(transaction.type === 'Cash' || transaction.type === 'Bank') {
-        delete transaction.product_id;
-        delete transaction.weight_brut;
-        delete transaction.carat;
-        delete transaction.quantity;
-        delete transaction.weight24k;
-        delete transaction.product;
-      }
-    });
 
     let total24kProductIn = 0;
     let total24kProductOut = 0;
@@ -254,7 +229,7 @@ export class ScenarioComponent implements OnInit {
     let totalBankIn = 0;
     let totalBankOut = 0;
 
-    scenarioToSubmit.transactions.forEach(transaction => {
+    this.scenario.transactions.forEach(transaction => {
       if(transaction.type === 'Product') {
         const weight = Number(transaction.weight24k || 0);
         if(isNaN(weight)) return;
@@ -301,19 +276,19 @@ export class ScenarioComponent implements OnInit {
       }
     });
 
-    scenarioToSubmit.total24kProductIn = parseFloat(total24kProductIn.toFixed(4));
-    scenarioToSubmit.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
-    scenarioToSubmit.total24kScrapIn = parseFloat(total24kScrapIn.toFixed(4));
-    scenarioToSubmit.total24kScrapOut = parseFloat(total24kScrapOut.toFixed(4));
-    scenarioToSubmit.total24kIn = parseFloat(total24kIn.toFixed(4));
-    scenarioToSubmit.total24kOut = parseFloat(total24kOut.toFixed(4));
-    scenarioToSubmit.totalCashIn = parseFloat(totalCashIn.toFixed(2));
-    scenarioToSubmit.totalCashOut = parseFloat(totalCashOut.toFixed(2));
-    scenarioToSubmit.totalBankIn = parseFloat(totalBankIn.toFixed(2));
-    scenarioToSubmit.totalBankOut = parseFloat(totalBankOut.toFixed(2));
+    this.scenario.total24kProductIn = parseFloat(total24kProductIn.toFixed(4));
+    this.scenario.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
+    this.scenario.total24kScrapIn = parseFloat(total24kScrapIn.toFixed(4));
+    this.scenario.total24kScrapOut = parseFloat(total24kScrapOut.toFixed(4));
+    this.scenario.total24kIn = parseFloat(total24kIn.toFixed(4));
+    this.scenario.total24kOut = parseFloat(total24kOut.toFixed(4));
+    this.scenario.totalCashIn = parseFloat(totalCashIn.toFixed(2));
+    this.scenario.totalCashOut = parseFloat(totalCashOut.toFixed(2));
+    this.scenario.totalBankIn = parseFloat(totalBankIn.toFixed(2));
+    this.scenario.totalBankOut = parseFloat(totalBankOut.toFixed(2));
 
     if (this.isEditing && this.scenario.id) {
-      this.scenarioService.updateScenario(this.scenario.id, scenarioToSubmit).subscribe({
+      this.scenarioService.updateScenario(this.scenario.id, this.scenario).subscribe({
         next: () => {
           this.router.navigate(['/scenarios']);
         },
@@ -327,7 +302,7 @@ export class ScenarioComponent implements OnInit {
         }
       });
     } else {
-      this.scenarioService.createScenario(scenarioToSubmit).subscribe({
+      this.scenarioService.createScenario(this.scenario).subscribe({
         next: () => {
           this.router.navigate(['/scenarios']);
         },

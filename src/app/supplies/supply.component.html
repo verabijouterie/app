@@ -1,7 +1,15 @@
 <div class="max-w-3xl mx-auto px-4 py-10">
   <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
     <p class="text-base text-gray-500 mb-8">Yeni bir toptan alışveriş oluşturun.</p>
-
+    
+    <div class="space-y-1">
+      <label for="date" class="block text-sm font-medium text-gray-900">Tarih</label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <input matInput [matDatepicker]="picker" [(ngModel)]="supply.date" name="date">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </div>
 
     <!-- Wholesaler Section -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
@@ -94,17 +102,11 @@
           </div>
         </div>
 
-        <div *ngIf="supply.transactions.length > 0" class="mt-6 space-y-1" cdkDropList
-          (cdkDropListDropped)="drop($event)">
+        <div *ngIf="supply.transactions.length > 0" class="mt-6 space-y-1">
           <div *ngFor="let transaction of supply.transactions; let i = index"
             class="group flex items-center justify-between gap-x-4 rounded-lg py-0 px-3 shadow-sm ring-1 ring-gray-900/5"
-            [ngClass]="{'bg-green-100': transaction.direction === 'In', 'bg-red-100': transaction.direction === 'Out'}"
-            cdkDrag>
+            [ngClass]="{'bg-green-100': transaction.direction === 'In', 'bg-red-100': transaction.direction === 'Out'}">
             <div class="flex items-center gap-x-2">
-              <mat-icon cdkDragHandle
-                class="text-gray-400 cursor-move opacity-0 group-hover:opacity-100 transition h-5 w-5 text-sm">
-                drag_indicator
-              </mat-icon>
               <div class="flex items-center gap-x-2">
                 <span class="text-sm text-gray-500">
 

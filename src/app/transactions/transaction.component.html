@@ -1,6 +1,16 @@
 <div>
   <form (ngSubmit)="onSubmit($event)" class="space-y-6">
     <div class="grid grid-cols-1 gap-4">
+      
+      <div class="space-y-1">
+        <label for="date" class="block text-sm font-medium text-gray-900">Tarih</label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <input matInput [matDatepicker]="picker" [(ngModel)]="formTransaction.date" name="date" (dateChange)="onDataChanged('date')">
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </div>
+      
       @if (formTransaction.type === 'Product') {
       <div class="space-y-1">
         <label for="product" class="block text-sm font-medium text-gray-900">Ürün</label>
@@ -79,7 +89,7 @@
       </div>
       }
 
-      @if (formTransaction.context === 'Supply' && (selectedProduct?.is_gold || formTransaction.type === 'Scrap')) {
+      @if (context === 'Supply' && (selectedProduct?.is_gold || formTransaction.type === 'Scrap')) {
       <div class="space-y-1">
         <label for="agreed_milliemes" class="block text-sm font-medium text-gray-900">Anlaşılan Milyem</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -89,7 +99,7 @@
       </div>
       }
 
-      @if (formTransaction.context === 'Supply' && ( selectedProduct || formTransaction.type === 'Scrap') ) {
+      @if (context === 'Supply' && ( selectedProduct || formTransaction.type === 'Scrap') ) {
       <div class="space-y-1">
         <label for="agreed_price" class="block text-sm font-medium text-gray-900">Tutar</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">

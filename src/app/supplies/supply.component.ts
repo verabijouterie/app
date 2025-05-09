@@ -8,7 +8,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Product } from '../interfaces/product.interface';
 import { SupplyService } from '../services/supply.service';
@@ -21,6 +20,9 @@ import { Supply } from '../interfaces/supply.interface';
 import { WholesalerService } from '../services/wholesaler.service';
 import { Wholesaler } from '../interfaces/wholesaler.interface';
 import { GoldRateService } from '../services/gold-rate.services';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import {provideNativeDateAdapter} from '@angular/material/core';
+
 
 export const MY_FORMATS = {
   parse: {
@@ -45,10 +47,13 @@ export const MY_FORMATS = {
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    DragDropModule,
     DrawerComponent,
     TransactionComponent,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDatepickerModule
+  ],
+  providers: [
+    provideNativeDateAdapter()
   ],
   standalone: true,
   templateUrl: './supply.component.html',
@@ -66,13 +71,19 @@ export class SupplyComponent implements OnInit {
   transactionDirection?: 'In' | 'Out';
   wholesalers: Wholesaler[] = [];
   defaultGoldRate = 0;
+  initialTransactions: Transaction[] = [];
+
+  today: Date = new Date();
 
   supply: Supply = {
-    id: undefined,
-    date: new Date(),
+    id: null,
+    date: this.today.toISOString(),
     user_id: 0,
     description: '',
     transactions: [],
+    addedTransactions: [],
+    removedTransactions: [],
+    unchangedTransactions: [],
     wholesaler_id: 0,
 
     total24kProductIn: 0,
@@ -95,7 +106,7 @@ export class SupplyComponent implements OnInit {
     private productsService: ProductsService,
     private snackBar: MatSnackBar,
     private wholesalersService: WholesalerService,
-    private goldRateService: GoldRateService
+    private goldRateService: GoldRateService,
   ) { }
 
   ngOnInit() {
@@ -104,14 +115,23 @@ export class SupplyComponent implements OnInit {
       this.skipDrawerAnimation = false;
     }, 100);
 
+    const formatted = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Paris',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(new Date());
+    this.today = new Date(formatted + 'T00:00:00');
+    this.supply.date = this.today.toISOString();
 
+    //console.log(this.today.toISOString());
 
     // Set current user ID and date
     const currentUser = this.authService.currentUser;
     if (currentUser) {
       this.supply.user_id = currentUser.id;
     }
-    this.supply.date = new Date();
+    this.supply.date = new Date().toISOString();
 
     this.loadWholesalers();
     this.loadProducts();
@@ -124,6 +144,9 @@ export class SupplyComponent implements OnInit {
         this.supplyService.getSupply(Number(supplyId)).subscribe({
           next: (supply) => {
             this.supply = supply;
+            this.initialTransactions = supply.transactions;
+            this.supply = { ...supply, addedTransactions: [], removedTransactions: [], unchangedTransactions: [] };
+
           },
           error: (error) => {
             this.snackBar.open('Senaryo yüklenirken bir hata oluştu', 'Kapat', {
@@ -138,14 +161,18 @@ export class SupplyComponent implements OnInit {
         });
       } else {
         this.isEditing = false;
+        this.initialTransactions = [];
         // Reset  for new creation
         this.supply = {
-          id: undefined,
-          date: new Date(),
+          id: null,
+          date: this.today.toISOString(),
           user_id: currentUser?.id || 0,
           wholesaler_id: 0,
           description: '',
           transactions: [],
+          addedTransactions: [],
+          removedTransactions: [],
+          unchangedTransactions: [],
           total24kProductIn: 0,
           total24kProductOut: 0,
           total24kScrapIn: 0,
@@ -177,7 +204,6 @@ export class SupplyComponent implements OnInit {
     });
   }
 
-
   onDefaultGoldRateChange() {
     this.supply.transactions.forEach(transaction => {
       this.recalculateTransaction(transaction, this.defaultGoldRate);
@@ -185,20 +211,16 @@ export class SupplyComponent implements OnInit {
   }
 
   recalculateTransaction(transaction: Transaction, goldRate: number) {
-    transaction.agreed_gold_rate = goldRate;
     if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
-      transaction.agreed_weight24k = parseFloat(((transaction.amount || 0) / (transaction.agreed_gold_rate || 1)).toFixed(4));
+      transaction.agreed_weight24k = parseFloat(((transaction.amount || 0) / goldRate).toFixed(4));
     }
     if (transaction.type === 'Product' && !Boolean(transaction.product?.is_gold)) {
-      transaction.agreed_weight24k = parseFloat(((transaction.agreed_price || 0) / transaction.agreed_gold_rate).toFixed(4));
+      transaction.agreed_weight24k = parseFloat(((transaction.agreed_price || 0) / goldRate).toFixed(4));
     }
     if ((transaction.type === 'Product' && Boolean(transaction.product?.is_gold)) || transaction.type === 'Scrap') {
       transaction.agreed_weight24k = parseFloat(((transaction.weight_brut || 0) * ((transaction.agreed_milliemes || 0) / 1000) * (transaction.quantity || 1)).toFixed(4));
-      transaction.agreed_price = parseFloat(((transaction.agreed_gold_rate) * (transaction.agreed_weight24k || 0)).toFixed(2));
+      transaction.agreed_price = parseFloat(((goldRate) * (transaction.agreed_weight24k || 0)).toFixed(2));
     }
-
-
-
   }
 
   loadProducts() {
@@ -252,7 +274,6 @@ export class SupplyComponent implements OnInit {
   }
 
   onTransactionSubmit(transaction: Transaction) {
-    //console.log("Inside Supply onTransactionSubmit:", JSON.stringify(transaction, null, 2));
     if (this.editingTransactionIndex !== null) {
       this.supply.transactions = this.supply.transactions.map((t, i) =>
         i === this.editingTransactionIndex ? transaction : t
@@ -263,19 +284,14 @@ export class SupplyComponent implements OnInit {
       this.supply.transactions = [...this.supply.transactions, transaction];
     }
 
-    // Update row_index for all transactions to match their current position
-    this.supply.transactions = this.supply.transactions.map((t, index) => ({
-      ...t,
-      row_index: index
-    }));
-
-
-    console.log(this.supply.transactions);
-
+    console.log("OnTransactionSubmit:", this.supply.transactions);
     this.isDrawerOpen = false;
   }
 
   editTransaction(index: number) {
+
+    console.log(this.supply.transactions);
+
     this.editingTransactionIndex = index;
     const transaction = this.supply.transactions[index];
     this.transactionType = transaction.type;
@@ -296,33 +312,21 @@ export class SupplyComponent implements OnInit {
       return;
     }
 
-    // Create a deep clone of the supply and its transactions
-    const supplyToSubmit = {
-      ...this.supply,
-      transactions: this.supply.transactions.map(transaction => ({ ...transaction }))
-    };
+    console.log("OnSubmit:", this.supply.transactions);
+
+    // Compare transactions before submitting
+    const { addedTransactions, removedTransactions, unchangedTransactions } = this.compareTransactions();
+    
+    console.log("Added transactions:", addedTransactions);
+    console.log("Removed transactions:", removedTransactions);
+    console.log("Unchanged transactions:", unchangedTransactions);
+    
+    this.supply.addedTransactions = addedTransactions;
+    this.supply.removedTransactions = removedTransactions;
+    this.supply.unchangedTransactions = unchangedTransactions;
 
 
-    supplyToSubmit.transactions.forEach(transaction => {
-      if (transaction.type === 'Product' || transaction.type === 'Scrap') {
-        delete transaction.amount;
-        if (transaction.type === 'Product') {
-          transaction.product_id = transaction.product?.id;
-          delete transaction.product;
-        }
-        if (transaction.type === 'Scrap') {
-          delete transaction.quantity;
-        }
-      }
-      if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
-        delete transaction.product_id;
-        delete transaction.weight_brut;
-        delete transaction.carat;
-        delete transaction.quantity;
-        delete transaction.weight24k;
-        delete transaction.product;
-      }
-    });
+
 
     let total24kProductIn = 0;
     let total24kProductOut = 0;
@@ -335,7 +339,7 @@ export class SupplyComponent implements OnInit {
     let totalBankIn = 0;
     let totalBankOut = 0;
 
-    supplyToSubmit.transactions.forEach(transaction => {
+    this.supply.transactions.forEach(transaction => {
       if (transaction.type === 'Product') {
         const weight = Number(transaction.weight24k || 0);
         if (isNaN(weight)) return;
@@ -382,21 +386,23 @@ export class SupplyComponent implements OnInit {
       }
     });
 
-    supplyToSubmit.total24kProductIn = parseFloat(total24kProductIn.toFixed(4));
-    supplyToSubmit.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
-    supplyToSubmit.total24kScrapIn = parseFloat(total24kScrapIn.toFixed(4));
-    supplyToSubmit.total24kScrapOut = parseFloat(total24kScrapOut.toFixed(4));
-    supplyToSubmit.total24kIn = parseFloat(total24kIn.toFixed(4));
-    supplyToSubmit.total24kOut = parseFloat(total24kOut.toFixed(4));
-    supplyToSubmit.totalCashIn = parseFloat(totalCashIn.toFixed(2));
-    supplyToSubmit.totalCashOut = parseFloat(totalCashOut.toFixed(2));
-    supplyToSubmit.totalBankIn = parseFloat(totalBankIn.toFixed(2));
-    supplyToSubmit.totalBankOut = parseFloat(totalBankOut.toFixed(2));
+    this.supply.total24kProductIn = parseFloat(total24kProductIn.toFixed(4));
+    this.supply.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
+    this.supply.total24kScrapIn = parseFloat(total24kScrapIn.toFixed(4));
+    this.supply.total24kScrapOut = parseFloat(total24kScrapOut.toFixed(4));
+    this.supply.total24kIn = parseFloat(total24kIn.toFixed(4));
+    this.supply.total24kOut = parseFloat(total24kOut.toFixed(4));
+    this.supply.totalCashIn = parseFloat(totalCashIn.toFixed(2));
+    this.supply.totalCashOut = parseFloat(totalCashOut.toFixed(2));
+    this.supply.totalBankIn = parseFloat(totalBankIn.toFixed(2));
+    this.supply.totalBankOut = parseFloat(totalBankOut.toFixed(2));
 
     if (this.isEditing && this.supply.id) {
-      this.supplyService.updateSupply(this.supply.id, supplyToSubmit).subscribe({
-        next: () => {
-          this.router.navigate(['/supplies']);
+      this.supplyService.updateSupply(this.supply.id, this.supply).subscribe({
+        next: (supply) => {
+          this.initialTransactions = supply.transactions;
+          this.supply = { ...supply, addedTransactions: [], removedTransactions: [], unchangedTransactions: [] };
+          //this.router.navigate(['/supplies']);
         },
         error: (error) => {
           this.snackBar.open('Toptan Alışveriş güncellenirken bir hata oluştu', 'Kapat', {
@@ -408,9 +414,11 @@ export class SupplyComponent implements OnInit {
         }
       });
     } else {
-      this.supplyService.createSupply(supplyToSubmit).subscribe({
-        next: () => {
-          this.router.navigate(['/supplies']);
+      this.supplyService.createSupply(this.supply).subscribe({
+        next: (supply) => {
+          this.initialTransactions = supply.transactions;
+          this.supply = { ...supply, addedTransactions: [], removedTransactions: [], unchangedTransactions: [] };
+          //this.router.navigate(['/supplies']);
         },
         error: (error) => {
           this.snackBar.open('Toptan Alışveriş oluşturulurken bir hata oluştu', 'Kapat', {
@@ -423,20 +431,6 @@ export class SupplyComponent implements OnInit {
       });
     }
   }
-
-  drop(event: CdkDragDrop<Transaction[]>) {
-    const transactions = [...this.supply.transactions];
-    const movedItem = transactions[event.previousIndex];
-    transactions.splice(event.previousIndex, 1);
-    transactions.splice(event.currentIndex, 0, movedItem);
-
-    // Update row_index for all transactions to match their current position
-    this.supply.transactions = transactions.map((t, index) => ({
-      ...t,
-      row_index: index
-    }));
-  }
-
 
   calculateTotal24kProductIn(): number {
     try {
@@ -660,8 +654,6 @@ export class SupplyComponent implements OnInit {
   }
 
   isOrderValid(): boolean {
-
-
     return this.supply.transactions.length > 0
       && this.supply.total24kIn > 0
       && this.supply.total24kOut > 0
@@ -678,5 +670,78 @@ export class SupplyComponent implements OnInit {
 
   getWholesaler(id: number): Wholesaler | undefined {
     return this.wholesalers.find(w => w.id === id);
+  }
+
+  // Add new method to compare transactions
+  private compareTransactions() {
+    // Reset tracking arrays
+    const addedTransactions: Transaction[] = [];
+    const removedTransactions: Transaction[] = [];
+    const unchangedTransactions: Transaction[] = [];
+
+    // Find added and unchanged transactions
+    this.supply.transactions.forEach(currentTransaction => {
+      if (!currentTransaction.id) {
+        // No ID means this is a new transaction
+        addedTransactions.push(currentTransaction);
+      } else {
+        // Has ID, find the initial transaction
+        const initialTransaction = this.initialTransactions.find(
+          initial => initial.id === currentTransaction.id
+        );
+
+        if (initialTransaction) {
+          // Compare to see if it's been modified
+          const isUnchanged = this.areTransactionsEqual(initialTransaction, currentTransaction);
+          if (isUnchanged) {
+            unchangedTransactions.push(currentTransaction);
+          } else {
+            // Modified transaction
+            removedTransactions.push(initialTransaction);
+            addedTransactions.push(currentTransaction);
+          }
+        }
+        else {
+          // This shouldn't happen, but just in case
+          console.error("Initial transaction not found for:", currentTransaction);
+        }
+      }
+    });
+
+    // Find removed transactions (transactions with IDs that are no longer in the list)
+    this.initialTransactions.forEach(initialTransaction => {
+      if (initialTransaction.id) {
+        const stillExists = this.supply.transactions.some(
+          current => current.id === initialTransaction.id
+        );
+        if (!stillExists) {
+          removedTransactions.push(initialTransaction);
+        }
+      }
+    });
+
+    //console.log("Added transactions:", addedTransactions);
+    //console.log("Removed transactions:", removedTransactions);
+    //console.log("Unchanged transactions:", unchangedTransactions);
+
+    return { addedTransactions, removedTransactions, unchangedTransactions };
+  }
+
+  private areTransactionsEqual(t1: Transaction, t2: Transaction): boolean {
+    // Compare all relevant properties
+    return (
+      t1.type === t2.type &&
+      t1.direction === t2.direction &&
+      t1.quantity === t2.quantity &&
+      t1.weight_brut === t2.weight_brut &&
+      t1.carat === t2.carat &&
+      t1.agreed_milliemes === t2.agreed_milliemes &&
+      t1.agreed_price === t2.agreed_price &&
+      t1.agreed_weight24k === t2.agreed_weight24k &&
+      t1.weight24k === t2.weight24k &&
+      t1.amount === t2.amount &&
+      t1.product_id === t2.product_id &&
+      t1.paiable_as_cash_only === t2.paiable_as_cash_only
+    );
   }
 } 

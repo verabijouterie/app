@@ -246,43 +246,13 @@ export class OrderComponent implements OnInit {
     }
 
     // Create a deep clone of the order and its transactions
-    const orderToSubmit = {
-      ...this.order,
-      transactions: this.order.transactions.map(transaction => ({...transaction}))
-    };
-
-    // Ensure all product transactions have a status
-    orderToSubmit.transactions = orderToSubmit.transactions.map(transaction => {
-      if (transaction.type === 'Product' && !transaction.status) {
-        transaction.status = 'ToBeOrdered';
-      }
-      return transaction;
-    });
-
-    orderToSubmit.transactions.forEach(transaction => {
-      if(transaction.type === 'Product') {
-        delete transaction.amount;
-        if (transaction.type === 'Product') {
-          transaction.product_id = transaction.product?.id;
-          delete transaction.product;
-        }
-      }
-      if(transaction.type === 'Cash' || transaction.type === 'Bank') {
-        delete transaction.product_id;
-        delete transaction.weight_brut;
-        delete transaction.carat;
-        delete transaction.quantity;
-        delete transaction.weight24k;
-        delete transaction.product;
-      }
-    });
 
     let total24kProductOut = 0;
     let total24kOut = 0;
     let totalCashIn = 0;
     let totalBankIn = 0;
 
-    orderToSubmit.transactions.forEach(transaction => {
+    this.order.transactions.forEach(transaction => {
       if(transaction.type === 'Product') {
         if(transaction.direction === 'Out') {
           total24kProductOut += transaction.weight24k || 0;
@@ -302,12 +272,12 @@ export class OrderComponent implements OnInit {
     });
 
     try {
-      orderToSubmit.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
-      orderToSubmit.total24kOut = parseFloat(total24kOut.toFixed(4));
-      orderToSubmit.totalCashIn = parseFloat(totalCashIn.toFixed(2));
-      orderToSubmit.totalBankIn = parseFloat(totalBankIn.toFixed(2));
-      orderToSubmit.totalPaymentIn = parseFloat((totalCashIn + totalBankIn).toFixed(2));
-      orderToSubmit.remaining_amount = parseFloat((orderToSubmit.total_order_amount - orderToSubmit.totalPaymentIn).toFixed(2));
+      this.order.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
+      this.order.total24kOut = parseFloat(total24kOut.toFixed(4));
+      this.order.totalCashIn = parseFloat(totalCashIn.toFixed(2));
+      this.order.totalBankIn = parseFloat(totalBankIn.toFixed(2));
+      this.order.totalPaymentIn = parseFloat((totalCashIn + totalBankIn).toFixed(2));
+      this.order.remaining_amount = parseFloat((this.order.total_order_amount - this.order.totalPaymentIn).toFixed(2));
     } catch (error) {
       this.snackBar.open('Toplam değerler hesaplanırken bir hata oluştu', 'Kapat', {
         duration: 3000,
@@ -316,16 +286,16 @@ export class OrderComponent implements OnInit {
         panelClass: ['error-snackbar']
       });
       // Provide fallback values
-      orderToSubmit.total24kProductOut = total24kProductOut;
-      orderToSubmit.total24kOut = total24kOut;
-      orderToSubmit.totalCashIn = totalCashIn;
-      orderToSubmit.totalBankIn = totalBankIn;
-      orderToSubmit.totalPaymentIn = totalCashIn + totalBankIn;
-      orderToSubmit.remaining_amount = orderToSubmit.total_order_amount - orderToSubmit.totalPaymentIn;
+      this.order.total24kProductOut = total24kProductOut;
+      this.order.total24kOut = total24kOut;
+      this.order.totalCashIn = totalCashIn;
+      this.order.totalBankIn = totalBankIn;
+      this.order.totalPaymentIn = totalCashIn + totalBankIn;
+      this.order.remaining_amount = this.order.total_order_amount - this.order.totalPaymentIn;
     }
 
     if (this.isEditing && this.order.id) {
-      this.orderService.updateOrder(this.order.id, orderToSubmit).subscribe({
+      this.orderService.updateOrder(this.order.id, this.order).subscribe({
         next: () => {
           this.router.navigate(['/orders']);
         },
@@ -339,7 +309,7 @@ export class OrderComponent implements OnInit {
         }
       });
     } else {
-      this.orderService.createOrder(orderToSubmit).subscribe({
+      this.orderService.createOrder(this.order).subscribe({
         next: () => {
           this.router.navigate(['/orders']);
         },

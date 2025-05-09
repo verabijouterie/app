@@ -2,11 +2,14 @@ import { Transaction } from './transaction.interface';
 import { Wholesaler } from './wholesaler.interface';
 
 export interface Supply {
-  id?: number;
-  date: Date;
+  id: number | null;
+  date: string;
   user_id: number;
   description: string;
   transactions: Transaction[];
+  addedTransactions: Transaction[];
+  removedTransactions: Transaction[];
+  unchangedTransactions: Transaction[];
   wholesaler_id: number;  
   total24kProductIn: number;
   total24kProductOut: number;
