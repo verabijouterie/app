@@ -114,7 +114,7 @@
                   {{transaction.quantity}} x {{transaction.product?.name}}
                   }
                   @if (transaction.type === 'Scrap') {
-                  {{transaction.weight_brut}}g Hurda
+                  {{transaction.weight_brut}} g Hurda
                   }
                   @if (transaction.type === 'Cash') {
                   {{formatAmount(transaction.amount)}} EUR Nakit Ödeme
@@ -129,9 +129,9 @@
                   }
                   @if (transaction.product?.is_gold || transaction.product?.contains_gold) {
                   <br />
-                  Tek ürün brüt altın ağırlığı: {{transaction.weight_brut}}g
+                  Tek ürün brüt altın ağırlığı: {{transaction.weight_brut}} g
                   <br />
-                  Toplam brüt altın ağırlığı: {{transaction.weight_brut_total}}g
+                  Toplam brüt altın ağırlığı: {{transaction.weight_brut_total}} g
                   }
                   @if (transaction.type === 'Product' || (transaction.type === 'Scrap')) {
                   <br />
@@ -143,20 +143,20 @@
                   }
                   @if (transaction.product?.is_gold || transaction.type === 'Scrap') {
                   <br />
-                  Gerçek has altın ağırlığı: {{transaction.weight24k}}g
+                  Gerçek has altın ağırlığı: {{transaction.weight24k}} g
                   }
                   @if (transaction.product?.is_gold || transaction.type === 'Scrap') {
                   <br />
-                  Milyeme göre has altın ağırlığı: {{transaction.agreed_weight24k}}g
+                  Milyeme göre has altın ağırlığı: {{transaction.agreed_weight24k}} g
                   }
                   @if (transaction.product?.contains_gold) {
                   <br />
-                  Toplam icerdigi has altın ağırlığı: {{transaction.weight24k}}g
+                  Toplam icerdigi has altın ağırlığı: {{transaction.weight24k}} g
                   }
                   @if (!transaction.product?.is_gold || (transaction.type === 'Cash') || (transaction.type === 'Bank'))
                   {
                   <br />
-                  Kura göre tutarin has altın ağırlığı: {{transaction.agreed_weight24k}}g
+                  Kura göre tutarin has altın ağırlığı: {{transaction.agreed_weight24k}} g
                   }
                   @if (transaction.paiable_as_cash_only) {
                   <br />
@@ -195,25 +195,25 @@
                 @if (supply.agreedTotalProductsInAs24K > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Alınan Ürünler:</span>
-                  <span class="text-sm font-medium">{{supply.agreedTotalProductsInAs24K}}g</span>
+                  <span class="text-sm font-medium">{{supply.agreedTotalProductsInAs24K}} g</span>
                 </div>
                 }
                 @if (supply.agreedTotalProductsOutAs24K > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Satılan Ürünler:</span>
-                  <span class="text-sm font-medium">{{supply.agreedTotalProductsOutAs24K}}g</span>
+                  <span class="text-sm font-medium">{{supply.agreedTotalProductsOutAs24K}} g</span>
                 </div>
                 }
                 @if (supply.agreedTotalScrapInAs24K > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Alınan Hurda:</span>
-                  <span class="text-sm font-medium">{{supply.agreedTotalScrapInAs24K}}g</span>
+                  <span class="text-sm font-medium">{{supply.agreedTotalScrapInAs24K}} g</span>
                 </div>
                 }
                 @if (supply.agreedTotalScrapOutAs24K > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Satılan Hurda:</span>
-                  <span class="text-sm font-medium">{{supply.agreedTotalScrapOutAs24K}}g</span>
+                  <span class="text-sm font-medium">{{supply.agreedTotalScrapOutAs24K}} g</span>
                 </div>
                 }
                 @if (supply.agreedTotalMoneyInAs24K > 0) {
@@ -231,18 +231,18 @@
                 @if (supply.agreedTotalInAs24K > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam Girdiler:</span>
-                  <span class="text-sm font-medium">{{supply.agreedTotalInAs24K}}g</span>
+                  <span class="text-sm font-medium">{{supply.agreedTotalInAs24K}} g</span>
                 </div>
                 }
                 @if (supply.agreedTotalOutAs24K > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam Çıktılar:</span>
-                  <span class="text-sm font-medium">{{supply.agreedTotalOutAs24K}}g</span>
+                  <span class="text-sm font-medium">{{supply.agreedTotalOutAs24K}} g</span>
                 </div>
                 }
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam:</span>
-                  <span class="text-sm font-medium">{{supply.agreedTotalAs24K}}g</span>
+                  <span class="text-sm font-medium">{{supply.agreedTotalAs24K}} g</span>
                 </div>
               </div>
             </div>
