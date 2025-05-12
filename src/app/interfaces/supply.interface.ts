@@ -8,6 +8,8 @@ export interface Supply {
   transactions: Transaction[];
   wholesaler_id: number;  
 
+  agreedGoldRate: number;
+
 
   agreedTotalProductsInAs24K: number;
   agreedTotalProductsOutAs24K: number;

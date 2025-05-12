@@ -32,72 +32,53 @@
           <td mat-cell *matCellDef="let supply" class="sticky-column">{{ supply.date | date:'dd/MM/yyyy' }}</td>
         </ng-container>
 
-        <!-- Description Column -->
-        <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef class="sticky-column">Açıklama</th>
-          <td mat-cell *matCellDef="let supply" class="sticky-column">{{ supply.description }}</td>
-        </ng-container>
-
-        <!-- Total 24K Product In Column -->
-        <ng-container matColumnDef="total24kProductIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Ürün Girişi (g)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.total24kProductIn }}</td>
-        </ng-container>
-
-        <!-- Total 24K Product Out Column -->
-        <ng-container matColumnDef="total24kProductOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Ürün Çıkışı (g)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.total24kProductOut }}</td>
-        </ng-container>
-
-        <!-- Total 24K Scrap In Column -->
-        <ng-container matColumnDef="total24kScrapIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Hurda Girişi (g)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.total24kScrapIn }}</td>
-        </ng-container>
-
-        <!-- Total 24K Scrap Out Column -->
-        <ng-container matColumnDef="total24kScrapOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Hurda Çıkışı (g)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.total24kScrapOut }}</td>
+        <!-- Wholesaler Name Column -->
+        <ng-container matColumnDef="wholesaler_name">
+          <th mat-header-cell *matHeaderCellDef class="sticky-column">Toptan Alıcı</th>
+          <td mat-cell *matCellDef="let supply" class="sticky-column">{{ supply.wholesaler_name }}</td>
         </ng-container>
 
 
-        <!-- Total Cash In Column -->
-        <ng-container matColumnDef="totalCashIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam Nakit Giriş (€)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.totalCashIn | number:'1.2-2' }}</td>
+        <!-- agreedTotalInAs24K -->
+        <ng-container matColumnDef="agreedTotalInAs24K">
+          <th mat-header-cell *matHeaderCellDef>Alınan Altın</th>
+          <td mat-cell *matCellDef="let supply">{{ supply.agreedTotalInAs24K }}g</td>
         </ng-container>
 
-        <!-- Total Cash Out Column -->
-        <ng-container matColumnDef="totalCashOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam Nakit Çıkış (€)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.totalCashOut | number:'1.2-2' }}</td>
+        <!-- agreedTotalOutAs24K -->
+        <ng-container matColumnDef="agreedTotalOutAs24K">
+          <th mat-header-cell *matHeaderCellDef>Satılan Altın</th>
+          <td mat-cell *matCellDef="let supply">{{ supply.agreedTotalOutAs24K }}g</td>
         </ng-container>
 
-        <!-- Total Bank In Column -->
-        <ng-container matColumnDef="totalBankIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam Banka Girişi (€)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.totalBankIn | number:'1.2-2' }}</td>
+        <!-- agreedTotalAs24K -->
+        <ng-container matColumnDef="agreedTotalAs24K">
+          <th mat-header-cell *matHeaderCellDef>Toplam Altın</th>
+          <td mat-cell *matCellDef="let supply">{{ supply.agreedTotalAs24K }}g</td>
+        </ng-container>
+        
+        
+        <!-- agreedTotalInAsMoney -->
+        <ng-container matColumnDef="agreedTotalInAsMoney">
+          <th mat-header-cell *matHeaderCellDef>Giren Para</th>
+          <td mat-cell *matCellDef="let supply">{{ supply.agreedTotalInAsMoney }}€</td>
+        </ng-container>
+        
+        <!-- agreedTotalOutAsMoney -->
+        <ng-container matColumnDef="agreedTotalOutAsMoney">
+          <th mat-header-cell *matHeaderCellDef>Çıkan Para</th>
+          <td mat-cell *matCellDef="let supply">{{ supply.agreedTotalOutAsMoney }}€</td>
         </ng-container>
 
-        <!-- Total Bank Out Column -->
-        <ng-container matColumnDef="totalBankOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam Banka Çıkışı (€)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.totalBankOut | number:'1.2-2' }}</td>
+        <!-- agreedTotalAsMoney -->
+        <ng-container matColumnDef="agreedTotalAsMoney">
+          <th mat-header-cell *matHeaderCellDef>Toplam Para</th>
+          <td mat-cell *matCellDef="let supply">{{ supply.agreedTotalAsMoney }}€</td>
         </ng-container>
+        
+      ];
 
-        <!-- Total 24K In Column -->
-        <ng-container matColumnDef="total24kIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Giriş (g)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.total24kIn }}</td>
-        </ng-container>
-
-        <!-- Total 24K Out Column -->
-        <ng-container matColumnDef="total24kOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Çıkış (g)</th>
-          <td mat-cell *matCellDef="let supply">{{ supply.total24kOut }}</td>
-        </ng-container>
+     
 
 
 

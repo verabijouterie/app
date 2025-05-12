@@ -70,9 +70,8 @@ export class SupplyComponent implements OnInit {
   transactionType?: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
   transactionDirection?: 'In' | 'Out';
   wholesalers: Wholesaler[] = [];
-  defaultGoldRate = 0;
   initialTransactions: Transaction[] = [];
-
+  defaultGoldRate = 0;
   isATransactionPaiableAsCashOnly = false;
   isATransactionPaiableAsGoldOnly = false;
 
@@ -84,7 +83,7 @@ export class SupplyComponent implements OnInit {
     description: '',
     transactions: [],
     wholesaler_id: 0,
-
+    agreedGoldRate: 0,
     agreedTotalProductsInAs24K: 0,
     agreedTotalProductsOutAs24K: 0,
     agreedTotalScrapInAs24K: 0,
@@ -141,7 +140,7 @@ export class SupplyComponent implements OnInit {
 
     this.loadWholesalers();
     this.loadProducts();
-    this.loadDefaultGoldRate();
+
     // Handle route parameters
     this.route.params.subscribe(params => {
       const supplyId = params['id'];
@@ -166,6 +165,7 @@ export class SupplyComponent implements OnInit {
           }
         });
       } else {
+
         this.isEditing = false;
         this.initialTransactions = [];
         // Reset  for new creation
@@ -175,7 +175,7 @@ export class SupplyComponent implements OnInit {
           wholesaler_id: 0,
           description: '',
           transactions: [],
-
+          agreedGoldRate: 0,
           agreedTotalProductsInAs24K: 0,
           agreedTotalProductsOutAs24K: 0,
           agreedTotalScrapInAs24K: 0,
@@ -196,6 +196,7 @@ export class SupplyComponent implements OnInit {
           agreedTotalOutAsMoney: 0,
           agreedTotalAsMoney: 0,
         };
+        this.loadDefaultGoldRate();
       }
     });
   }
@@ -216,9 +217,9 @@ export class SupplyComponent implements OnInit {
     });
   }
 
-  onDefaultGoldRateChange() {
+  onGoldRateChange() {
     this.supply.transactions.forEach(transaction => {
-      this.recalculateTransaction(transaction, this.defaultGoldRate);
+      this.recalculateTransaction(transaction, this.supply.agreedGoldRate);
     });
 
     this.recalculateTotals();
@@ -253,13 +254,18 @@ export class SupplyComponent implements OnInit {
     });
   }
 
+
   loadDefaultGoldRate() {
+    console.log("Loading Default Gold Rate");
     this.goldRateService.getGoldRates().subscribe({
       next: (goldRate) => {
         if (Array.isArray(goldRate)) {
           this.defaultGoldRate = goldRate[0]?.rate || 0;
         } else {
           this.defaultGoldRate = goldRate?.rate || 0;
+        }
+        if(!this.isEditing){
+          this.supply.agreedGoldRate = this.defaultGoldRate;
         }
       }
     });
@@ -335,17 +341,10 @@ export class SupplyComponent implements OnInit {
       return;
     }
 
-    // Compare transactions before submitting
-    if (this.areTransactionsChanged()) {
-      return;
-    }
-
-
     if (this.isEditing && this.supply.id) {
       this.supplyService.updateSupply(this.supply.id, this.supply).subscribe({
-        next: (supply) => {
-          this.initialTransactions = supply.transactions;
-          //this.router.navigate(['/supplies']);
+        next: (response) => {
+          this.router.navigate(['/supplies']);
         },
         error: (error) => {
           this.snackBar.open('Toptan Alışveriş güncellenirken bir hata oluştu', 'Kapat', {
@@ -358,9 +357,8 @@ export class SupplyComponent implements OnInit {
       });
     } else {
       this.supplyService.createSupply(this.supply).subscribe({
-        next: (supply) => {
-          this.initialTransactions = supply.transactions;
-          //this.router.navigate(['/supplies']);
+        next: (response) => {
+          this.router.navigate(['/supplies']);
         },
         error: (error) => {
           this.snackBar.open('Toptan Alışveriş oluşturulurken bir hata oluştu', 'Kapat', {
@@ -484,15 +482,15 @@ export class SupplyComponent implements OnInit {
     this.supply.agreedTotalOutAs24K = parseFloat(agreedTotalOut.toFixed(4));
     this.supply.agreedTotalAs24K = parseFloat(agreedTotalAs24K.toFixed(4));
 
-    this.supply.agreedTotalProductsInAsMoney = parseFloat(agreedTotalProductsInAsMoney.toFixed(4));
-    this.supply.agreedTotalProductsOutAsMoney = parseFloat(agreedTotalProductsOutAsMoney.toFixed(4));
-    this.supply.agreedTotalScrapInAsMoney = parseFloat(agreedTotalScrapInAsMoney.toFixed(4));
-    this.supply.agreedTotalScrapOutAsMoney = parseFloat(agreedTotalScrapOutAsMoney.toFixed(4));
-    this.supply.agreedTotalMoneyInAsMoney = parseFloat(agreedTotalMoneyInAsMoney.toFixed(4));
-    this.supply.agreedTotalMoneyOutAsMoney = parseFloat(agreedTotalMoneyOutAsMoney.toFixed(4));
-    this.supply.agreedTotalInAsMoney = parseFloat(agreedTotalInAsMoney.toFixed(4));
-    this.supply.agreedTotalOutAsMoney = parseFloat(agreedTotalOutAsMoney.toFixed(4));
-    this.supply.agreedTotalAsMoney = parseFloat(agreedTotalAsMoney.toFixed(4));
+    this.supply.agreedTotalProductsInAsMoney = parseFloat(agreedTotalProductsInAsMoney.toFixed(2));
+    this.supply.agreedTotalProductsOutAsMoney = parseFloat(agreedTotalProductsOutAsMoney.toFixed(2));
+    this.supply.agreedTotalScrapInAsMoney = parseFloat(agreedTotalScrapInAsMoney.toFixed(2));
+    this.supply.agreedTotalScrapOutAsMoney = parseFloat(agreedTotalScrapOutAsMoney.toFixed(2));
+    this.supply.agreedTotalMoneyInAsMoney = parseFloat(agreedTotalMoneyInAsMoney.toFixed(2));
+    this.supply.agreedTotalMoneyOutAsMoney = parseFloat(agreedTotalMoneyOutAsMoney.toFixed(2));
+    this.supply.agreedTotalInAsMoney = parseFloat(agreedTotalInAsMoney.toFixed(2));
+    this.supply.agreedTotalOutAsMoney = parseFloat(agreedTotalOutAsMoney.toFixed(2));
+    this.supply.agreedTotalAsMoney = parseFloat(agreedTotalAsMoney.toFixed(2));
 
     
   }
@@ -517,80 +515,4 @@ export class SupplyComponent implements OnInit {
     return this.wholesalers.find(w => w.id === id);
   }
 
-  // Compare transactions before submitting
-  private areTransactionsChanged() {
-    // Reset tracking arrays
-    const addedTransactions: Transaction[] = [];
-    const removedTransactions: Transaction[] = [];
-    const unchangedTransactions: Transaction[] = [];
-
-    // Find added and unchanged transactions
-    this.supply.transactions.forEach(currentTransaction => {
-      if (!currentTransaction.id) {
-        // No ID means this is a new transaction
-        addedTransactions.push(currentTransaction);
-      } else {
-        // Has ID, find the initial transaction
-        const initialTransaction = this.initialTransactions.find(
-          initial => initial.id === currentTransaction.id
-        );
-
-        if (initialTransaction) {
-          // Compare to see if it's been modified
-          const isUnchanged = this.areTransactionsEqual(initialTransaction, currentTransaction);
-          if (isUnchanged) {
-            unchangedTransactions.push(currentTransaction);
-          } else {
-            // Modified transaction
-            removedTransactions.push(initialTransaction);
-            addedTransactions.push(currentTransaction);
-          }
-        }
-        else {
-          // This shouldn't happen, but just in case
-          console.error("Initial transaction not found for:", currentTransaction);
-        }
-      }
-    });
-
-    // Find removed transactions (transactions with IDs that are no longer in the list)
-    this.initialTransactions.forEach(initialTransaction => {
-      if (initialTransaction.id) {
-        const stillExists = this.supply.transactions.some(
-          current => current.id === initialTransaction.id
-        );
-        if (!stillExists) {
-          removedTransactions.push(initialTransaction);
-        }
-      }
-    });
-
-    //console.log("Added transactions:", addedTransactions);
-    //console.log("Removed transactions:", removedTransactions);
-    //console.log("Unchanged transactions:", unchangedTransactions);
-
-
-    if (addedTransactions.length > 0 || removedTransactions.length > 0) {
-      return true;
-    }
-    return false;
-  }
-
-  private areTransactionsEqual(t1: Transaction, t2: Transaction): boolean {
-    // Compare all relevant properties
-    return (
-      t1.type === t2.type &&
-      t1.direction === t2.direction &&
-      t1.quantity === t2.quantity &&
-      t1.weight_brut === t2.weight_brut &&
-      t1.carat === t2.carat &&
-      t1.agreed_milliemes === t2.agreed_milliemes &&
-      t1.agreed_price === t2.agreed_price &&
-      t1.agreed_weight24k === t2.agreed_weight24k &&
-      t1.weight24k === t2.weight24k &&
-      t1.amount === t2.amount &&
-      t1.product_id === t2.product_id &&
-      t1.paiable_as_cash_only === t2.paiable_as_cash_only
-    );
-  }
 } 

@@ -39,17 +39,13 @@ export class SupplyListComponent implements OnInit {
   displayedColumns: string[] = [
     'actions',
     'date',
-    'description',
-    'total24kProductIn',
-    'total24kProductOut',
-    'total24kScrapIn',
-    'total24kScrapOut',
-    'totalCashIn',
-    'totalCashOut',
-    'totalBankIn',
-    'totalBankOut',
-    'total24kIn',
-    'total24kOut'
+    'wholesaler_name',
+    'agreedTotalInAs24K',
+    'agreedTotalOutAs24K',
+    'agreedTotalAs24K',
+    'agreedTotalInAsMoney',
+    'agreedTotalOutAsMoney',
+    'agreedTotalAsMoney'
   ];
 
   constructor(
