@@ -225,6 +225,14 @@ export class SupplyComponent implements OnInit {
     this.recalculateTotals();
   }
 
+  onDateChange() {
+    this.supply.transactions.forEach(transaction => {
+      if(transaction.date < this.supply.date){
+        transaction.date = this.supply.date;
+      }
+    });    
+  }
+
   recalculateTransaction(transaction: Transaction, goldRate: number) {
     if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
       transaction.agreed_weight24k = parseFloat(((transaction.amount || 0) / goldRate).toFixed(4));
@@ -314,9 +322,6 @@ export class SupplyComponent implements OnInit {
   }
 
   editTransaction(index: number) {
-
-    console.log(this.supply.transactions);
-
     this.editingTransactionIndex = index;
     const transaction = this.supply.transactions[index];
     this.transactionType = transaction.type;
