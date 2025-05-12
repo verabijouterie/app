@@ -153,8 +153,7 @@
                   <br />
                   Toplam icerdigi has altın ağırlığı: {{transaction.weight24k}}g
                   }
-                  @if (!transaction.paiable_as_cash_only && !transaction.product?.is_gold &&
-                  !transaction.product?.contains_gold || (transaction.type === 'Cash') || (transaction.type === 'Bank'))
+                  @if (!transaction.paiable_as_cash_only && !transaction.product?.is_gold || (transaction.type === 'Cash') || (transaction.type === 'Bank'))
                   {
                   <br />
                   Kura göre tutarin has altın ağırlığı: {{transaction.agreed_weight24k}}g
