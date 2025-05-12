@@ -2,6 +2,7 @@
   <form (ngSubmit)="onSubmit($event)" class="space-y-6">
     <div class="grid grid-cols-1 gap-4">
       
+      @if (context !== 'Supply') {
       <div class="space-y-1">
         <label for="date" class="block text-sm font-medium text-gray-900">Tarih</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -10,6 +11,7 @@
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
       </div>
+      }
       
       @if (formTransaction.type === 'Product') {
       <div class="space-y-1">
@@ -128,7 +130,7 @@
       <div class="space-y-1">
         <mat-checkbox [(ngModel)]="formTransaction.paiable_as_cash_only"
           (change)="onDataChanged('paiable_as_cash_only')" name="paiable_as_cash_only">
-          Sadece Nakit Olarak Ödenebilir
+          Euro tutarı olarak hesaplanacak
         </mat-checkbox>
       </div>
 

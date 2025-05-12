@@ -2,6 +2,7 @@
   <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
     <p class="text-base text-gray-500 mb-8">Yeni bir toptan alışveriş oluşturun.</p>
 
+
     <div class="space-y-1">
       <label for="date" class="block text-sm font-medium text-gray-900">Tarih</label>
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -160,7 +161,7 @@
                   }
                   @if (transaction.paiable_as_cash_only) {
                   <br />
-                  Nakit ile ödeme yapilacak
+                  <strong><i>Euro tutarı olarak hesaplanacak</i></strong> 
                   }
 
 
@@ -249,7 +250,7 @@
             }
             @if (isATransactionPaiableAsCashOnly) {
             <div class="space-y-2">
-              <h3 class="text-sm font-medium text-gray-900">Nakit Cinsinden İşlemler</h3>
+              <h3 class="text-sm font-medium text-gray-900">Euro Cinsinden İşlemler</h3>
               <div class="space-y-1">
                 @if (supply.agreedTotalProductsInAsMoney > 0) {
                 <div class="flex justify-between">

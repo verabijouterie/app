@@ -70,7 +70,6 @@ export class SupplyComponent implements OnInit {
   transactionType?: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
   transactionDirection?: 'In' | 'Out';
   wholesalers: Wholesaler[] = [];
-  initialTransactions: Transaction[] = [];
   defaultGoldRate = 0;
   isATransactionPaiableAsCashOnly = false;
   isATransactionPaiableAsGoldOnly = false;
@@ -102,8 +101,9 @@ export class SupplyComponent implements OnInit {
     agreedTotalInAsMoney: 0,
     agreedTotalOutAsMoney: 0,
     agreedTotalAsMoney: 0,
-
   };
+
+  initialSupply: Supply | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -129,14 +129,10 @@ export class SupplyComponent implements OnInit {
       day: '2-digit'
     }).format(new Date());
     this.today = new Date(formatted + 'T00:00:00');
-    this.supply.date = this.today.toISOString();
 
-    //console.log(this.today.toISOString());
 
     // Set current user ID and date
     //const currentUser = this.authService.currentUser;
-
-    this.supply.date = new Date().toISOString();
 
     this.loadWholesalers();
     this.loadProducts();
@@ -149,7 +145,8 @@ export class SupplyComponent implements OnInit {
         this.supplyService.getSupply(Number(supplyId)).subscribe({
           next: (supply) => {
             this.supply = supply;
-            this.initialTransactions = supply.transactions;
+            this.initialSupply = { ...supply };
+
             this.isATransactionPaiableAsCashOnly = supply.transactions.some(t => t.paiable_as_cash_only);
             this.isATransactionPaiableAsGoldOnly = supply.transactions.some(t => !t.paiable_as_cash_only);
           },
@@ -167,7 +164,6 @@ export class SupplyComponent implements OnInit {
       } else {
 
         this.isEditing = false;
-        this.initialTransactions = [];
         // Reset  for new creation
         this.supply = {
           id: null,
@@ -227,9 +223,7 @@ export class SupplyComponent implements OnInit {
 
   onDateChange() {
     this.supply.transactions.forEach(transaction => {
-      if(transaction.date < this.supply.date){
-        transaction.date = this.supply.date;
-      }
+      transaction.date = this.supply.date;
     });    
   }
 
@@ -302,6 +296,8 @@ export class SupplyComponent implements OnInit {
   }
 
   onTransactionSubmit(transaction: Transaction) {
+    transaction.date = this.supply.date;
+
     if (this.editingTransactionIndex !== null) {
       this.supply.transactions = this.supply.transactions.map((t, i) =>
         i === this.editingTransactionIndex ? transaction : t
@@ -332,6 +328,9 @@ export class SupplyComponent implements OnInit {
   deleteTransaction(index: number) {
     this.supply.transactions = this.supply.transactions.filter((_, i) => i !== index);
 
+    this.isATransactionPaiableAsCashOnly = this.supply.transactions.some(t => t.paiable_as_cash_only);
+    this.isATransactionPaiableAsGoldOnly = this.supply.transactions.some(t => !t.paiable_as_cash_only);
+
     this.recalculateTotals();
   }
 
@@ -340,16 +339,38 @@ export class SupplyComponent implements OnInit {
   }
 
   onSubmit() {
-
-
-    if (this.supply.transactions.length === 0) {
-      return;
+    // If we're editing, check if there are any changes
+    if (this.isEditing && this.initialSupply) {
+      const hasChanges = this.hasSupplyChanged(this.initialSupply, this.supply);
+      
+      if (!hasChanges) {
+        
+        this.snackBar.open('Değişiklik yapılmadı', 'Kapat', {
+          duration: 3000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top',
+          panelClass: ['info-snackbar']
+        });
+        
+        //this.router.navigate(['/supplies']);
+        return;
+      }
     }
 
     if (this.isEditing && this.supply.id) {
       this.supplyService.updateSupply(this.supply.id, this.supply).subscribe({
         next: (response) => {
-          this.router.navigate(['/supplies']);
+
+          this.initialSupply = { ...(response as any).supply };
+          this.supply = (response as any).supply;
+          this.snackBar.open('Toptan Alışveriş güncellendi', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['info-snackbar']
+          });
+
+          //this.router.navigate(['/supplies']);
         },
         error: (error) => {
           this.snackBar.open('Toptan Alışveriş güncellenirken bir hata oluştu', 'Kapat', {
@@ -363,7 +384,16 @@ export class SupplyComponent implements OnInit {
     } else {
       this.supplyService.createSupply(this.supply).subscribe({
         next: (response) => {
-          this.router.navigate(['/supplies']);
+          this.initialSupply = { ...(response as any).supply };
+          this.supply = (response as any).supply;
+          this.isEditing = true;
+          this.snackBar.open('Toptan Alışveriş oluşturuldu', 'Kapat', {
+            duration: 3000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['info-snackbar']
+          });
+          //this.router.navigate(['/supplies']);
         },
         error: (error) => {
           this.snackBar.open('Toptan Alışveriş oluşturulurken bir hata oluştu', 'Kapat', {
@@ -377,6 +407,43 @@ export class SupplyComponent implements OnInit {
     }
   }
 
+  private hasSupplyChanged(initial: Supply, current: Supply): boolean {
+    // Compare basic properties
+    if (initial.description !== current.description ||
+        initial.wholesaler_id !== current.wholesaler_id ||
+        initial.agreedGoldRate !== current.agreedGoldRate ||
+        initial.date !== current.date) {
+      return true;
+    }
+
+    // Compare transactions
+    if (initial.transactions.length !== current.transactions.length) {
+      return true;
+    }
+
+    // Deep compare transactions
+    for (let i = 0; i < current.transactions.length; i++) {
+      const currentTransaction = current.transactions[i];
+      const initialTransaction = initial.transactions[i];
+
+      if (!initialTransaction ||
+          currentTransaction.type !== initialTransaction.type ||
+          currentTransaction.direction !== initialTransaction.direction ||
+          currentTransaction.product_id !== initialTransaction.product_id ||
+          currentTransaction.quantity !== initialTransaction.quantity ||
+          currentTransaction.weight_brut !== initialTransaction.weight_brut ||
+          currentTransaction.carat !== initialTransaction.carat ||
+          currentTransaction.agreed_milliemes !== initialTransaction.agreed_milliemes ||
+          currentTransaction.agreed_weight24k !== initialTransaction.agreed_weight24k ||
+          currentTransaction.agreed_price !== initialTransaction.agreed_price ||
+          currentTransaction.paiable_as_cash_only !== initialTransaction.paiable_as_cash_only ||
+          currentTransaction.amount !== initialTransaction.amount) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   recalculateTotals() {
     let agreedTotal24kProductIn = 0;
