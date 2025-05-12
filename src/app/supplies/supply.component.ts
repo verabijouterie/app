@@ -21,7 +21,7 @@ import { WholesalerService } from '../services/wholesaler.service';
 import { Wholesaler } from '../interfaces/wholesaler.interface';
 import { GoldRateService } from '../services/gold-rate.services';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import {provideNativeDateAdapter} from '@angular/material/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 
 export const MY_FORMATS = {
@@ -73,29 +73,37 @@ export class SupplyComponent implements OnInit {
   defaultGoldRate = 0;
   initialTransactions: Transaction[] = [];
 
+  isATransactionPaiableAsCashOnly = false;
+  isATransactionPaiableAsGoldOnly = false;
+
   today: Date = new Date();
 
   supply: Supply = {
     id: null,
     date: this.today.toISOString(),
-    user_id: 0,
     description: '',
     transactions: [],
-    addedTransactions: [],
-    removedTransactions: [],
-    unchangedTransactions: [],
     wholesaler_id: 0,
 
-    total24kProductIn: 0,
-    total24kProductOut: 0,
-    total24kScrapIn: 0,
-    total24kScrapOut: 0,
-    total24kIn: 0,
-    total24kOut: 0,
-    totalCashIn: 0,
-    totalCashOut: 0,
-    totalBankIn: 0,
-    totalBankOut: 0,
+    agreedTotalProductsInAs24K: 0,
+    agreedTotalProductsOutAs24K: 0,
+    agreedTotalScrapInAs24K: 0,
+    agreedTotalScrapOutAs24K: 0,
+    agreedTotalMoneyInAs24K: 0,
+    agreedTotalMoneyOutAs24K: 0,
+    agreedTotalInAs24K: 0,
+    agreedTotalOutAs24K: 0,
+    agreedTotalAs24K: 0,
+    agreedTotalProductsInAsMoney: 0,
+    agreedTotalProductsOutAsMoney: 0,
+    agreedTotalScrapInAsMoney: 0,
+    agreedTotalScrapOutAsMoney: 0,
+    agreedTotalMoneyInAsMoney: 0,
+    agreedTotalMoneyOutAsMoney: 0,
+    agreedTotalInAsMoney: 0,
+    agreedTotalOutAsMoney: 0,
+    agreedTotalAsMoney: 0,
+
   };
 
   constructor(
@@ -127,10 +135,8 @@ export class SupplyComponent implements OnInit {
     //console.log(this.today.toISOString());
 
     // Set current user ID and date
-    const currentUser = this.authService.currentUser;
-    if (currentUser) {
-      this.supply.user_id = currentUser.id;
-    }
+    //const currentUser = this.authService.currentUser;
+
     this.supply.date = new Date().toISOString();
 
     this.loadWholesalers();
@@ -145,8 +151,8 @@ export class SupplyComponent implements OnInit {
           next: (supply) => {
             this.supply = supply;
             this.initialTransactions = supply.transactions;
-            this.supply = { ...supply, addedTransactions: [], removedTransactions: [], unchangedTransactions: [] };
-
+            this.isATransactionPaiableAsCashOnly = supply.transactions.some(t => t.paiable_as_cash_only);
+            this.isATransactionPaiableAsGoldOnly = supply.transactions.some(t => !t.paiable_as_cash_only);
           },
           error: (error) => {
             this.snackBar.open('Senaryo yüklenirken bir hata oluştu', 'Kapat', {
@@ -166,23 +172,29 @@ export class SupplyComponent implements OnInit {
         this.supply = {
           id: null,
           date: this.today.toISOString(),
-          user_id: currentUser?.id || 0,
           wholesaler_id: 0,
           description: '',
           transactions: [],
-          addedTransactions: [],
-          removedTransactions: [],
-          unchangedTransactions: [],
-          total24kProductIn: 0,
-          total24kProductOut: 0,
-          total24kScrapIn: 0,
-          total24kScrapOut: 0,
-          total24kIn: 0,
-          total24kOut: 0,
-          totalCashIn: 0,
-          totalCashOut: 0,
-          totalBankIn: 0,
-          totalBankOut: 0,
+
+          agreedTotalProductsInAs24K: 0,
+          agreedTotalProductsOutAs24K: 0,
+          agreedTotalScrapInAs24K: 0,
+          agreedTotalScrapOutAs24K: 0,
+          agreedTotalMoneyInAs24K: 0,
+          agreedTotalMoneyOutAs24K: 0,
+          agreedTotalInAs24K: 0,
+          agreedTotalOutAs24K: 0,
+          agreedTotalAs24K: 0,
+
+          agreedTotalProductsInAsMoney: 0,
+          agreedTotalProductsOutAsMoney: 0,
+          agreedTotalScrapInAsMoney: 0,
+          agreedTotalScrapOutAsMoney: 0,
+          agreedTotalMoneyInAsMoney: 0,
+          agreedTotalMoneyOutAsMoney: 0,
+          agreedTotalInAsMoney: 0,
+          agreedTotalOutAsMoney: 0,
+          agreedTotalAsMoney: 0,
         };
       }
     });
@@ -208,6 +220,8 @@ export class SupplyComponent implements OnInit {
     this.supply.transactions.forEach(transaction => {
       this.recalculateTransaction(transaction, this.defaultGoldRate);
     });
+
+    this.recalculateTotals();
   }
 
   recalculateTransaction(transaction: Transaction, goldRate: number) {
@@ -284,6 +298,11 @@ export class SupplyComponent implements OnInit {
       this.supply.transactions = [...this.supply.transactions, transaction];
     }
 
+    this.isATransactionPaiableAsCashOnly = this.supply.transactions.some(t => t.paiable_as_cash_only);
+    this.isATransactionPaiableAsGoldOnly = this.supply.transactions.some(t => !t.paiable_as_cash_only);
+
+    this.recalculateTotals();
+
     console.log("OnTransactionSubmit:", this.supply.transactions);
     this.isDrawerOpen = false;
   }
@@ -301,6 +320,8 @@ export class SupplyComponent implements OnInit {
 
   deleteTransaction(index: number) {
     this.supply.transactions = this.supply.transactions.filter((_, i) => i !== index);
+
+    this.recalculateTotals();
   }
 
   navigateToSupplies() {
@@ -308,100 +329,22 @@ export class SupplyComponent implements OnInit {
   }
 
   onSubmit() {
+
+
     if (this.supply.transactions.length === 0) {
       return;
     }
 
-    console.log("OnSubmit:", this.supply.transactions);
-
     // Compare transactions before submitting
-    const { addedTransactions, removedTransactions, unchangedTransactions } = this.compareTransactions();
-    
-    console.log("Added transactions:", addedTransactions);
-    console.log("Removed transactions:", removedTransactions);
-    console.log("Unchanged transactions:", unchangedTransactions);
-    
-    this.supply.addedTransactions = addedTransactions;
-    this.supply.removedTransactions = removedTransactions;
-    this.supply.unchangedTransactions = unchangedTransactions;
+    if (this.areTransactionsChanged()) {
+      return;
+    }
 
-
-
-
-    let total24kProductIn = 0;
-    let total24kProductOut = 0;
-    let total24kScrapIn = 0;
-    let total24kScrapOut = 0;
-    let total24kIn = 0;
-    let total24kOut = 0;
-    let totalCashIn = 0;
-    let totalCashOut = 0;
-    let totalBankIn = 0;
-    let totalBankOut = 0;
-
-    this.supply.transactions.forEach(transaction => {
-      if (transaction.type === 'Product') {
-        const weight = Number(transaction.weight24k || 0);
-        if (isNaN(weight)) return;
-
-        if (transaction.direction === 'In') {
-          total24kProductIn += weight;
-          total24kIn += weight;
-        } else {
-          total24kProductOut += weight;
-          total24kOut += weight;
-        }
-      }
-      if (transaction.type === 'Scrap') {
-        const weight = Number(transaction.weight24k || 0);
-        if (isNaN(weight)) return;
-
-        if (transaction.direction === 'In') {
-          total24kScrapIn += weight;
-          total24kIn += weight;
-        } else {
-          total24kScrapOut += weight;
-          total24kOut += weight;
-        }
-      }
-      if (transaction.type === 'Cash') {
-        const amount = Number(transaction.amount || 0);
-        if (isNaN(amount)) return;
-
-        if (transaction.direction === 'In') {
-          totalCashIn += amount;
-        } else {
-          totalCashOut += amount;
-        }
-      }
-      if (transaction.type === 'Bank') {
-        const amount = Number(transaction.amount || 0);
-        if (isNaN(amount)) return;
-
-        if (transaction.direction === 'In') {
-          totalBankIn += amount;
-        } else {
-          totalBankOut += amount;
-        }
-      }
-    });
-
-    this.supply.total24kProductIn = parseFloat(total24kProductIn.toFixed(4));
-    this.supply.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
-    this.supply.total24kScrapIn = parseFloat(total24kScrapIn.toFixed(4));
-    this.supply.total24kScrapOut = parseFloat(total24kScrapOut.toFixed(4));
-    this.supply.total24kIn = parseFloat(total24kIn.toFixed(4));
-    this.supply.total24kOut = parseFloat(total24kOut.toFixed(4));
-    this.supply.totalCashIn = parseFloat(totalCashIn.toFixed(2));
-    this.supply.totalCashOut = parseFloat(totalCashOut.toFixed(2));
-    this.supply.totalBankIn = parseFloat(totalBankIn.toFixed(2));
-    this.supply.totalBankOut = parseFloat(totalBankOut.toFixed(2));
 
     if (this.isEditing && this.supply.id) {
       this.supplyService.updateSupply(this.supply.id, this.supply).subscribe({
         next: (supply) => {
           this.initialTransactions = supply.transactions;
-          this.supply = { ...supply, addedTransactions: [], removedTransactions: [], unchangedTransactions: [] };
           //this.router.navigate(['/supplies']);
         },
         error: (error) => {
@@ -417,7 +360,6 @@ export class SupplyComponent implements OnInit {
       this.supplyService.createSupply(this.supply).subscribe({
         next: (supply) => {
           this.initialTransactions = supply.transactions;
-          this.supply = { ...supply, addedTransactions: [], removedTransactions: [], unchangedTransactions: [] };
           //this.router.navigate(['/supplies']);
         },
         error: (error) => {
@@ -432,218 +374,127 @@ export class SupplyComponent implements OnInit {
     }
   }
 
-  calculateTotal24kProductIn(): number {
-    try {
-      const total = this.supply.transactions
-        .filter(t => t.type === 'Product' && t.direction === 'In')
-        .reduce((sum, t) => {
-          const weight = Number(t.weight24k || 0);
-          return sum + (isNaN(weight) ? 0 : weight);
-        }, 0);
-      return parseFloat(total.toFixed(4));
-    } catch (error) {
-      this.snackBar.open('24k ürün girişi hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return 0;
-    }
-  }
 
-  calculateTotal24kProductOut(): number {
-    try {
-      const total = this.supply.transactions
-        .filter(t => t.type === 'Product' && t.direction === 'Out')
-        .reduce((sum, t) => {
-          const weight = Number(t.weight24k || 0);
-          return sum + (isNaN(weight) ? 0 : weight);
-        }, 0);
-      return parseFloat(total.toFixed(4));
-    } catch (error) {
-      this.snackBar.open('24k ürün çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return 0;
-    }
-  }
+  recalculateTotals() {
+    let agreedTotal24kProductIn = 0;
+    let agreedTotal24kProductOut = 0;
+    let agreedTotal24kScrapIn = 0;
+    let agreedTotal24kScrapOut = 0;
+    let agreedTotalMoneyIn = 0;
+    let agreedTotalMoneyOut = 0;
+    let agreedTotalIn = 0;
+    let agreedTotalOut = 0;
+    let agreedTotalAs24K = 0;
 
-  calculateTotal24kScrapIn(): number {
-    try {
-      const total = this.supply.transactions
-        .filter(t => t.type === 'Scrap' && t.direction === 'In')
-        .reduce((sum, t) => {
-          const weight = Number(t.weight24k || 0);
-          return sum + (isNaN(weight) ? 0 : weight);
-        }, 0);
-      return parseFloat(total.toFixed(4));
-    } catch (error) {
-      this.snackBar.open('24k çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return 0;
-    }
-  }
+    let agreedTotalProductsInAsMoney = 0;
+    let agreedTotalProductsOutAsMoney = 0;
+    let agreedTotalScrapInAsMoney = 0;
+    let agreedTotalScrapOutAsMoney = 0;
+    let agreedTotalMoneyInAsMoney = 0;
+    let agreedTotalMoneyOutAsMoney = 0;
+    let agreedTotalInAsMoney = 0;
+    let agreedTotalOutAsMoney = 0;
+    let agreedTotalAsMoney = 0;
 
-  calculateTotal24kScrapOut(): number {
-    try {
-      const total = this.supply.transactions
-        .filter(t => t.type === 'Scrap' && t.direction === 'Out')
-        .reduce((sum, t) => {
-          const weight = Number(t.weight24k || 0);
-          return sum + (isNaN(weight) ? 0 : weight);
-        }, 0);
-      return parseFloat(total.toFixed(4));
-    } catch (error) {
-      this.snackBar.open('24k çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return 0;
-    }
-  }
+    this.supply.transactions.forEach(transaction => {
+      // Calculate as gold
+      if (!transaction.paiable_as_cash_only) {
+        if (transaction.type === 'Product') {
+          if (transaction.direction === 'In') {
+            agreedTotal24kProductIn += Number(transaction.agreed_weight24k || 0);
+            agreedTotalIn += Number(transaction.agreed_weight24k || 0);
+            agreedTotalAs24K += Number(transaction.agreed_weight24k || 0);
+          } else {
+            agreedTotal24kProductOut += Number(transaction.agreed_weight24k || 0);
+            agreedTotalOut += Number(transaction.agreed_weight24k || 0);
+            agreedTotalAs24K -= Number(transaction.agreed_weight24k || 0);
+          }
+        }
+        if (transaction.type === 'Scrap') {
+          if (transaction.direction === 'In') {
+            agreedTotal24kScrapIn += Number(transaction.agreed_weight24k || 0);
+            agreedTotalIn += Number(transaction.agreed_weight24k || 0);
+            agreedTotalAs24K += Number(transaction.agreed_weight24k || 0);
+          } else {
+            agreedTotal24kScrapOut += Number(transaction.agreed_weight24k || 0);
+            agreedTotalOut += Number(transaction.agreed_weight24k || 0);
+            agreedTotalAs24K -= Number(transaction.agreed_weight24k || 0);
+          }
+        }
+        if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
+          if (transaction.direction === 'In') {
+            agreedTotalMoneyIn += Number(transaction.agreed_weight24k || 0);
+            agreedTotalIn += Number(transaction.agreed_weight24k || 0);
+            agreedTotalAs24K += Number(transaction.agreed_weight24k || 0);
+          } else {
+            agreedTotalMoneyOut += Number(transaction.agreed_weight24k || 0);
+            agreedTotalOut += Number(transaction.agreed_weight24k || 0);
+            agreedTotalAs24K -= Number(transaction.agreed_weight24k || 0);
+          }
+        }
+      }
+      else {
+        if (transaction.type === 'Product') {
+          if (transaction.direction === 'In') {
+            agreedTotalProductsInAsMoney += Number(transaction.agreed_price || 0);
+            agreedTotalInAsMoney += Number(transaction.agreed_price || 0);
+            agreedTotalAsMoney += Number(transaction.agreed_price || 0);
+          }
+          else {
+            agreedTotalProductsOutAsMoney += Number(transaction.agreed_price || 0);
+            agreedTotalOutAsMoney += Number(transaction.agreed_price || 0);
+            agreedTotalAsMoney -= Number(transaction.agreed_price || 0);
+          }
+        }
+        if (transaction.type === 'Scrap') {
+          if (transaction.direction === 'In') {
+            agreedTotalScrapInAsMoney += Number(transaction.agreed_price || 0);
+            agreedTotalInAsMoney += Number(transaction.agreed_price || 0);
+            agreedTotalAsMoney += Number(transaction.agreed_price || 0);
+          }
+          else {
+            agreedTotalScrapOutAsMoney += Number(transaction.agreed_price || 0);
+            agreedTotalOutAsMoney += Number(transaction.agreed_price || 0);
+            agreedTotalAsMoney -= Number(transaction.agreed_price || 0);
+          }
+        }
+        if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
+          if (transaction.direction === 'In') {
+            agreedTotalMoneyInAsMoney += Number(transaction.amount || 0);
+            agreedTotalInAsMoney += Number(transaction.amount || 0);
+            agreedTotalAsMoney += Number(transaction.amount || 0);
+          }
+          else {
+            agreedTotalMoneyOutAsMoney += Number(transaction.amount || 0);
+            agreedTotalOutAsMoney += Number(transaction.amount || 0);
+            agreedTotalAsMoney -= Number(transaction.amount || 0);
+          }
+        }
+      }
+    });
+    
 
-  calculateTotal24kIn(): number {
-    try {
-      const productIn = this.calculateTotal24kProductIn();
-      const scrapIn = this.calculateTotal24kScrapIn();
-      const total = (isNaN(productIn) ? 0 : productIn) + (isNaN(scrapIn) ? 0 : scrapIn);
-      return parseFloat(total.toFixed(4));
-    } catch (error) {
-      this.snackBar.open('24k girişi hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return 0;
-    }
-  }
+    this.supply.agreedTotalProductsInAs24K = parseFloat(agreedTotal24kProductIn.toFixed(4));
+    this.supply.agreedTotalProductsOutAs24K = parseFloat(agreedTotal24kProductOut.toFixed(4));
+    this.supply.agreedTotalScrapInAs24K = parseFloat(agreedTotal24kScrapIn.toFixed(4));
+    this.supply.agreedTotalScrapOutAs24K = parseFloat(agreedTotal24kScrapOut.toFixed(4));
+    this.supply.agreedTotalMoneyInAs24K = parseFloat(agreedTotalMoneyIn.toFixed(4));
+    this.supply.agreedTotalMoneyOutAs24K = parseFloat(agreedTotalMoneyOut.toFixed(4));
+    this.supply.agreedTotalInAs24K = parseFloat(agreedTotalIn.toFixed(4));
+    this.supply.agreedTotalOutAs24K = parseFloat(agreedTotalOut.toFixed(4));
+    this.supply.agreedTotalAs24K = parseFloat(agreedTotalAs24K.toFixed(4));
 
-  calculateTotal24kOut(): number {
-    try {
-      const productOut = this.calculateTotal24kProductOut();
-      const scrapOut = this.calculateTotal24kScrapOut();
-      const total = (isNaN(productOut) ? 0 : productOut) + (isNaN(scrapOut) ? 0 : scrapOut);
-      return parseFloat(total.toFixed(4));
-    } catch (error) {
-      this.snackBar.open('24k çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return 0;
-    }
-  }
+    this.supply.agreedTotalProductsInAsMoney = parseFloat(agreedTotalProductsInAsMoney.toFixed(4));
+    this.supply.agreedTotalProductsOutAsMoney = parseFloat(agreedTotalProductsOutAsMoney.toFixed(4));
+    this.supply.agreedTotalScrapInAsMoney = parseFloat(agreedTotalScrapInAsMoney.toFixed(4));
+    this.supply.agreedTotalScrapOutAsMoney = parseFloat(agreedTotalScrapOutAsMoney.toFixed(4));
+    this.supply.agreedTotalMoneyInAsMoney = parseFloat(agreedTotalMoneyInAsMoney.toFixed(4));
+    this.supply.agreedTotalMoneyOutAsMoney = parseFloat(agreedTotalMoneyOutAsMoney.toFixed(4));
+    this.supply.agreedTotalInAsMoney = parseFloat(agreedTotalInAsMoney.toFixed(4));
+    this.supply.agreedTotalOutAsMoney = parseFloat(agreedTotalOutAsMoney.toFixed(4));
+    this.supply.agreedTotalAsMoney = parseFloat(agreedTotalAsMoney.toFixed(4));
 
-  calculateTotalCashIn(): string {
-    try {
-      const total = this.supply.transactions
-        .filter(t => t.type === 'Cash' && t.direction === 'In')
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return total.toFixed(2);
-    } catch (error) {
-      this.snackBar.open('Nakit girişi hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return "0.00";
-    }
-  }
-
-  calculateTotalCashOut(): string {
-    try {
-      const total = this.supply.transactions
-        .filter(t => t.type === 'Cash' && t.direction === 'Out')
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return total.toFixed(2);
-    } catch (error) {
-      this.snackBar.open('Nakit çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return "0.00";
-    }
-  }
-
-  calculateTotalBankIn(): string {
-    try {
-      const total = this.supply.transactions
-        .filter(t => t.type === 'Bank' && t.direction === 'In')
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return total.toFixed(2);
-    } catch (error) {
-      this.snackBar.open('Banka girişi hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return "0.00";
-    }
-  }
-
-  calculateTotalBankOut(): string {
-    try {
-      const total = this.supply.transactions
-        .filter(t => t.type === 'Bank' && t.direction === 'Out')
-        .reduce((sum, t) => sum + (t.amount || 0), 0);
-      return total.toFixed(2);
-    } catch (error) {
-      this.snackBar.open('Banka çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return "0.00";
-    }
-  }
-
-  calculateTotalPaymentIn(): string {
-    try {
-      const cashTotal = parseFloat(this.calculateTotalCashIn());
-      const bankTotal = parseFloat(this.calculateTotalBankIn());
-      return (cashTotal + bankTotal).toFixed(2);
-    } catch (error) {
-      this.snackBar.open('Ödeme girişi hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return "0.00";
-    }
-  }
-
-  calculateTotalPaymentOut(): string {
-    try {
-      const cashTotal = parseFloat(this.calculateTotalCashOut());
-      const bankTotal = parseFloat(this.calculateTotalBankOut());
-      return (cashTotal + bankTotal).toFixed(2);
-    } catch (error) {
-      this.snackBar.open('Ödeme çıkışı hesaplanırken bir hata oluştu', 'Kapat', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['error-snackbar']
-      });
-      return "0.00";
-    }
+    
   }
 
   formatAmount(amount: any): string {
@@ -655,12 +506,6 @@ export class SupplyComponent implements OnInit {
 
   isOrderValid(): boolean {
     return this.supply.transactions.length > 0
-      && this.supply.total24kIn > 0
-      && this.supply.total24kOut > 0
-      && this.supply.totalCashIn > 0
-      && this.supply.totalCashOut > 0
-      && this.supply.totalBankIn > 0
-      && this.supply.totalBankOut > 0
       && this.supply.wholesaler_id !== 0;
   }
 
@@ -672,8 +517,8 @@ export class SupplyComponent implements OnInit {
     return this.wholesalers.find(w => w.id === id);
   }
 
-  // Add new method to compare transactions
-  private compareTransactions() {
+  // Compare transactions before submitting
+  private areTransactionsChanged() {
     // Reset tracking arrays
     const addedTransactions: Transaction[] = [];
     const removedTransactions: Transaction[] = [];
@@ -724,7 +569,11 @@ export class SupplyComponent implements OnInit {
     //console.log("Removed transactions:", removedTransactions);
     //console.log("Unchanged transactions:", unchangedTransactions);
 
-    return { addedTransactions, removedTransactions, unchangedTransactions };
+
+    if (addedTransactions.length > 0 || removedTransactions.length > 0) {
+      return true;
+    }
+    return false;
   }
 
   private areTransactionsEqual(t1: Transaction, t2: Transaction): boolean {
