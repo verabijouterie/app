@@ -47,6 +47,27 @@ export class WholesalerListComponent implements OnInit {
     'total_euro_balance'
   ];
 
+
+
+
+
+  getTotalGoldBalance(wholesaler: Wholesaler): string {
+    const total = (wholesaler.starting_gold_balance || 0) + (wholesaler.total_gold_balance || 0);
+    return total.toFixed(4);
+  }
+
+  getTotalEuroBalance(wholesaler: Wholesaler): string {
+    const total = (wholesaler.starting_euro_balance || 0) + (wholesaler.total_euro_balance || 0);
+    return total.toFixed(2);
+  }
+
+  getStartingGoldBalance(wholesaler: Wholesaler): string {
+    return wholesaler.starting_gold_balance?.toFixed(4) || '0.0000';
+  }
+  getStartingEuroBalance(wholesaler: Wholesaler): string {
+    return wholesaler.starting_euro_balance?.toFixed(2) || '0.00';
+  }
+
   constructor(
     private wholesalerService: WholesalerService,
     private snackBar: MatSnackBar,
@@ -61,13 +82,15 @@ export class WholesalerListComponent implements OnInit {
   }
 
   loadWholesalers(): void {
-
     this.wholesalerService.getWholesalers().subscribe({
       next: (wholesalers) => {
-        
         this.wholesalers = [...this.wholesalers, ...wholesalers.map(wholesaler => ({
           ...wholesaler,
-          prefers_gold: Boolean(wholesaler.prefers_gold)
+          prefers_gold: Boolean(wholesaler.prefers_gold),
+          starting_gold_balance: parseFloat(Number(wholesaler.starting_gold_balance).toFixed(4)) || 0.0000,
+          total_gold_balance: parseFloat(Number(wholesaler.total_gold_balance).toFixed(4)) || 0.0000,
+          starting_euro_balance: parseFloat(Number(wholesaler.starting_euro_balance).toFixed(2)) || 0.00,
+          total_euro_balance: parseFloat(Number(wholesaler.total_euro_balance).toFixed(2)) || 0.00
         }))];
       },
       error: (error) => {
