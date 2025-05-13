@@ -1,46 +1,84 @@
-<div class="mt-8 flow-root">
-  <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-      <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-        <table class="min-w-full divide-y divide-gray-300">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Ad</th>
-              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Ödemelerde altın tercih ediyor mu?</th>
-              <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                <span class="sr-only">İşlemler</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 bg-white">
-            <tr *ngFor="let wholesaler of wholesalers" class="hover:bg-gray-50">
-              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                {{wholesaler.name}}
-              </td>
-              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"> 
-                {{wholesaler.prefers_gold ? 'Evet' : 'Hayır'}}
-              </td>
-              <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                <div class="flex justify-end gap-x-2">
-                  <button type="button" (click)="edit.emit(wholesaler)"
-                    class="rounded-md p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
-                    <mat-icon class="h-5 w-5">edit</mat-icon>
-                  </button>
-                  <button type="button" (click)="delete.emit(wholesaler.id)"
-                    class="rounded-md p-2 text-gray-600 hover:text-red-600 hover:bg-red-50">
-                    <mat-icon class="h-5 w-5">delete</mat-icon>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="wholesalers.length === 0">
-              <td colspan="4" class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 text-center sm:pl-6">
-                Toptan satıcı bulunamadı. Yeni toptan satıcı oluşturmak için "Toptan Satıcı Ekle" butonuna tıklayın.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<div class="max-w-7xl mx-auto px-4 py-10">
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-2xl font-semibold text-gray-900">Toptan Satıcılar</h1>
+      <button mat-raised-button color="primary" (click)="openWholesalerDrawer()">
+        <mat-icon>add</mat-icon>
+        Yeni Toptan Satıcı
+      </button>
+    </div>
+
+    <div class="table-container">
+      <table mat-table [dataSource]="wholesalers" class="w-full">
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="sticky-column">İşlemler</th>
+          <td mat-cell *matCellDef="let wholesaler" class="sticky-column">
+            <div class="flex gap-2">
+              <button mat-icon-button color="accent" (click)="editWholesaler(wholesaler)" matTooltip="Düzenle">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteWholesaler(wholesaler.id)" matTooltip="Sil">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Ad</th>
+          <td mat-cell *matCellDef="let wholesaler">{{ wholesaler.name }}</td>
+        </ng-container>
+
+        <!-- Prefers Gold Column -->
+        <ng-container matColumnDef="prefers_gold">
+          <th mat-header-cell *matHeaderCellDef>Ödeme altın ile mi yapılıyor?</th>
+          <td mat-cell *matCellDef="let wholesaler">{{ wholesaler.prefers_gold ? 'Evet' : 'Hayır' }}</td>
+        </ng-container>
+
+        <!-- Starting Gold Balance Column -->
+        <ng-container matColumnDef="starting_gold_balance">
+          <th mat-header-cell *matHeaderCellDef>Başlangıç altın Borcu</th>
+          <td mat-cell *matCellDef="let wholesaler">{{ wholesaler.starting_gold_balance | number:'1.4-4' }}g</td>
+        </ng-container>
+
+        <!-- Starting Euro Balance Column -->
+        <ng-container matColumnDef="starting_euro_balance">
+          <th mat-header-cell *matHeaderCellDef>Başlangıç euro Borcu</th>
+          <td mat-cell *matCellDef="let wholesaler">{{ wholesaler.starting_euro_balance | number:'1.2-2' }}€</td>
+        </ng-container>
+
+        <!-- Total Gold Balance Column -->
+        <ng-container matColumnDef="total_gold_balance">
+          <th mat-header-cell *matHeaderCellDef>Toplam altın Borcu</th>
+          <td mat-cell *matCellDef="let wholesaler">{{ wholesaler.total_gold_balance | number:'1.4-4' }}g</td>
+        </ng-container>
+
+        <!-- Total Euro Balance Column -->
+        <ng-container matColumnDef="total_euro_balance">
+          <th mat-header-cell *matHeaderCellDef>Toplam euro Borcu</th>
+          <td mat-cell *matCellDef="let wholesaler">{{ wholesaler.total_euro_balance | number:'1.2-2' }}€</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
     </div>
   </div>
-</div> 
+</div>
+
+<app-drawer 
+  [isOpen]="isDrawerOpen"
+  [skipAnimation]="skipDrawerAnimation"
+  [title]="editMode ? 'Toptan satıcıyı Düzenle' : 'Toptan satıcı Oluştur'"
+  (close)="onDrawerClose()">
+  <app-wholesaler
+    [wholesaler]="selectedWholesaler"
+    [isOpen]="isDrawerOpen"
+    [isAnimationComplete]="!skipDrawerAnimation"
+    (wholesalerSubmit)="onWholesalerSubmit($event)"
+    (cancel)="onDrawerClose()">
+  </app-wholesaler>
+</app-drawer>

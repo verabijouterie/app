@@ -1,50 +1,66 @@
-<div class="mt-8 flow-root">
-  <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-      <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-        <table class="min-w-full divide-y divide-gray-300">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Ad</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">E-posta</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Rol</th>
-              <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                <span class="sr-only">İşlemler</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200 bg-white">
-            <tr *ngFor="let user of users" class="hover:bg-gray-50">
-              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                {{user.name}}
-              </td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                {{user.email}}
-              </td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                {{getRoleName(user.role_id)}}
-              </td>
-              <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                <div class="flex justify-end gap-x-2">
-                  <button type="button" (click)="edit.emit(user)"
-                    class="rounded-md p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50">
-                    <mat-icon class="h-5 w-5">edit</mat-icon>
-                  </button>
-                  <button type="button" (click)="delete.emit(user.id)"
-                    class="rounded-md p-2 text-gray-600 hover:text-red-600 hover:bg-red-50">
-                    <mat-icon class="h-5 w-5">delete</mat-icon>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="users.length === 0">
-              <td colspan="4" class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-500 text-center sm:pl-6">
-                Kullanıcı bulunamadı. Yeni kullanıcı oluşturmak için "Kullanıcı Ekle" butonuna tıklayın.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<div class="max-w-7xl mx-auto px-4 py-10">
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-2xl font-semibold text-gray-900">Kullanıcılar</h1>
+      <button mat-raised-button color="primary" (click)="openUserDrawer()">
+        <mat-icon>add</mat-icon>
+        Yeni Kullanıcı
+      </button>
+    </div>
+
+    <div class="table-container">
+      <table mat-table [dataSource]="users" class="w-full">
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="sticky-column">İşlemler</th>
+          <td mat-cell *matCellDef="let user" class="sticky-column">
+            <div class="flex gap-2">
+              <button mat-icon-button color="accent" (click)="editUser(user)" matTooltip="Düzenle">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteUser(user.id)" matTooltip="Sil">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Ad</th>
+          <td mat-cell *matCellDef="let user">{{ user.name }}</td>
+        </ng-container>
+
+        <!-- Email Column -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef>E-posta</th>
+          <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        </ng-container>
+
+        <!-- Role Column -->
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef>Rol</th>
+          <td mat-cell *matCellDef="let user">{{ getRoleName(user.role_id) }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
     </div>
   </div>
-</div> 
+</div>
+
+<app-drawer 
+  [isOpen]="isDrawerOpen"
+  [skipAnimation]="skipDrawerAnimation"
+  [title]="editMode ? 'Kullanıcıyı Düzenle' : 'Kullanıcı Oluştur'"
+  (close)="onDrawerClose()">
+  <app-user
+    [user]="selectedUser"
+    [roles]="roles"
+    [isOpen]="isDrawerOpen"
+    [isAnimationComplete]="!skipDrawerAnimation"
+    (userSubmit)="onUserSubmit($event)"
+    (cancel)="onDrawerClose()">
+  </app-user>
+</app-drawer> 

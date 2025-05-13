@@ -7,7 +7,6 @@ import { TransactionComponent } from './transactions/transaction.component';
 import { ProductsComponent } from './products/products.component';
 import { RolesComponent } from './roles/roles.component';
 import { PermissionsComponent } from './permissions/permissions.component';
-import { UsersComponent } from './users/users.component';
 import { SignupComponent } from './signup/signup.component';
 import { LayoutComponent } from './layouts/main/layout.component';
 import { SignupLayoutComponent } from './layouts/signup/signup-layout.component';
@@ -16,9 +15,10 @@ import { NoAuthGuard } from './guards/no-auth.guard';
 import { CategoriesComponent } from './categories/categories.component';
 import { OrderListComponent } from './orders/order-list.component';
 import { OrderComponent } from './orders/order.component';
-import { WholesalersComponent } from './wholesalers/wholesaler.component';
 import { SupplyListComponent } from './supplies/supply-list.component';
 import { SupplyComponent } from './supplies/supply.component';
+import { WholesalerListComponent } from './wholesalers/wholesaler-list.component';
+import { UserListComponent } from './users/user-list.component';
 
 export const routes: Routes = [
   {
@@ -42,9 +42,9 @@ export const routes: Routes = [
       { path: 'products', component: ProductsComponent },
       { path: 'roles', component: RolesComponent },
       { path: 'permissions', component: PermissionsComponent },
-      { path: 'users', component: UsersComponent },
+      { path: 'users', component: UserListComponent },
       { path: 'categories', component: CategoriesComponent },
-      { path: 'wholesalers', component: WholesalersComponent }
+      { path: 'wholesalers', component: WholesalerListComponent }
     ]
   },
   {
