@@ -1,45 +1,94 @@
-<div class="mt-8">
-  <h2 class="text-xl font-bold mb-4">Ürün Listesi</h2>
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white">
-      <thead>
-        <tr class="border-b">
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Altın?</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Kategori</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Ürün Adı</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Altın Ayarı</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">Altın Brüt Ağırlığı (g)</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">24K Toplam Ağırlık (g)</th>
-          <th class="px-4 py-3 text-left text-sm font-semibold text-gray-900">İşlemler</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200">
-        <tr *ngFor="let product of products" class="hover:bg-gray-50">
-          <td class="px-4 py-3 text-sm text-gray-900">
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h2 class="text-xl font-bold">Ürün Listesi</h2>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openProductDrawer()"
+    >
+      Ürün Oluştur
+    </button>
+  </div>
+
+  <mat-card>
+    <mat-card-content>
+      <table mat-table [dataSource]="products" class="w-full">
+        <!-- Gold Status Column -->
+        <ng-container matColumnDef="gold_status">
+          <th mat-header-cell *matHeaderCellDef>Altın?</th>
+          <td mat-cell *matCellDef="let product">
             <mat-icon [class.text-green-500]="product.is_gold || product.contains_gold" [class.text-gray-400]="!(product.is_gold || product.contains_gold)">
               {{product.is_gold || product.contains_gold ? 'check_circle' : 'cancel'}}
             </mat-icon>
           </td>
-          <td class="px-4 py-3 text-sm text-gray-900">{{product.category?.name || '-'}}</td>
-          <td class="px-4 py-3 text-sm text-gray-900">{{product.name}}</td>
-          <td class="px-4 py-3 text-sm text-gray-900">{{product.carat ? product.carat + 'K' : '-'}}</td>
-          <td class="px-4 py-3 text-sm text-gray-900">{{product.weight_brut || '-'}}</td>
-          <td class="px-4 py-3 text-sm text-gray-900">{{product.weight24k || '-'}}</td>
-          <td class="px-4 py-3 text-sm text-gray-900">
+        </ng-container>
+
+        <!-- Category Column -->
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Kategori</th>
+          <td mat-cell *matCellDef="let product">{{getCategoryName(product.category_id)}}</td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Ürün Adı</th>
+          <td mat-cell *matCellDef="let product">{{product.name}}</td>
+        </ng-container>
+
+        <!-- Carat Column -->
+        <ng-container matColumnDef="carat">
+          <th mat-header-cell *matHeaderCellDef>Altın Ayarı</th>
+          <td mat-cell *matCellDef="let product">{{product.carat ? product.carat : '-'}}</td>
+        </ng-container>
+
+        <!-- Weight Column -->
+        <ng-container matColumnDef="weight">
+          <th mat-header-cell *matHeaderCellDef>Altın Brüt Ağırlığı</th>
+          <td mat-cell *matCellDef="let product">{{product.weight_brut ? product.weight_brut + ' g' : '-'}}</td>
+        </ng-container>
+
+        <!-- 24K Weight Column -->
+        <ng-container matColumnDef="weight24k">
+          <th mat-header-cell *matHeaderCellDef>24K Toplam Ağırlık</th>
+          <td mat-cell *matCellDef="let product">{{product.weight24k ? product.weight24k + ' g' : '-'}}</td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>İşlemler</th>
+          <td mat-cell *matCellDef="let product">
             <div class="flex gap-2">
-              <button mat-icon-button color="primary" (click)="edit.emit(product)">
+              <button mat-icon-button color="primary" (click)="editProduct(product)">
                 <mat-icon>edit</mat-icon>
               </button>
-              <button mat-icon-button color="warn" (click)="product.id && onDelete(product.id)">
+              <button mat-icon-button color="warn" (click)="deleteProduct(product)">
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
           </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['gold_status', 'category', 'name', 'carat', 'weight', 'weight24k', 'actions']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['gold_status', 'category', 'name', 'carat', 'weight', 'weight24k', 'actions'];"></tr>
+
+        <!-- No Data Row -->
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell text-center py-4" colspan="7">Mevcut ürün bulunmamaktadır</td>
         </tr>
-        <tr *ngIf="products.length === 0">
-          <td colspan="7" class="px-4 py-3 text-sm text-gray-500 text-center">Mevcut ürün bulunmamaktadır</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      </table>
+    </mat-card-content>
+  </mat-card>
 </div>
+
+<app-drawer 
+  [isOpen]="isDrawerOpen"
+  [skipAnimation]="skipDrawerAnimation"
+  [title]="editMode ? 'Ürünü Düzenle' : 'Ürün Oluştur'"
+  (close)="onDrawerClose()">
+  <app-product
+    [product]="selectedProduct"
+    [categories]="categories"
+    (productSubmit)="onProductSubmit($event)"
+    (cancel)="onDrawerClose()">
+  </app-product>
+</app-drawer>

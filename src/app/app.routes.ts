@@ -4,7 +4,6 @@ import { StatisticsComponent } from './statistics/statistics.component';
 import { ScenarioComponent } from './scenarios/scenario.component';
 import { ScenarioListComponent } from './scenarios/scenario-list.component';
 import { TransactionComponent } from './transactions/transaction.component';
-import { ProductsComponent } from './products/products.component';
 import { RolesComponent } from './roles/roles.component';
 import { PermissionsComponent } from './permissions/permissions.component';
 import { SignupComponent } from './signup/signup.component';
@@ -19,6 +18,7 @@ import { SupplyListComponent } from './supplies/supply-list.component';
 import { SupplyComponent } from './supplies/supply.component';
 import { WholesalerListComponent } from './wholesalers/wholesaler-list.component';
 import { UserListComponent } from './users/user-list.component';
+import { ProductListComponent } from './products/product-list.component';
 
 export const routes: Routes = [
   {
@@ -39,7 +39,7 @@ export const routes: Routes = [
       { path: 'supplies/new', component: SupplyComponent },
       { path: 'supplies/:id', component: SupplyComponent },
       { path: 'transaction', component: TransactionComponent },
-      { path: 'products', component: ProductsComponent },
+      { path: 'products', component: ProductListComponent },
       { path: 'roles', component: RolesComponent },
       { path: 'permissions', component: PermissionsComponent },
       { path: 'users', component: UserListComponent },
