@@ -1,23 +1,25 @@
 <div>
   <form (ngSubmit)="onSubmit($event)" class="space-y-6">
     <div class="grid grid-cols-1 gap-4">
-      
-      @if (context !== 'Supply') {
+
+      @if (context === 'Order') {
       <div class="space-y-1">
         <label for="date" class="block text-sm font-medium text-gray-900">Tarih</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput [matDatepicker]="picker" [(ngModel)]="formTransaction.date" name="date" (dateChange)="onDataChanged('date')">
+          <input matInput [matDatepicker]="picker" [(ngModel)]="formTransaction.date" name="date"
+            (dateChange)="onDataChanged('date')">
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
       </div>
       }
-      
+
       @if (formTransaction.type === 'Product') {
       <div class="space-y-1">
         <label for="product" class="block text-sm font-medium text-gray-900">Ürün</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input #productInput type="text" matInput [formControl]="productControl" [matAutocomplete]="auto" placeholder="Ürün seçin">
+          <input #productInput type="text" matInput [formControl]="productControl" [matAutocomplete]="auto"
+            placeholder="Ürün seçin">
           <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn"
             (optionSelected)="onProductSelected($event)">
             <mat-option *ngFor="let product of filteredProducts | async" [value]="product">
@@ -91,9 +93,9 @@
       </div>
       }
 
-      @if (context === 'Supply' && (selectedProduct?.is_gold || formTransaction.type === 'Scrap')) {
+      @if (selectedProduct?.is_gold || formTransaction.type === 'Scrap') {
       <div class="space-y-1">
-        <label for="agreed_milliemes" class="block text-sm font-medium text-gray-900">Anlaşılan Milyem</label>
+        <label for="agreed_milliemes" class="block text-sm font-medium text-gray-900">Milyem</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <input matInput type="number" min="0" step="0.01" [(ngModel)]="formTransaction.agreed_milliemes"
             name="agreed_milliemes" (input)="onDataChanged('agreed_milliemes')" (focus)="selectMilliemesInput($event)">
@@ -101,7 +103,7 @@
       </div>
       }
 
-      @if (context === 'Supply' && ( selectedProduct || formTransaction.type === 'Scrap') ) {
+      @if (selectedProduct || formTransaction.type === 'Scrap' ) {
       <div class="space-y-1">
         <label for="agreed_price" class="block text-sm font-medium text-gray-900">Tutar</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -119,23 +121,24 @@
       <div class="space-y-1">
         <label for="amount" class="block text-sm font-medium text-gray-900">Tutar</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input #amountInput matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01" name="amount"
-            (focus)="selectAmountInput($event)" (input)="onDataChanged('amount')">
+          <input #amountInput matInput type="number" [(ngModel)]="formTransaction.amount" min="0" step="0.01"
+            name="amount" (focus)="selectAmountInput($event)" (input)="onDataChanged('amount')">
           <span matSuffix class="text-gray-500 ml-1 pr-2">EUR</span>
         </mat-form-field>
       </div>
       }
 
-
+      @if (context === 'Supply') {
       <div class="space-y-1">
         <mat-checkbox [(ngModel)]="formTransaction.paiable_as_cash_only"
           (change)="onDataChanged('paiable_as_cash_only')" name="paiable_as_cash_only">
           Euro tutarı olarak hesaplanacak
         </mat-checkbox>
       </div>
+      }
 
 
-      @if (selectedProduct?.is_gold || selectedProduct?.contains_gold) {
+      @if (selectedProduct && (selectedProduct.is_gold || selectedProduct.contains_gold)) {
       <div class="space-y-1">
         <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Toplam brüt altın miktarı:
         </label>
@@ -144,23 +147,35 @@
         </span>
       </div>
       }
-      @if (!selectedProduct?.contains_gold) {
+
+
+      @if (
+      (selectedProduct && !selectedProduct.is_gold && !selectedProduct.contains_gold) ||
+      formTransaction.type === 'Cash' ||
+      formTransaction.type === 'Bank' ||
+      formTransaction.type === 'Money'
+      ) {
       <div class="space-y-1">
         <label for="agreed_weight24k" class="text-sm font-medium text-gray-900 inline">
-          @if (selectedProduct?.is_gold || formTransaction.type === 'Scrap') {
-          Anlaşılan milyeme göre has altın miktarı:
-          }
-          @if (formTransaction.type !== 'Scrap' && (!(selectedProduct?.is_gold || selectedProduct?.contains_gold)) ||
-          formTransaction.type === 'Cash' ||
-          formTransaction.type === 'Bank' || formTransaction.type === 'Money') {
           Anlaşılan kura göre has altın miktarı:
-          }
         </label>
         <span class="text-gray-900 text-base inline">
           {{formTransaction.agreed_weight24k}}g
         </span>
       </div>
       }
+
+      @if ((selectedProduct && selectedProduct.is_gold) || formTransaction.type === 'Scrap') {
+      <div class="space-y-1">
+        <label for="agreed_weight24k" class="text-sm font-medium text-gray-900 inline">
+          Anlaşılan milyeme göre has altın miktarı:
+        </label>
+        <span class="text-gray-900 text-base inline">
+          {{formTransaction.agreed_weight24k}}g
+        </span>
+      </div>
+      }
+
 
 
       @if ( (selectedProduct?.is_gold || selectedProduct?.contains_gold) || formTransaction.type === 'Scrap') {

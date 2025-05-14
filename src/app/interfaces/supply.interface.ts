@@ -1,5 +1,4 @@
 import { Transaction } from './transaction.interface';
-import { Wholesaler } from './wholesaler.interface';
 
 export interface Supply {
   id: number | null;

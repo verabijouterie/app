@@ -2,6 +2,26 @@
   <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8">
     <p class="text-base text-gray-500 mb-8">Yeni bir alışveriş oluşturun.</p>
 
+    <div class="space-y-1">
+      <label for="date" class="block text-sm font-medium text-gray-900">Tarih</label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+        <input matInput [matDatepicker]="picker" [(ngModel)]="scenario.date" name="date"
+          (ngModelChange)="onDateChange()">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
+      <div class="col-span-full space-y-1.5">
+        <label for="agreedGoldRate" class="block text-sm font-medium text-gray-900">Varsayılan Altın Kuru</label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <input matInput type="number" [(ngModel)]="scenario.agreedGoldRate" name="agreedGoldRate" id="agreedGoldRate"
+            placeholder="Varsayılan Altın Oranı Girin" (ngModelChange)="onGoldRateChange()">
+        </mat-form-field>
+      </div>
+    </div>
+
     <form (ngSubmit)="onSubmit()" class="space-y-8">
       <!-- Basic Info Section -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
@@ -25,9 +45,9 @@
               <span class="text-sm text-white">Ürün Al</span>
             </button>
             <!-- Product Out -->
-            <button type="button" (click)="openTransactionDrawer('Product', 'Out')"
-              class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Ürün Sat</span>
+            <button type="button" (click)="openTransactionDrawer('Scrap', 'In')"
+              class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Hurda Al</span>
             </button>
             <!-- Cash In -->
             <button type="button" (click)="openTransactionDrawer('Cash', 'In')"
@@ -35,18 +55,18 @@
               <span class="text-sm text-white">Nakit Giriş</span>
             </button>
             <!-- Cash Out -->
-            <button type="button" (click)="openTransactionDrawer('Cash', 'Out')"
-              class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Nakit Çıkış</span>
+            <button type="button" (click)="openTransactionDrawer('Bank', 'In')"
+              class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Banka Girişi</span>
             </button>
           </div>
 
           <!-- Right Column -->
           <div class="space-y-3">
             <!-- Scrap In -->
-            <button type="button" (click)="openTransactionDrawer('Scrap', 'In')"
-              class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Hurda Al</span>
+            <button type="button" (click)="openTransactionDrawer('Product', 'Out')"
+              class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Ürün Sat</span>
             </button>
             <!-- Scrap Out -->
             <button type="button" (click)="openTransactionDrawer('Scrap', 'Out')"
@@ -54,9 +74,9 @@
               <span class="text-sm text-white">Hurda Sat</span>
             </button>
             <!-- Bank In -->
-            <button type="button" (click)="openTransactionDrawer('Bank', 'In')"
-              class="w-full rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-blue-200 hover:bg-green-500 flex items-center justify-center gap-x-2">
-              <span class="text-sm text-white">Banka Girişi</span>
+            <button type="button" (click)="openTransactionDrawer('Cash', 'Out')"
+              class="w-full rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-inset ring-red-200 hover:bg-red-500 flex items-center justify-center gap-x-2">
+              <span class="text-sm text-white">Nakit Çıkışı</span>
             </button>
             <!-- Bank Out -->
             <button type="button" (click)="openTransactionDrawer('Bank', 'Out')"
@@ -66,46 +86,62 @@
           </div>
         </div>
 
-        <div *ngIf="scenario.transactions.length > 0" class="mt-6 space-y-1" cdkDropList
-          (cdkDropListDropped)="drop($event)">
+        <div *ngIf="scenario.transactions.length > 0" class="mt-6 space-y-1">
           <div *ngFor="let transaction of scenario.transactions; let i = index"
             class="group flex items-center justify-between gap-x-4 rounded-lg py-0 px-3 shadow-sm ring-1 ring-gray-900/5"
-            [ngClass]="{'bg-green-100': transaction.direction === 'In', 'bg-red-100': transaction.direction === 'Out'}"
-            cdkDrag>
+            [ngClass]="{'bg-green-100': transaction.direction === 'In', 'bg-red-100': transaction.direction === 'Out'}">
             <div class="flex items-center gap-x-2">
-              <mat-icon cdkDragHandle
-                class="text-gray-400 cursor-move opacity-0 group-hover:opacity-100 transition h-5 w-5 text-sm">
-                drag_indicator
-              </mat-icon>
               <div class="flex items-center gap-x-2">
                 <span class="text-sm text-gray-500">
-                  <ng-container *ngIf="transaction.type === 'Product'">
-                    {{transaction.quantity}} x {{getProductById(transaction.product_id!)?.name}}
 
-                    @if (getProductById(transaction.product_id!)?.is_gold) {
-                      @if (transaction.weight_brut !== undefined && transaction.weight_brut !== null && transaction.weight_brut > 0) {
-                        {{transaction.weight_brut}}g
-                      }
-                      @if (transaction.carat !== undefined && transaction.carat !== null && transaction.carat > 0) {
-                        {{transaction.carat}} ayar
-                      }
-                      <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
-                      
-                    }
-
-
-
-                  </ng-container>
-                  <ng-container *ngIf="transaction.type === 'Scrap'">
-                    Hurda {{transaction.weight_brut}}g, {{transaction.carat}} ayar
-                    <span class="ml-2 font-medium">{{transaction.weight24k}}g</span>
-                  </ng-container>
-                  <ng-container *ngIf="transaction.type === 'Cash'">
-                    Nakit: {{formatAmount(transaction.amount)}} EUR
-                  </ng-container>
-                  <ng-container *ngIf="transaction.type === 'Bank'">
-                    Banka: {{formatAmount(transaction.amount)}} EUR
-                  </ng-container>
+                  @if (transaction.type === 'Product') {
+                  {{transaction.quantity}} x {{transaction.product?.name}}
+                  }
+                  @if (transaction.type === 'Scrap') {
+                  {{transaction.weight_brut}} g Hurda
+                  }
+                  @if (transaction.type === 'Cash') {
+                  {{formatAmount(transaction.amount)}} EUR Nakit Ödeme
+                  }
+                  @if (transaction.type === 'Bank') {
+                  {{formatAmount(transaction.amount)}} EUR Banka Ödemesi
+                  }
+                  @if (transaction.product?.is_gold || transaction.product?.contains_gold || transaction.type
+                  ==='Scrap') {
+                  <br />
+                  Ayar: {{transaction.carat}}
+                  }
+                  @if (transaction.product?.is_gold || transaction.product?.contains_gold) {
+                  <br />
+                  Tek ürün brüt altın ağırlığı: {{transaction.weight_brut}} g
+                  <br />
+                  Toplam brüt altın ağırlığı: {{transaction.weight_brut_total}} g
+                  }
+                  @if (transaction.type === 'Product' || (transaction.type === 'Scrap')) {
+                  <br />
+                  Euro bazında tutar: {{transaction.agreed_price}} EUR
+                  }
+                  @if ( transaction.product?.is_gold || transaction.type === 'Scrap') {
+                  <br />
+                  Milyem: {{transaction.agreed_milliemes}}
+                  }
+                  @if (transaction.product?.is_gold || transaction.type === 'Scrap') {
+                  <br />
+                  Gerçek has altın ağırlığı: {{transaction.weight24k}} g
+                  }
+                  @if (transaction.product?.is_gold || transaction.type === 'Scrap') {
+                  <br />
+                  Milyeme göre has altın ağırlığı: {{transaction.agreed_weight24k}} g
+                  }
+                  @if (transaction.product?.contains_gold) {
+                  <br />
+                  Toplam icerdigi has altın ağırlığı: {{transaction.weight24k}} g
+                  }
+                  @if (!transaction.product?.is_gold || (transaction.type === 'Cash') || (transaction.type === 'Bank'))
+                  {
+                  <br />
+                  Kura göre tutarin has altın ağırlığı: {{transaction.agreed_weight24k}} g
+                  }
                 </span>
               </div>
             </div>
@@ -127,90 +163,132 @@
         <div *ngIf="scenario.transactions.length > 0" class="mt-8 space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- Gold Totals -->
+            @if (isATransactionGold) {
             <div class="space-y-2">
-              <h3 class="text-sm font-medium text-gray-900">Altın Toplamları (24K)</h3>
+              <h3 class="text-sm font-medium text-gray-900">Has Altın Cinsinden İşlemler</h3>
               <div class="space-y-1">
+                @if (scenario.total24kProductIn > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Alınan Ürünler:</span>
-                  <span class="text-sm font-medium">{{calculateTotal24kProductIn()}}g</span>
+                  <span class="text-sm text-gray-500">Alınan Ürünler:</span>
+                  <span class="text-sm font-medium">{{scenario.total24kProductIn}}g</span>
                 </div>
+                }
+                @if (scenario.total24kProductOut > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Satılan Ürünler:</span>
-                  <span class="text-sm font-medium">{{calculateTotal24kProductOut()}}g</span>
+                  <span class="text-sm text-gray-500">Satılan Ürünler:</span>
+                  <span class="text-sm font-medium">{{scenario.total24kProductOut}}g</span>
                 </div>
+                }
+                @if (scenario.total24kScrapIn > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Alınan Hurda:</span>
-                  <span class="text-sm font-medium">{{calculateTotal24kScrapIn()}}g</span>
+                  <span class="text-sm text-gray-500">Alınan Hurda:</span>
+                  <span class="text-sm font-medium">{{scenario.total24kScrapIn}}g</span>
                 </div>
+                }
+                @if (scenario.total24kScrapOut > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Satılan Hurda:</span>
-                  <span class="text-sm font-medium">{{calculateTotal24kScrapOut()}}g</span>
+                  <span class="text-sm text-gray-500">Satılan Hurda:</span>
+                  <span class="text-sm font-medium">{{scenario.total24kScrapOut}}g</span>
                 </div>
+                }
+                @if (scenario.total24kIn > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-900">Toplam Alınan Altın:</span>
-                  <span class="text-sm font-medium">{{calculateTotal24kIn()}}g</span>
+                  <span class="text-sm font-medium text-gray-900">Toplam Girdiler:</span>
+                  <span class="text-sm font-medium">{{scenario.total24kIn}}g</span>
                 </div>
+                }
+                @if (scenario.total24kOut > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-900">Toplam Satılan Altın:</span>
-                  <span class="text-sm font-medium">{{calculateTotal24kOut()}}g</span>
+                  <span class="text-sm font-medium text-gray-900">Toplam Çıktılar:</span>
+                  <span class="text-sm font-medium">{{scenario.total24kOut}}g</span>
+                </div>
+                }
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam:</span>
+                  <span class="text-sm font-medium">{{scenario.total24k}} g</span>
                 </div>
 
               </div>
             </div>
+            }
+            
 
             <!-- Cash/Bank Totals -->
+            @if (isATransactionMoney) {
             <div class="space-y-2">
-              <h3 class="text-sm font-medium text-gray-900">Ödeme Toplamları</h3>
+              <h3 class="text-sm font-medium text-gray-900">Euro Cinsinden İşlemler</h3>
               <div class="space-y-1">
+                @if (scenario.totalCashIn > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Alınan Nakit Ödeme:</span>
-                  <span class="text-sm font-medium">{{calculateTotalCashIn()}} EUR</span>
+                  <span class="text-sm text-gray-500">Alınan Nakit Ödeme:</span>
+                  <span class="text-sm font-medium">{{scenario.totalCashIn}} EUR</span>
                 </div>
+                }
+                @if (scenario.totalCashOut > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Yapılan Nakit Ödeme:</span>
-                  <span class="text-sm font-medium">{{calculateTotalCashOut()}} EUR</span>
+                  <span class="text-sm text-gray-500">Yapılan Nakit Ödeme:</span>
+                  <span class="text-sm font-medium">{{scenario.totalCashOut}} EUR</span>
                 </div>
+                }
+                @if (scenario.totalBankIn > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Alınan Banka Ödemesi:</span>
-                  <span class="text-sm font-medium">{{calculateTotalBankIn()}} EUR</span>
+                  <span class="text-sm text-gray-500">Alınan Banka Ödemesi:</span>
+                  <span class="text-sm font-medium">{{scenario.totalBankIn}} EUR</span>
                 </div>
+                }
+                @if (scenario.totalBankOut > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Toplam Yapılan Banka Ödemesi:</span>
-                  <span class="text-sm font-medium">{{calculateTotalBankOut()}} EUR</span>
+                  <span class="text-sm text-gray-500">Yapılan Banka Ödemesi:</span>
+                  <span class="text-sm font-medium">{{scenario.totalBankOut}} EUR</span>
                 </div>
+                }
+                @if (scenario.totalMoney > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam Alınan Ödeme:</span>
-                  <span class="text-sm font-medium">{{calculateTotalPaymentIn()}} EUR</span>
+                  <span class="text-sm font-medium">{{scenario.totalMoney}} EUR</span>
                 </div>
+                }
+                @if (scenario.totalMoneyOut > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam Yapılan Ödeme:</span>
-                  <span class="text-sm font-medium">{{calculateTotalPaymentOut()}} EUR</span>
+                  <span class="text-sm font-medium">{{scenario.totalMoneyOut}} EUR</span>
+                </div>
+                }
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam:</span>
+                  <span class="text-sm font-medium">{{scenario.totalMoney}} EUR</span>
                 </div>
               </div>
             </div>
+            }
           </div>
         </div>
       </div>
 
       <div class="flex items-center justify-end gap-x-6 pt-6 border-t border-gray-900/10">
+        <button type="submit"
+          [disabled]="scenario.transactions.length === 0  || !scenario.agreedGoldRate || isNaN(scenario.agreedGoldRate) || scenario.agreedGoldRate < 0"
+          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
+          {{isEditing ? 'Alışverişi güncelle' : 'Alışveriş oluştur'}}
+        </button>
         <button type="button" (click)="navigateToScenarios()"
           class="rounded-lg bg-gray-200 px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-100 hover:text-gray-800 transition-colors">
           İptal
         </button>
-        <button type="submit" [disabled]="scenario.transactions.length === 0"
-          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:opacity-50 disabled:cursor-not-allowed">
-          {{isEditing ? 'Alışverişi güncelle' : 'Alışveriş oluştur'}}
-        </button>
       </div>
+
     </form>
   </div>
 </div>
 
 <app-drawer [isOpen]="isDrawerOpen" [skipAnimation]="skipDrawerAnimation"
-  [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()">
+  [title]="editingTransactionIndex !== null ? 'İşlemi Düzenle' : 'İşlem Ekle'" (close)="onDrawerClose()"
+  (animationComplete)="onDrawerAnimationComplete($event)">
   <app-transaction
     [transaction]="editingTransactionIndex !== null ? scenario.transactions[editingTransactionIndex] : undefined"
-    [type]="transactionType!" [direction]="transactionDirection!" (transactionSubmit)="onTransactionSubmit($event)"
+    [type]="transactionType!" [direction]="transactionDirection!" [context]="'Scenario'"
+    [agreedGoldRate]="scenario.agreedGoldRate" [isOpen]="isDrawerOpen"
+    [isAnimationComplete]="isDrawerAnimationComplete" (transactionSubmit)="onTransactionSubmit($event)"
     (cancel)="onDrawerClose()">
   </app-transaction>
 </app-drawer>

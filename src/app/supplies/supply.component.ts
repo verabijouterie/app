@@ -24,17 +24,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 
 
-export const MY_FORMATS = {
-  parse: {
-    dateInput: 'DD/MM/YYYY',
-  },
-  display: {
-    dateInput: 'DD/MM/YYYY',
-    monthLabel: 'MMM',
-    dateA11yLabel: 'DD/MM/YYYY',
-    monthYearA11yLabel: 'MMMM YYYY',
-  },
-};
 
 @Component({
   selector: 'app-supply',
@@ -109,7 +98,6 @@ export class SupplyComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private supplyService: SupplyService,
-    private authService: AuthService,
     private productsService: ProductsService,
     private snackBar: MatSnackBar,
     private wholesalersService: WholesalerService,
@@ -131,8 +119,7 @@ export class SupplyComponent implements OnInit {
     this.today = new Date(formatted + 'T00:00:00');
 
 
-    // Set current user ID and date
-    //const currentUser = this.authService.currentUser;
+
 
     this.loadWholesalers();
     this.loadProducts();
@@ -213,33 +200,6 @@ export class SupplyComponent implements OnInit {
     });
   }
 
-  onGoldRateChange() {
-    this.supply.transactions.forEach(transaction => {
-      this.recalculateTransaction(transaction, this.supply.agreedGoldRate);
-    });
-
-    this.recalculateTotals();
-  }
-
-  onDateChange() {
-    this.supply.transactions.forEach(transaction => {
-      transaction.date = this.supply.date;
-    });    
-  }
-
-  recalculateTransaction(transaction: Transaction, goldRate: number) {
-    if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
-      transaction.agreed_weight24k = parseFloat(((transaction.amount || 0) / goldRate).toFixed(4));
-    }
-    if (transaction.type === 'Product' && !Boolean(transaction.product?.is_gold)) {
-      transaction.agreed_weight24k = parseFloat(((transaction.agreed_price || 0) / goldRate).toFixed(4));
-    }
-    if ((transaction.type === 'Product' && Boolean(transaction.product?.is_gold)) || transaction.type === 'Scrap') {
-      transaction.agreed_weight24k = parseFloat(((transaction.weight_brut || 0) * ((transaction.agreed_milliemes || 0) / 1000) * (transaction.quantity || 1)).toFixed(4));
-      transaction.agreed_price = parseFloat(((goldRate) * (transaction.agreed_weight24k || 0)).toFixed(2));
-    }
-  }
-
   loadProducts() {
     this.productsService.getProducts().subscribe({
       next: (products) => {
@@ -272,6 +232,35 @@ export class SupplyComponent implements OnInit {
       }
     });
   }
+
+  onGoldRateChange() {
+    this.supply.transactions.forEach(transaction => {
+      this.recalculateTransaction(transaction, this.supply.agreedGoldRate);
+    });
+
+    this.recalculateTotals();
+  }
+
+  onDateChange() {
+    this.supply.transactions.forEach(transaction => {
+      transaction.date = this.supply.date;
+    });    
+  }
+
+  recalculateTransaction(transaction: Transaction, goldRate: number) {
+    if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
+      transaction.agreed_weight24k = parseFloat(((transaction.amount || 0) / goldRate).toFixed(4));
+    }
+    if (transaction.type === 'Product' && !Boolean(transaction.product?.is_gold)) {
+      transaction.agreed_weight24k = parseFloat(((transaction.agreed_price || 0) / goldRate).toFixed(4));
+    }
+    if ((transaction.type === 'Product' && Boolean(transaction.product?.is_gold)) || transaction.type === 'Scrap') {
+      transaction.agreed_weight24k = parseFloat(((transaction.weight_brut || 0) * ((transaction.agreed_milliemes || 0) / 1000) * (transaction.quantity || 1)).toFixed(4));
+      transaction.agreed_price = parseFloat(((goldRate) * (transaction.agreed_weight24k || 0)).toFixed(2));
+    }
+  }
+
+
 
   openTransactionDrawer(type: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money', direction: 'In' | 'Out') {
     this.transactionType = type;
