@@ -2,18 +2,6 @@
   <form (ngSubmit)="onSubmit($event)" class="space-y-6">
     <div class="grid grid-cols-1 gap-4">
 
-      @if (context === 'Order') {
-      <div class="space-y-1">
-        <label for="date" class="block text-sm font-medium text-gray-900">Tarih</label>
-        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput [matDatepicker]="picker" [(ngModel)]="formTransaction.date" name="date"
-            (dateChange)="onDataChanged('date')">
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-      </div>
-      }
-
       @if (formTransaction.type === 'Product') {
       <div class="space-y-1">
         <label for="product" class="block text-sm font-medium text-gray-900">Ürün</label>
@@ -93,7 +81,7 @@
       </div>
       }
 
-      @if (selectedProduct?.is_gold || formTransaction.type === 'Scrap') {
+      @if (context === 'Supply' && (selectedProduct?.is_gold || formTransaction.type === 'Scrap')) {
       <div class="space-y-1">
         <label for="agreed_milliemes" class="block text-sm font-medium text-gray-900">Milyem</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -128,6 +116,32 @@
       </div>
       }
 
+
+      @if (context === 'Order') {
+      <div class="space-y-1">
+        <label for="status" class="block text-sm font-medium text-gray-900">Durum</label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <mat-select [(ngModel)]="formTransaction.status" name="status" (selectionChange)="onDataChanged('status')">
+            <mat-option *ngFor="let status of statusOptions" [value]="status.key">
+              {{ status.value }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      }
+
+      @if (context === 'Order' && formTransaction.status === 'Completed') {
+        <div class="space-y-1">
+          <label for="date" class="block text-sm font-medium text-gray-900">Teslimat Tarihi</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+            <input matInput [matDatepicker]="picker" [(ngModel)]="formTransaction.date" name="date"
+              (dateChange)="onDataChanged('date')">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+        </div>
+        }
+
       @if (context === 'Supply') {
       <div class="space-y-1">
         <mat-checkbox [(ngModel)]="formTransaction.paiable_as_cash_only"
@@ -138,7 +152,7 @@
       }
 
 
-      @if (selectedProduct && (selectedProduct.is_gold || selectedProduct.contains_gold)) {
+      @if (context === 'Supply' && selectedProduct && (selectedProduct.is_gold || selectedProduct.contains_gold)) {
       <div class="space-y-1">
         <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Toplam brüt altın miktarı:
         </label>
@@ -150,7 +164,7 @@
 
 
       @if (
-      (selectedProduct && !selectedProduct.is_gold && !selectedProduct.contains_gold) ||
+      (context === 'Supply' && selectedProduct && !selectedProduct.is_gold && !selectedProduct.contains_gold) ||
       formTransaction.type === 'Cash' ||
       formTransaction.type === 'Bank' ||
       formTransaction.type === 'Money'
@@ -165,7 +179,7 @@
       </div>
       }
 
-      @if ((selectedProduct && selectedProduct.is_gold) || formTransaction.type === 'Scrap') {
+      @if (context === 'Supply' && ((selectedProduct && selectedProduct.is_gold) || formTransaction.type === 'Scrap')) {
       <div class="space-y-1">
         <label for="agreed_weight24k" class="text-sm font-medium text-gray-900 inline">
           Anlaşılan milyeme göre has altın miktarı:
@@ -178,7 +192,7 @@
 
 
 
-      @if ( (selectedProduct?.is_gold || selectedProduct?.contains_gold) || formTransaction.type === 'Scrap') {
+      @if (context === 'Supply' && ( (selectedProduct?.is_gold || selectedProduct?.contains_gold) || formTransaction.type === 'Scrap')) {
       <div class="space-y-1">
         <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Has altın miktarı:
         </label>

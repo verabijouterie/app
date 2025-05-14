@@ -1,22 +1,33 @@
-import { User } from './user.interface';
 import { Transaction } from './transaction.interface';
+import { STATUS_OPTIONS } from '../config/constants';
 
 export interface Order {
-  id?: number;
-  user_id: number;
+  id: number | null;
+  date: string;
   description: string;
   client_name: string;
   client_phone: string;
-  total_order_amount: number;
-  remaining_amount: number;
-  date_planned: Date;
-  date_fulfilled?: Date | null;
+  
+  order_amount: number;
+
+  agreedGoldRate: number;
+  
   transactions: Transaction[];
+
+  total24kProductIn: number;
   total24kProductOut: number;
-  total24kOut: number;	
+  total24kScrapIn: number;
+  total24kScrapOut: number;
+  total24kIn: number;
+  total24kOut: number;
+  total24k: number;
   totalCashIn: number;
+  totalCashOut: number;
   totalBankIn: number;
-  totalPaymentIn: number;
-  status?: 'ToBeOrdered' | 'AwaitingWholesaler' | 'AwaitingCustomer' | 'HandedOut' | 'Completed' | null;
+  totalBankOut: number;
+  totalMoneyIn: number;
+  totalMoneyOut: number;
+  totalMoney: number;
+  status: typeof STATUS_OPTIONS[number]['key'] | null;
 
 } 

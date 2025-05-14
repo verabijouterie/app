@@ -1,6 +1,6 @@
 import { Product } from "./product.interface";
 import { CARAT_OPTIONS } from "../config/constants";
-
+import { STATUS_OPTIONS } from "../config/constants";
 
 export interface Transaction {
   id: number | null;
@@ -13,7 +13,7 @@ export interface Transaction {
   product: Product | null;
   quantity: number | null;
   //type product -> context order -> direction out
-  status: 'ToBeOrdered' | 'AwaitingWholesaler' | 'AwaitingCustomer' | 'HandedOut' | undefined | null;
+  status: typeof STATUS_OPTIONS[number]['key'] | null;
 
   //type product and scrap
   weight_brut: number | null; // in grams

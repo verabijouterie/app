@@ -13,7 +13,6 @@ import { Product } from '../interfaces/product.interface';
 import { SupplyService } from '../services/supply.service';
 import { DrawerComponent } from '../shared/drawer/drawer.component';
 import { TransactionComponent } from '../transactions/transaction.component';
-import { AuthService } from '../services/auth.service';
 import { ProductsService } from '../services/products.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Supply } from '../interfaces/supply.interface';

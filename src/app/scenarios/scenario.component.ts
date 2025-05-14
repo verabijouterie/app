@@ -9,7 +9,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Product } from '../interfaces/product.interface';
 import { ScenarioService } from '../services/scenario.service';
@@ -35,7 +34,6 @@ import { provideNativeDateAdapter } from '@angular/material/core';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
-    DragDropModule,
     DrawerComponent,
     TransactionComponent,
     MatSnackBarModule,
@@ -60,10 +58,13 @@ export class ScenarioComponent implements OnInit {
   transactionDirection?: 'In' | 'Out';
   defaultGoldRate = 0;
 
-  isATransactionGold = false;
-  isATransactionMoney = false;
 
   today: Date = new Date();
+
+  totalProductInAsMoney = 0;
+  totalProductOutAsMoney = 0;
+  totalScrapInAsMoney = 0;
+  totalScrapOutAsMoney = 0;
 
   scenario: Scenario = {
     id: null,
@@ -88,6 +89,7 @@ export class ScenarioComponent implements OnInit {
     totalMoneyOut: 0,
     totalMoney: 0,
   };
+  
 
   initialScenario: Scenario | null = null;
 
@@ -115,8 +117,6 @@ export class ScenarioComponent implements OnInit {
     }).format(new Date());
     this.today = new Date(formatted + 'T00:00:00');
 
-
-
     this.loadProducts();
 
     // Handle route parameters
@@ -129,8 +129,7 @@ export class ScenarioComponent implements OnInit {
             this.scenario = scenario;
             this.initialScenario = { ...scenario };
 
-            this.isATransactionGold = this.scenario.transactions.some(transaction => transaction.type === 'Product' && (transaction.product?.is_gold || transaction.product?.contains_gold));
-            this.isATransactionMoney = this.scenario.transactions.some(transaction => transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money');
+            this.recalculateTotals();
           },
           error: (error) => {
             this.snackBar.open('Senaryo yüklenirken bir hata oluştu', 'Kapat', {
@@ -146,6 +145,13 @@ export class ScenarioComponent implements OnInit {
       } else {
         this.isEditing = false;
         // Reset scenario for new creation
+
+        this.totalProductInAsMoney = 0;
+        this.totalProductOutAsMoney = 0;
+        this.totalScrapInAsMoney = 0;
+        this.totalScrapOutAsMoney = 0;
+
+
         this.scenario = {
           id: null,
           date: this.today.toISOString(),
@@ -168,6 +174,7 @@ export class ScenarioComponent implements OnInit {
           totalMoney: 0,
         };
         this.loadDefaultGoldRate();
+
       }
     });
   }
@@ -265,9 +272,6 @@ export class ScenarioComponent implements OnInit {
       // Add new transaction
       this.scenario.transactions = [...this.scenario.transactions, transaction];
     }
-
-    this.isATransactionGold = this.scenario.transactions.some(transaction => transaction.type === 'Product' && (transaction.product?.is_gold || transaction.product?.contains_gold));
-    this.isATransactionMoney = this.scenario.transactions.some(transaction => transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money');
 
     this.recalculateTotals();
 
@@ -415,6 +419,13 @@ export class ScenarioComponent implements OnInit {
     let totalMoneyOut = 0;
     let totalMoney = 0;
 
+
+    let totalProductInAsMoney = 0;
+    let totalProductOutAsMoney = 0;
+    let totalScrapInAsMoney = 0;
+    let totalScrapOutAsMoney = 0;
+
+
     this.scenario.transactions.forEach(transaction => {
       // Calculate as gold
       if (transaction.type === 'Product' && (transaction.product?.is_gold || transaction.product?.contains_gold)) {
@@ -422,10 +433,26 @@ export class ScenarioComponent implements OnInit {
           total24kProductIn += Number(transaction.agreed_weight24k || 0);
           total24kIn += Number(transaction.agreed_weight24k || 0);
           total24k += Number(transaction.agreed_price || 0);
+          totalProductInAsMoney += Number(transaction.agreed_price || 0);
+          totalMoney += Number(transaction.agreed_price || 0);
         } else {
           total24kProductOut += Number(transaction.agreed_weight24k || 0);
           total24kOut += Number(transaction.agreed_weight24k || 0);
           total24k -= Number(transaction.agreed_price || 0);
+          totalProductOutAsMoney += Number(transaction.agreed_price || 0);
+          totalMoney -= Number(transaction.agreed_price || 0);
+        }
+      }
+      if (transaction.type === 'Product' && (!transaction.product?.is_gold && !transaction.product?.contains_gold)) {
+        if (transaction.direction === 'In') {
+          totalProductInAsMoney += Number(transaction.agreed_price || 0);
+          totalMoney += Number(transaction.agreed_price || 0);
+          console.log("totalProductInAsMoney", totalProductInAsMoney);
+
+        } else {
+          totalProductOutAsMoney += Number(transaction.agreed_price || 0);
+          totalMoney -= Number(transaction.agreed_price || 0);
+          console.log("totalProductOutAsMoney", totalProductOutAsMoney);
         }
       }
       if (transaction.type === 'Scrap') {
@@ -433,10 +460,16 @@ export class ScenarioComponent implements OnInit {
           total24kScrapIn += Number(transaction.agreed_weight24k || 0);
           total24kIn += Number(transaction.agreed_weight24k || 0);
           total24k += Number(transaction.agreed_price || 0);
+          totalScrapInAsMoney += Number(transaction.agreed_price || 0);
+          totalProductInAsMoney += Number(transaction.agreed_price || 0);
+          totalMoney += Number(transaction.agreed_price || 0);
         } else {
           total24kScrapOut += Number(transaction.agreed_weight24k || 0);
           total24kOut -= Number(transaction.agreed_weight24k || 0);
           total24k -= Number(transaction.agreed_price || 0);
+          totalScrapOutAsMoney += Number(transaction.agreed_price || 0);
+          totalProductOutAsMoney += Number(transaction.agreed_price || 0);
+          totalMoney -= Number(transaction.agreed_price || 0);
         }
       }
       if (transaction.type === 'Cash') {
@@ -480,6 +513,12 @@ export class ScenarioComponent implements OnInit {
     this.scenario.totalMoneyIn = parseFloat(totalMoneyIn.toFixed(2));
     this.scenario.totalMoneyOut = parseFloat(totalMoneyOut.toFixed(2));
     this.scenario.totalMoney = parseFloat(totalMoney.toFixed(2));
+
+
+    this.totalProductInAsMoney = parseFloat(totalProductInAsMoney.toFixed(2));
+    this.totalProductOutAsMoney = parseFloat(totalProductOutAsMoney.toFixed(2));
+    this.totalScrapInAsMoney = parseFloat(totalScrapInAsMoney.toFixed(2));
+    this.totalScrapOutAsMoney = parseFloat(totalScrapOutAsMoney.toFixed(2));
 
     console.log("Recalculated Totals:", this.scenario);
 

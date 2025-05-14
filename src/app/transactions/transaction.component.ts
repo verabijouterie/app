@@ -19,6 +19,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Wholesaler } from '../interfaces/wholesaler.interface';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { STATUS_OPTIONS } from '../config/constants';
 
 
 @Component({
@@ -61,6 +62,9 @@ export class TransactionComponent implements OnInit, OnChanges {
   selectedProduct: Product | null = null;
   productControl = new FormControl<string | Product>('');
   filteredProducts: Observable<Product[]>;
+
+
+  statusOptions = STATUS_OPTIONS;
 
   caratOptions = CARAT_OPTIONS.map(carat => Number(carat));
   caratPurityMapGold = CARAT_PURITY_MAP_GOLD;
@@ -145,10 +149,51 @@ export class TransactionComponent implements OnInit, OnChanges {
     // Handle changes to type and direction inputs
     if (changes['type'] && this.type) {
       this.formTransaction.type = this.type;
+
+      if (this.context === 'Order') {
+        if ((this.type === 'Product' || this.type === 'Scrap' || this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'In') {
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'AwaitingCustomer' || status.key === 'Completed');
+          if (!this.is_editing) {
+            this.formTransaction.status = 'AwaitingCustomer';
+          }
+        }
+        else if ((this.type === 'Product' || this.type === 'Scrap') && this.direction === 'Out') {
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'ToBeOrdered' || status.key === 'AwaitingWholesaler' || status.key === 'AwaitingCustomer' || status.key === 'Completed');
+          if (!this.is_editing) {
+            this.formTransaction.status = 'ToBeOrdered';
+          }
+        }
+        else if ((this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'Out') {
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'Pending' || status.key === 'Completed');
+          if (!this.is_editing) {
+            this.formTransaction.status = 'Pending';
+          }
+        }
+      }
     }
 
     if (changes['direction'] && this.direction) {
       this.formTransaction.direction = this.direction;
+      if (this.context === 'Order') {
+        if ((this.type === 'Product' || this.type === 'Scrap' || this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'In') {
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'AwaitingCustomer' || status.key === 'Completed');
+          if (!this.is_editing) {
+            this.formTransaction.status = 'AwaitingCustomer';
+          }
+        }
+        else if ((this.type === 'Product' || this.type === 'Scrap') && this.direction === 'Out') {
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'ToBeOrdered' || status.key === 'AwaitingWholesaler' || status.key === 'AwaitingCustomer' || status.key === 'Completed');
+          if (!this.is_editing) {
+            this.formTransaction.status = 'ToBeOrdered';
+          }
+        }
+        else if ((this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'Out') {
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'Pending' || status.key === 'Completed');
+          if (!this.is_editing) {
+            this.formTransaction.status = 'Pending';
+          }
+        }
+      }
     }
 
     if (changes['context'] && this.context) {
@@ -168,7 +213,6 @@ export class TransactionComponent implements OnInit, OnChanges {
     if (changes['transaction']) {
       if (!this.transaction) {
         this.is_editing = false;
-        this.formTransaction.date = this.today.toISOString();
       }
       else {
         this.is_editing = true;
