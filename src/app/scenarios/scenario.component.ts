@@ -127,7 +127,7 @@ export class ScenarioComponent implements OnInit {
         this.scenarioService.getScenario(Number(scenarioId)).subscribe({
           next: (scenario) => {
             this.scenario = scenario;
-            this.initialScenario = scenario;
+            this.initialScenario = { ...scenario };
 
             this.isATransactionGold = this.scenario.transactions.some(transaction => transaction.type === 'Product' && (transaction.product?.is_gold || transaction.product?.contains_gold));
             this.isATransactionMoney = this.scenario.transactions.some(transaction => transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money');
