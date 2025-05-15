@@ -276,12 +276,7 @@ export class OrderComponent implements OnInit {
   }
 
   onDateChange() {
-    console.log("ToDO: OnDateChange");
-    /*
-    this.order.transactions.forEach(transaction => {
-      transaction.date = this.order.date;
-    });
-    */
+
   }
 
   recalculateTransaction(transaction: Transaction, goldRate: number) {
@@ -374,7 +369,7 @@ export class OrderComponent implements OnInit {
           panelClass: ['info-snackbar']
         });
 
-        //this.router.navigate(['/scenarios']);
+        this.router.navigate(['/orders']);
         return;
       }
     }
@@ -391,7 +386,7 @@ export class OrderComponent implements OnInit {
             panelClass: ['info-snackbar']
           });
 
-          //this.router.navigate(['/supplies']);
+          this.router.navigate(['/orders']);
         },
         error: (error) => {
           this.snackBar.open('Sipariş güncellenirken bir hata oluştu', 'Kapat', {
@@ -414,7 +409,7 @@ export class OrderComponent implements OnInit {
             verticalPosition: 'top',
             panelClass: ['info-snackbar']
           });
-          //this.router.navigate(['/scenarios']);
+          this.router.navigate(['/orders']);
         },
         error: (error) => {
           this.snackBar.open('Sipariş oluşturulurken bir hata oluştu', 'Kapat', {
@@ -489,7 +484,6 @@ export class OrderComponent implements OnInit {
       }
     });
 
-    console.log("minPriority", minPriority);
 
     let status = this.statusOptions.find(s => s.priority === minPriority)?.key || null;
 
@@ -685,15 +679,6 @@ export class OrderComponent implements OnInit {
       }
 
     });
-
-
-
-
-
-
-
-    console.log("Recalculated Totals:", this.order);
-
 
   }
 

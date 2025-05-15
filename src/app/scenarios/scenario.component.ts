@@ -130,7 +130,6 @@ export class ScenarioComponent implements OnInit {
             this.scenario = scenario;
             this.initialScenario = { ...scenario };
 
-            this.recalculateTotals();
           },
           error: (error) => {
             this.snackBar.open('Senaryo yüklenirken bir hata oluştu', 'Kapat', {
@@ -503,11 +502,6 @@ export class ScenarioComponent implements OnInit {
       }
 
     });
-
-
-
-    console.log("Recalculated Totals:", this.scenario);
-
 
   }
 
