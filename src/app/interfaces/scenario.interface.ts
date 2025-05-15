@@ -7,7 +7,11 @@ export interface Scenario {
   transactions: Transaction[];
 
   agreedGoldRate: number;
-  
+  totalProductInAsMoney: number;
+  totalProductOutAsMoney: number;
+  totalScrapInAsMoney: number;
+  totalScrapOutAsMoney: number;
+
   total24kProductIn: number;
   total24kProductOut: number;
   total24kScrapIn: number;
@@ -15,11 +19,15 @@ export interface Scenario {
   total24kIn: number;
   total24kOut: number;
   total24k: number;
+  
   totalCashIn: number;
   totalCashOut: number;
   totalBankIn: number;
   totalBankOut: number;
+
   totalMoneyIn: number;
   totalMoneyOut: number;
   totalMoney: number;
+
+  grandTotalAsMoney: number;
 } 

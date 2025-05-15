@@ -11,11 +11,13 @@ export const CARAT_PURITY_MAP_GOLD: { [key: number]: number } = {
 }; 
 
 export const STATUS_OPTIONS = [
-  { key: 'ToBeOrdered', value: 'Toptancıdan Sipariş Edilecek' },
-  { key: 'AwaitingWholesaler', value: 'Toptancı Bekleniyor' },
-  { key: 'AwaitingCustomer', value: 'Müşteri Bekleniyor' },
-  { key: 'Pending', value: 'Beklemede' },
-  { key: 'Completed', value: 'Tamamlandı' },
-
+  { key: 'ToBeOrdered', value: 'Toptancıdan Sipariş Edilecek' , priority: 1},
+  { key: 'AwaitingWholesaler', value: 'Toptancı Bekleniyor' , priority: 2},
+  { key: 'AwaitingCustomer', value: 'Müşteri Bekleniyor' , priority: 3},
+  { key: 'Pending', value: 'Beklemede' , priority: 4},
+  { key: 'Delivered', value: 'Teslim Edildi' , priority: 5},
+  { key: 'Received', value: 'Teslim Alındı' , priority: 6},
+  /*{ key: 'Cancelled', value: 'İptal Edildi' },*/
+  { key: 'Completed', value: 'Tamamlandı' , priority: 7},
 ];
 

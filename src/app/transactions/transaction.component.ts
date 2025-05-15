@@ -148,23 +148,24 @@ export class TransactionComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     // Handle changes to type and direction inputs
     if (changes['type'] && this.type) {
+
       this.formTransaction.type = this.type;
 
       if (this.context === 'Order') {
         if ((this.type === 'Product' || this.type === 'Scrap' || this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'In') {
-          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'AwaitingCustomer' || status.key === 'Completed');
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'AwaitingCustomer' || status.key === 'Received');
           if (!this.is_editing) {
             this.formTransaction.status = 'AwaitingCustomer';
           }
         }
         else if ((this.type === 'Product' || this.type === 'Scrap') && this.direction === 'Out') {
-          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'ToBeOrdered' || status.key === 'AwaitingWholesaler' || status.key === 'AwaitingCustomer' || status.key === 'Completed');
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'ToBeOrdered' || status.key === 'AwaitingWholesaler' || status.key === 'AwaitingCustomer' || status.key === 'Delivered');
           if (!this.is_editing) {
             this.formTransaction.status = 'ToBeOrdered';
           }
         }
         else if ((this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'Out') {
-          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'Pending' || status.key === 'Completed');
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'Pending' || status.key === 'Delivered');
           if (!this.is_editing) {
             this.formTransaction.status = 'Pending';
           }
@@ -174,21 +175,22 @@ export class TransactionComponent implements OnInit, OnChanges {
 
     if (changes['direction'] && this.direction) {
       this.formTransaction.direction = this.direction;
+
       if (this.context === 'Order') {
         if ((this.type === 'Product' || this.type === 'Scrap' || this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'In') {
-          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'AwaitingCustomer' || status.key === 'Completed');
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'AwaitingCustomer' || status.key === 'Received');
           if (!this.is_editing) {
             this.formTransaction.status = 'AwaitingCustomer';
           }
         }
         else if ((this.type === 'Product' || this.type === 'Scrap') && this.direction === 'Out') {
-          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'ToBeOrdered' || status.key === 'AwaitingWholesaler' || status.key === 'AwaitingCustomer' || status.key === 'Completed');
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'ToBeOrdered' || status.key === 'AwaitingWholesaler' || status.key === 'AwaitingCustomer' || status.key === 'Delivered');
           if (!this.is_editing) {
             this.formTransaction.status = 'ToBeOrdered';
           }
         }
         else if ((this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'Out') {
-          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'Pending' || status.key === 'Completed');
+          this.statusOptions = STATUS_OPTIONS.filter(status => status.key === 'Pending' || status.key === 'Delivered');
           if (!this.is_editing) {
             this.formTransaction.status = 'Pending';
           }
@@ -211,6 +213,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     }
 
     if (changes['transaction']) {
+      ;
       if (!this.transaction) {
         this.is_editing = false;
       }
@@ -504,7 +507,10 @@ export class TransactionComponent implements OnInit, OnChanges {
     this.resetForm();
   }
 
+
+  //is also called from the parent components onDrawerClose function as transactionComponent.resetForm()
   resetForm() {
+
 
     this.selectedProduct = null;
     this.productControl.setValue('');
@@ -529,6 +535,18 @@ export class TransactionComponent implements OnInit, OnChanges {
       weight24k: 0,
       status: null
     };
+
+    if (this.context === 'Order') {
+      if ((this.type === 'Product' || this.type === 'Scrap' || this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'In') {
+        this.formTransaction.status = 'AwaitingCustomer';
+      }
+      else if ((this.type === 'Product' || this.type === 'Scrap') && this.direction === 'Out') {
+        this.formTransaction.status = 'ToBeOrdered';
+      }
+      else if ((this.type === 'Cash' || this.type === 'Bank' || this.type === 'Money') && this.direction === 'Out') {
+        this.formTransaction.status = 'Pending';
+      }
+    }
   }
 
   onCancel() {

@@ -143,58 +143,58 @@
             <!-- Cash/Bank Totals -->
             <div class="space-y-2">
               <div class="space-y-1">
-                @if (totalProductInAsMoney > 0) {
+                @if (scenario.totalProductInAsMoney > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Alınan Ürün:</span>
-                  <span class="text-sm font-medium">{{totalProductInAsMoney}} EUR</span>
+                  <span class="text-sm text-gray-500">{{scenario.totalProductInAsMoney}} EUR</span>
                 </div>
                 }
-                @if (totalProductOutAsMoney > 0) {
+                @if (scenario.totalProductOutAsMoney > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Satılan Ürün:</span>
-                  <span class="text-sm font-medium">{{totalProductOutAsMoney}} EUR</span>
+                  <span class="text-sm text-gray-500">{{scenario.totalProductOutAsMoney}} EUR</span>
                 </div>
                 }
-                @if (totalScrapInAsMoney > 0) {
+                @if (scenario.totalScrapInAsMoney > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Alınan Hurda:</span>
-                  <span class="text-sm font-medium">{{totalScrapInAsMoney}} EUR</span>
+                  <span class="text-sm text-gray-500">{{scenario.totalScrapInAsMoney}} EUR</span>
                 </div>
                 }
-                @if (totalScrapOutAsMoney > 0) {
+                @if (scenario.totalScrapOutAsMoney > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Satılan Hurda:</span>
-                  <span class="text-sm font-medium">{{totalScrapOutAsMoney}} EUR</span>
+                  <span class="text-sm text-gray-500">{{scenario.totalScrapOutAsMoney}} EUR</span>
                 </div>
                 }
                 @if (scenario.totalCashIn > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Alınan Nakit Ödeme:</span>
-                  <span class="text-sm font-medium">{{scenario.totalCashIn}} EUR</span>
+                  <span class="text-sm text-gray-500">{{scenario.totalCashIn}} EUR</span>
                 </div>
                 }
                 @if (scenario.totalCashOut > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Yapılan Nakit Ödeme:</span>
-                  <span class="text-sm font-medium">{{scenario.totalCashOut}} EUR</span>
+                  <span class="text-sm text-gray-500">{{scenario.totalCashOut}} EUR</span>
                 </div>
                 }
                 @if (scenario.totalBankIn > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Alınan Banka Ödemesi:</span>
-                  <span class="text-sm font-medium">{{scenario.totalBankIn}} EUR</span>
+                  <span class="text-sm text-gray-500">{{scenario.totalBankIn}} EUR</span>
                 </div>
                 }
                 @if (scenario.totalBankOut > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Yapılan Banka Ödemesi:</span>
-                  <span class="text-sm font-medium">{{scenario.totalBankOut}} EUR</span>
+                  <span class="text-sm text-gray-500">{{scenario.totalBankOut}} EUR</span>
                 </div>
                 }
                 @if (scenario.totalMoney > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam Alınan Ödeme:</span>
-                  <span class="text-sm font-medium">{{scenario.totalMoney}} EUR</span>
+                  <span class="text-sm font-medium">{{scenario.totalMoneyIn}} EUR</span>
                 </div>
                 }
                 @if (scenario.totalMoneyOut > 0) {
@@ -205,7 +205,7 @@
                 }
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam:</span>
-                  <span class="text-sm font-medium">{{scenario.totalMoney}} EUR</span>
+                  <span class="text-sm font-medium">{{scenario.grandTotalAsMoney}} EUR</span>
                 </div>
               </div>
             </div>

@@ -61,10 +61,6 @@ export class ScenarioComponent implements OnInit {
 
   today: Date = new Date();
 
-  totalProductInAsMoney = 0;
-  totalProductOutAsMoney = 0;
-  totalScrapInAsMoney = 0;
-  totalScrapOutAsMoney = 0;
 
   scenario: Scenario = {
     id: null,
@@ -88,6 +84,11 @@ export class ScenarioComponent implements OnInit {
     totalMoneyIn: 0,
     totalMoneyOut: 0,
     totalMoney: 0,
+    totalProductInAsMoney: 0,
+    totalProductOutAsMoney: 0,
+    totalScrapInAsMoney: 0,
+    totalScrapOutAsMoney: 0,
+    grandTotalAsMoney: 0,
   };
   
 
@@ -146,10 +147,6 @@ export class ScenarioComponent implements OnInit {
         this.isEditing = false;
         // Reset scenario for new creation
 
-        this.totalProductInAsMoney = 0;
-        this.totalProductOutAsMoney = 0;
-        this.totalScrapInAsMoney = 0;
-        this.totalScrapOutAsMoney = 0;
 
 
         this.scenario = {
@@ -172,6 +169,12 @@ export class ScenarioComponent implements OnInit {
           totalMoneyIn: 0,
           totalMoneyOut: 0,
           totalMoney: 0,
+
+          totalProductInAsMoney: 0,
+          totalProductOutAsMoney: 0,
+          totalScrapInAsMoney: 0,
+          totalScrapOutAsMoney: 0,
+          grandTotalAsMoney: 0,
         };
         this.loadDefaultGoldRate();
 
@@ -310,7 +313,7 @@ export class ScenarioComponent implements OnInit {
           panelClass: ['info-snackbar']
         });
 
-        //this.router.navigate(['/scenarios']);
+        this.router.navigate(['/scenarios']);
         return;
       }
     }
@@ -327,7 +330,7 @@ export class ScenarioComponent implements OnInit {
             panelClass: ['info-snackbar']
           });
 
-          //this.router.navigate(['/supplies']);
+          this.router.navigate(['/supplies']);
         },
         error: (error) => {
           this.snackBar.open('Alışveriş güncellenirken bir hata oluştu', 'Kapat', {
@@ -350,7 +353,7 @@ export class ScenarioComponent implements OnInit {
             verticalPosition: 'top',
             panelClass: ['info-snackbar']
           });
-          //this.router.navigate(['/scenarios']);
+          this.router.navigate(['/scenarios']);
         },
         error: (error) => {
           this.snackBar.open('Alışveriş oluşturulurken bir hata oluştu', 'Kapat', {
@@ -387,14 +390,18 @@ export class ScenarioComponent implements OnInit {
         currentTransaction.type !== initialTransaction.type ||
         currentTransaction.direction !== initialTransaction.direction ||
         currentTransaction.product_id !== initialTransaction.product_id ||
-        currentTransaction.quantity !== initialTransaction.quantity ||
+
         currentTransaction.weight_brut !== initialTransaction.weight_brut ||
+        currentTransaction.weight_brut_total !== initialTransaction.weight_brut_total ||
         currentTransaction.carat !== initialTransaction.carat ||
+        currentTransaction.amount !== initialTransaction.amount ||
+        currentTransaction.quantity !== initialTransaction.quantity ||
+        currentTransaction.weight24k !== initialTransaction.weight24k ||
         currentTransaction.agreed_milliemes !== initialTransaction.agreed_milliemes ||
         currentTransaction.agreed_weight24k !== initialTransaction.agreed_weight24k ||
         currentTransaction.agreed_price !== initialTransaction.agreed_price ||
         currentTransaction.paiable_as_cash_only !== initialTransaction.paiable_as_cash_only ||
-        currentTransaction.amount !== initialTransaction.amount) {
+        currentTransaction.status !== initialTransaction.status) {
         return true;
       }
     }
@@ -404,121 +411,100 @@ export class ScenarioComponent implements OnInit {
 
   recalculateTotals() {
 
-    let total24kProductIn = 0;
-    let total24kProductOut = 0;
-    let total24kScrapIn = 0;
-    let total24kScrapOut = 0;
-    let total24kIn = 0;
-    let total24kOut = 0;
-    let total24k = 0;
-    let totalCashIn = 0;
-    let totalCashOut = 0;
-    let totalBankIn = 0;
-    let totalBankOut = 0;
-    let totalMoneyIn = 0;
-    let totalMoneyOut = 0;
-    let totalMoney = 0;
+    this.scenario.total24kProductIn = 0;
+    this.scenario.total24kProductOut = 0;
+    this.scenario.total24kScrapIn = 0;
+    this.scenario.total24kScrapOut = 0;
+    this.scenario.total24kIn = 0;
+    this.scenario.total24kOut = 0;
+    this.scenario.total24k = 0;
+    this.scenario.totalCashIn = 0;
+    this.scenario.totalCashOut = 0;
+    this.scenario.totalBankIn = 0;
+    this.scenario.totalBankOut = 0;
+    this.scenario.totalMoneyIn = 0;
+    this.scenario.totalMoneyOut = 0;
+    this.scenario.totalMoney = 0;
 
+    this.scenario.totalProductInAsMoney = 0;
+    this.scenario.totalProductOutAsMoney = 0;
+    this.scenario.totalScrapInAsMoney = 0;
+    this.scenario.totalScrapOutAsMoney = 0;
 
-    let totalProductInAsMoney = 0;
-    let totalProductOutAsMoney = 0;
-    let totalScrapInAsMoney = 0;
-    let totalScrapOutAsMoney = 0;
-
+    this.scenario.grandTotalAsMoney = 0;
 
     this.scenario.transactions.forEach(transaction => {
-      // Calculate as gold
+
+      
       if (transaction.type === 'Product' && (transaction.product?.is_gold || transaction.product?.contains_gold)) {
         if (transaction.direction === 'In') {
-          total24kProductIn += Number(transaction.agreed_weight24k || 0);
-          total24kIn += Number(transaction.agreed_weight24k || 0);
-          total24k += Number(transaction.agreed_price || 0);
-          totalProductInAsMoney += Number(transaction.agreed_price || 0);
-          totalMoney += Number(transaction.agreed_price || 0);
+          this.scenario.total24kProductIn = parseFloat((this.scenario.total24kProductIn + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.total24kIn = parseFloat((this.scenario.total24kIn + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.total24k = parseFloat((this.scenario.total24k + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.totalProductInAsMoney = parseFloat((this.scenario.totalProductInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
         } else {
-          total24kProductOut += Number(transaction.agreed_weight24k || 0);
-          total24kOut += Number(transaction.agreed_weight24k || 0);
-          total24k -= Number(transaction.agreed_price || 0);
-          totalProductOutAsMoney += Number(transaction.agreed_price || 0);
-          totalMoney -= Number(transaction.agreed_price || 0);
+          this.scenario.total24kProductOut = parseFloat((this.scenario.total24kProductOut + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.total24kOut = parseFloat((this.scenario.total24kOut + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.total24k = parseFloat((this.scenario.total24k - Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.totalProductOutAsMoney = parseFloat((this.scenario.totalProductOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
         }
       }
       if (transaction.type === 'Product' && (!transaction.product?.is_gold && !transaction.product?.contains_gold)) {
         if (transaction.direction === 'In') {
-          totalProductInAsMoney += Number(transaction.agreed_price || 0);
-          totalMoney += Number(transaction.agreed_price || 0);
-          console.log("totalProductInAsMoney", totalProductInAsMoney);
-
+          this.scenario.totalProductInAsMoney = parseFloat((this.scenario.totalProductInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
         } else {
-          totalProductOutAsMoney += Number(transaction.agreed_price || 0);
-          totalMoney -= Number(transaction.agreed_price || 0);
-          console.log("totalProductOutAsMoney", totalProductOutAsMoney);
+          this.scenario.totalProductOutAsMoney = parseFloat((this.scenario.totalProductOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
         }
       }
       if (transaction.type === 'Scrap') {
         if (transaction.direction === 'In') {
-          total24kScrapIn += Number(transaction.agreed_weight24k || 0);
-          total24kIn += Number(transaction.agreed_weight24k || 0);
-          total24k += Number(transaction.agreed_price || 0);
-          totalScrapInAsMoney += Number(transaction.agreed_price || 0);
-          totalProductInAsMoney += Number(transaction.agreed_price || 0);
-          totalMoney += Number(transaction.agreed_price || 0);
+          this.scenario.total24kScrapIn = parseFloat((this.scenario.total24kScrapIn + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.total24kIn = parseFloat((this.scenario.total24kIn + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.total24k = parseFloat((this.scenario.total24k + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.totalScrapInAsMoney = parseFloat((this.scenario.totalScrapInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
         } else {
-          total24kScrapOut += Number(transaction.agreed_weight24k || 0);
-          total24kOut -= Number(transaction.agreed_weight24k || 0);
-          total24k -= Number(transaction.agreed_price || 0);
-          totalScrapOutAsMoney += Number(transaction.agreed_price || 0);
-          totalProductOutAsMoney += Number(transaction.agreed_price || 0);
-          totalMoney -= Number(transaction.agreed_price || 0);
+          this.scenario.total24kScrapOut = parseFloat((this.scenario.total24kScrapOut + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.total24kOut = parseFloat((this.scenario.total24kOut + Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.total24k = parseFloat((this.scenario.total24k - Number(transaction.weight24k || 0)).toFixed(2));
+          this.scenario.totalScrapOutAsMoney = parseFloat((this.scenario.totalScrapOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
         }
       }
       if (transaction.type === 'Cash') {
         if (transaction.direction === 'In') {
-          totalCashIn += Number(transaction.amount || 0);
-          totalMoneyIn += Number(transaction.amount || 0);
-          totalMoney += Number(transaction.amount || 0);
+          this.scenario.totalCashIn = parseFloat((this.scenario.totalCashIn + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.totalMoneyIn = parseFloat((this.scenario.totalMoneyIn + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.totalMoney = parseFloat((this.scenario.totalMoney + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney + Number(transaction.amount || 0)).toFixed(2));
         } else {
-          totalCashOut += Number(transaction.amount || 0);
-          totalMoneyOut += Number(transaction.amount || 0);
-          totalMoney -= Number(transaction.amount || 0);
+          this.scenario.totalCashOut = parseFloat((this.scenario.totalCashOut + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.totalMoneyOut = parseFloat((this.scenario.totalMoneyOut + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.totalMoney = parseFloat((this.scenario.totalMoney - Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney - Number(transaction.amount || 0)).toFixed(2));
         }
       }
       if (transaction.type === 'Bank') {
         if (transaction.direction === 'In') {
-          totalBankIn += Number(transaction.amount || 0);
-          totalMoneyIn += Number(transaction.amount || 0);
-          totalMoney += Number(transaction.amount || 0);
+          this.scenario.totalBankIn = parseFloat((this.scenario.totalBankIn + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.totalMoneyIn = parseFloat((this.scenario.totalMoneyIn + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.totalMoney = parseFloat((this.scenario.totalMoney + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney + Number(transaction.amount || 0)).toFixed(2));
         } else {
-          totalBankOut += Number(transaction.amount || 0);
-          totalMoneyOut += Number(transaction.amount || 0);
-          totalMoney -= Number(transaction.amount || 0);
+          this.scenario.totalBankOut = parseFloat((this.scenario.totalBankOut + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.totalMoneyOut = parseFloat((this.scenario.totalMoneyOut + Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.totalMoney = parseFloat((this.scenario.totalMoney - Number(transaction.amount || 0)).toFixed(2));
+          this.scenario.grandTotalAsMoney = parseFloat((this.scenario.grandTotalAsMoney - Number(transaction.amount || 0)).toFixed(2));
         }
       }
 
     });
 
 
-    this.scenario.total24kProductIn = parseFloat(total24kProductIn.toFixed(4));
-    this.scenario.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
-    this.scenario.total24kScrapIn = parseFloat(total24kScrapIn.toFixed(4));
-    this.scenario.total24kScrapOut = parseFloat(total24kScrapOut.toFixed(4));
-    this.scenario.total24kIn = parseFloat(total24kIn.toFixed(4));
-    this.scenario.total24kOut = parseFloat(total24kOut.toFixed(4));
-    this.scenario.total24k = parseFloat(total24k.toFixed(4));
-
-    this.scenario.totalCashIn = parseFloat(totalCashIn.toFixed(2));
-    this.scenario.totalCashOut = parseFloat(totalCashOut.toFixed(2));
-    this.scenario.totalBankIn = parseFloat(totalBankIn.toFixed(2));
-    this.scenario.totalBankOut = parseFloat(totalBankOut.toFixed(2));
-    this.scenario.totalMoneyIn = parseFloat(totalMoneyIn.toFixed(2));
-    this.scenario.totalMoneyOut = parseFloat(totalMoneyOut.toFixed(2));
-    this.scenario.totalMoney = parseFloat(totalMoney.toFixed(2));
-
-
-    this.totalProductInAsMoney = parseFloat(totalProductInAsMoney.toFixed(2));
-    this.totalProductOutAsMoney = parseFloat(totalProductOutAsMoney.toFixed(2));
-    this.totalScrapInAsMoney = parseFloat(totalScrapInAsMoney.toFixed(2));
-    this.totalScrapOutAsMoney = parseFloat(totalScrapOutAsMoney.toFixed(2));
 
     console.log("Recalculated Totals:", this.scenario);
 

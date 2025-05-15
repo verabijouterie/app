@@ -340,7 +340,7 @@ export class SupplyComponent implements OnInit {
           panelClass: ['info-snackbar']
         });
         
-        //this.router.navigate(['/supplies']);
+        this.router.navigate(['/supplies']);
         return;
       }
     }
@@ -358,7 +358,7 @@ export class SupplyComponent implements OnInit {
             panelClass: ['info-snackbar']
           });
 
-          //this.router.navigate(['/supplies']);
+          this.router.navigate(['/supplies']);
         },
         error: (error) => {
           this.snackBar.open('Toptan Alışveriş güncellenirken bir hata oluştu', 'Kapat', {
@@ -381,7 +381,7 @@ export class SupplyComponent implements OnInit {
             verticalPosition: 'top',
             panelClass: ['info-snackbar']
           });
-          //this.router.navigate(['/supplies']);
+          this.router.navigate(['/supplies']);
         },
         error: (error) => {
           this.snackBar.open('Toptan Alışveriş oluşturulurken bir hata oluştu', 'Kapat', {
@@ -415,17 +415,21 @@ export class SupplyComponent implements OnInit {
       const initialTransaction = initial.transactions[i];
 
       if (!initialTransaction ||
-          currentTransaction.type !== initialTransaction.type ||
-          currentTransaction.direction !== initialTransaction.direction ||
-          currentTransaction.product_id !== initialTransaction.product_id ||
-          currentTransaction.quantity !== initialTransaction.quantity ||
-          currentTransaction.weight_brut !== initialTransaction.weight_brut ||
-          currentTransaction.carat !== initialTransaction.carat ||
-          currentTransaction.agreed_milliemes !== initialTransaction.agreed_milliemes ||
-          currentTransaction.agreed_weight24k !== initialTransaction.agreed_weight24k ||
-          currentTransaction.agreed_price !== initialTransaction.agreed_price ||
-          currentTransaction.paiable_as_cash_only !== initialTransaction.paiable_as_cash_only ||
-          currentTransaction.amount !== initialTransaction.amount) {
+        currentTransaction.type !== initialTransaction.type ||
+        currentTransaction.direction !== initialTransaction.direction ||
+        currentTransaction.product_id !== initialTransaction.product_id ||
+
+        currentTransaction.weight_brut !== initialTransaction.weight_brut ||
+        currentTransaction.weight_brut_total !== initialTransaction.weight_brut_total ||
+        currentTransaction.carat !== initialTransaction.carat ||
+        currentTransaction.amount !== initialTransaction.amount ||
+        currentTransaction.quantity !== initialTransaction.quantity ||
+        currentTransaction.weight24k !== initialTransaction.weight24k ||
+        currentTransaction.agreed_milliemes !== initialTransaction.agreed_milliemes ||
+        currentTransaction.agreed_weight24k !== initialTransaction.agreed_weight24k ||
+        currentTransaction.agreed_price !== initialTransaction.agreed_price ||
+        currentTransaction.paiable_as_cash_only !== initialTransaction.paiable_as_cash_only ||
+        currentTransaction.status !== initialTransaction.status) {
         return true;
       }
     }
@@ -434,123 +438,104 @@ export class SupplyComponent implements OnInit {
   }
 
   recalculateTotals() {
-    let agreedTotal24kProductIn = 0;
-    let agreedTotal24kProductOut = 0;
-    let agreedTotal24kScrapIn = 0;
-    let agreedTotal24kScrapOut = 0;
-    let agreedTotalMoneyIn = 0;
-    let agreedTotalMoneyOut = 0;
-    let agreedTotalIn = 0;
-    let agreedTotalOut = 0;
-    let agreedTotalAs24K = 0;
+    this.supply.agreedTotalProductsInAs24K = 0;
+    this.supply.agreedTotalProductsOutAs24K = 0;
+    this.supply.agreedTotalScrapInAs24K = 0;
+    this.supply.agreedTotalScrapOutAs24K = 0;
+    this.supply.agreedTotalMoneyInAs24K = 0;
+    this.supply.agreedTotalMoneyOutAs24K = 0;
+    this.supply.agreedTotalInAs24K = 0;
+    this.supply.agreedTotalOutAs24K = 0;
+    this.supply.agreedTotalAs24K = 0;
 
-    let agreedTotalProductsInAsMoney = 0;
-    let agreedTotalProductsOutAsMoney = 0;
-    let agreedTotalScrapInAsMoney = 0;
-    let agreedTotalScrapOutAsMoney = 0;
-    let agreedTotalMoneyInAsMoney = 0;
-    let agreedTotalMoneyOutAsMoney = 0;
-    let agreedTotalInAsMoney = 0;
-    let agreedTotalOutAsMoney = 0;
-    let agreedTotalAsMoney = 0;
+    this.supply.agreedTotalProductsInAsMoney = 0;
+    this.supply.agreedTotalProductsOutAsMoney = 0;
+    this.supply.agreedTotalScrapInAsMoney = 0;
+    this.supply.agreedTotalScrapOutAsMoney = 0;
+    this.supply.agreedTotalMoneyInAsMoney = 0;
+    this.supply.agreedTotalMoneyOutAsMoney = 0;
+    this.supply.agreedTotalInAsMoney = 0;
+    this.supply.agreedTotalOutAsMoney = 0;
+    this.supply.agreedTotalAsMoney = 0;
 
     this.supply.transactions.forEach(transaction => {
       // Calculate as gold
       if (!transaction.paiable_as_cash_only) {
         if (transaction.type === 'Product') {
           if (transaction.direction === 'In') {
-            agreedTotal24kProductIn += Number(transaction.agreed_weight24k || 0);
-            agreedTotalIn += Number(transaction.agreed_weight24k || 0);
-            agreedTotalAs24K += Number(transaction.agreed_weight24k || 0);
+
+            this.supply.agreedTotalProductsInAs24K = parseFloat((this.supply.agreedTotalProductsInAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalInAs24K = parseFloat((this.supply.agreedTotalInAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalAs24K = parseFloat((this.supply.agreedTotalAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
           } else {
-            agreedTotal24kProductOut += Number(transaction.agreed_weight24k || 0);
-            agreedTotalOut += Number(transaction.agreed_weight24k || 0);
-            agreedTotalAs24K -= Number(transaction.agreed_weight24k || 0);
+            this.supply.agreedTotalProductsOutAs24K = parseFloat((this.supply.agreedTotalProductsOutAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalOutAs24K = parseFloat((this.supply.agreedTotalOutAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalAs24K = parseFloat((this.supply.agreedTotalAs24K - Number(transaction.agreed_weight24k || 0)).toFixed(4));
           }
         }
         if (transaction.type === 'Scrap') {
           if (transaction.direction === 'In') {
-            agreedTotal24kScrapIn += Number(transaction.agreed_weight24k || 0);
-            agreedTotalIn += Number(transaction.agreed_weight24k || 0);
-            agreedTotalAs24K += Number(transaction.agreed_weight24k || 0);
+            this.supply.agreedTotalScrapInAs24K = parseFloat((this.supply.agreedTotalScrapInAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalInAs24K = parseFloat((this.supply.agreedTotalInAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalAs24K = parseFloat((this.supply.agreedTotalAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
           } else {
-            agreedTotal24kScrapOut += Number(transaction.agreed_weight24k || 0);
-            agreedTotalOut += Number(transaction.agreed_weight24k || 0);
-            agreedTotalAs24K -= Number(transaction.agreed_weight24k || 0);
+            this.supply.agreedTotalScrapOutAs24K = parseFloat((this.supply.agreedTotalScrapOutAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalOutAs24K = parseFloat((this.supply.agreedTotalOutAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalAs24K = parseFloat((this.supply.agreedTotalAs24K - Number(transaction.agreed_weight24k || 0)).toFixed(4));
           }
         }
         if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
           if (transaction.direction === 'In') {
-            agreedTotalMoneyIn += Number(transaction.agreed_weight24k || 0);
-            agreedTotalIn += Number(transaction.agreed_weight24k || 0);
-            agreedTotalAs24K += Number(transaction.agreed_weight24k || 0);
+            this.supply.agreedTotalMoneyInAs24K = parseFloat((this.supply.agreedTotalMoneyInAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalInAs24K = parseFloat((this.supply.agreedTotalInAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalAs24K = parseFloat((this.supply.agreedTotalAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
           } else {
-            agreedTotalMoneyOut += Number(transaction.agreed_weight24k || 0);
-            agreedTotalOut += Number(transaction.agreed_weight24k || 0);
-            agreedTotalAs24K -= Number(transaction.agreed_weight24k || 0);
+            this.supply.agreedTotalMoneyOutAs24K = parseFloat((this.supply.agreedTotalMoneyOutAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalOutAs24K = parseFloat((this.supply.agreedTotalOutAs24K + Number(transaction.agreed_weight24k || 0)).toFixed(4));
+            this.supply.agreedTotalAs24K = parseFloat((this.supply.agreedTotalAs24K - Number(transaction.agreed_weight24k || 0)).toFixed(4));
           }
         }
       }
       else {
         if (transaction.type === 'Product') {
           if (transaction.direction === 'In') {
-            agreedTotalProductsInAsMoney += Number(transaction.agreed_price || 0);
-            agreedTotalInAsMoney += Number(transaction.agreed_price || 0);
-            agreedTotalAsMoney += Number(transaction.agreed_price || 0);
+            this.supply.agreedTotalProductsInAsMoney = parseFloat((this.supply.agreedTotalProductsInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.supply.agreedTotalInAsMoney = parseFloat((this.supply.agreedTotalInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.supply.agreedTotalAsMoney = parseFloat((this.supply.agreedTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
           }
           else {
-            agreedTotalProductsOutAsMoney += Number(transaction.agreed_price || 0);
-            agreedTotalOutAsMoney += Number(transaction.agreed_price || 0);
-            agreedTotalAsMoney -= Number(transaction.agreed_price || 0);
+            this.supply.agreedTotalProductsOutAsMoney = parseFloat((this.supply.agreedTotalProductsOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.supply.agreedTotalOutAsMoney = parseFloat((this.supply.agreedTotalOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.supply.agreedTotalAsMoney = parseFloat((this.supply.agreedTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
           }
         }
         if (transaction.type === 'Scrap') {
           if (transaction.direction === 'In') {
-            agreedTotalScrapInAsMoney += Number(transaction.agreed_price || 0);
-            agreedTotalInAsMoney += Number(transaction.agreed_price || 0);
-            agreedTotalAsMoney += Number(transaction.agreed_price || 0);
+            this.supply.agreedTotalScrapInAsMoney = parseFloat((this.supply.agreedTotalScrapInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.supply.agreedTotalInAsMoney = parseFloat((this.supply.agreedTotalInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.supply.agreedTotalAsMoney = parseFloat((this.supply.agreedTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
           }
           else {
-            agreedTotalScrapOutAsMoney += Number(transaction.agreed_price || 0);
-            agreedTotalOutAsMoney += Number(transaction.agreed_price || 0);
-            agreedTotalAsMoney -= Number(transaction.agreed_price || 0);
+            this.supply.agreedTotalScrapOutAsMoney = parseFloat((this.supply.agreedTotalScrapOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.supply.agreedTotalOutAsMoney = parseFloat((this.supply.agreedTotalOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.supply.agreedTotalAsMoney = parseFloat((this.supply.agreedTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
           }
         }
         if (transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money') {
           if (transaction.direction === 'In') {
-            agreedTotalMoneyInAsMoney += Number(transaction.amount || 0);
-            agreedTotalInAsMoney += Number(transaction.amount || 0);
-            agreedTotalAsMoney += Number(transaction.amount || 0);
+            this.supply.agreedTotalMoneyInAsMoney = parseFloat((this.supply.agreedTotalMoneyInAsMoney + Number(transaction.amount || 0)).toFixed(2));
+            this.supply.agreedTotalInAsMoney = parseFloat((this.supply.agreedTotalInAsMoney + Number(transaction.amount || 0)).toFixed(2));
+            this.supply.agreedTotalAsMoney = parseFloat((this.supply.agreedTotalAsMoney + Number(transaction.amount || 0)).toFixed(2));
           }
           else {
-            agreedTotalMoneyOutAsMoney += Number(transaction.amount || 0);
-            agreedTotalOutAsMoney += Number(transaction.amount || 0);
-            agreedTotalAsMoney -= Number(transaction.amount || 0);
+            this.supply.agreedTotalMoneyOutAsMoney = parseFloat((this.supply.agreedTotalMoneyOutAsMoney + Number(transaction.amount || 0)).toFixed(2));
+            this.supply.agreedTotalOutAsMoney = parseFloat((this.supply.agreedTotalOutAsMoney + Number(transaction.amount || 0)).toFixed(2));
+            this.supply.agreedTotalAsMoney = parseFloat((this.supply.agreedTotalAsMoney - Number(transaction.amount || 0)).toFixed(2));
           }
         }
       }
     });
     
-
-    this.supply.agreedTotalProductsInAs24K = parseFloat(agreedTotal24kProductIn.toFixed(4));
-    this.supply.agreedTotalProductsOutAs24K = parseFloat(agreedTotal24kProductOut.toFixed(4));
-    this.supply.agreedTotalScrapInAs24K = parseFloat(agreedTotal24kScrapIn.toFixed(4));
-    this.supply.agreedTotalScrapOutAs24K = parseFloat(agreedTotal24kScrapOut.toFixed(4));
-    this.supply.agreedTotalMoneyInAs24K = parseFloat(agreedTotalMoneyIn.toFixed(4));
-    this.supply.agreedTotalMoneyOutAs24K = parseFloat(agreedTotalMoneyOut.toFixed(4));
-    this.supply.agreedTotalInAs24K = parseFloat(agreedTotalIn.toFixed(4));
-    this.supply.agreedTotalOutAs24K = parseFloat(agreedTotalOut.toFixed(4));
-    this.supply.agreedTotalAs24K = parseFloat(agreedTotalAs24K.toFixed(4));
-
-    this.supply.agreedTotalProductsInAsMoney = parseFloat(agreedTotalProductsInAsMoney.toFixed(2));
-    this.supply.agreedTotalProductsOutAsMoney = parseFloat(agreedTotalProductsOutAsMoney.toFixed(2));
-    this.supply.agreedTotalScrapInAsMoney = parseFloat(agreedTotalScrapInAsMoney.toFixed(2));
-    this.supply.agreedTotalScrapOutAsMoney = parseFloat(agreedTotalScrapOutAsMoney.toFixed(2));
-    this.supply.agreedTotalMoneyInAsMoney = parseFloat(agreedTotalMoneyInAsMoney.toFixed(2));
-    this.supply.agreedTotalMoneyOutAsMoney = parseFloat(agreedTotalMoneyOutAsMoney.toFixed(2));
-    this.supply.agreedTotalInAsMoney = parseFloat(agreedTotalInAsMoney.toFixed(2));
-    this.supply.agreedTotalOutAsMoney = parseFloat(agreedTotalOutAsMoney.toFixed(2));
-    this.supply.agreedTotalAsMoney = parseFloat(agreedTotalAsMoney.toFixed(2));
 
     
   }

@@ -19,6 +19,7 @@ import { GoldRateService } from '../services/gold-rate.services';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { STATUS_OPTIONS } from '../config/constants';
 
 
 
@@ -56,11 +57,14 @@ export class OrderComponent implements OnInit {
   transactionType?: 'Product' | 'Scrap' | 'Cash' | 'Bank' | 'Money';
   transactionDirection?: 'In' | 'Out';
   defaultGoldRate = 0;
+  statusOptions = STATUS_OPTIONS;
 
   isATransactionGold = false;
   isATransactionMoney = false;
 
   today: Date = new Date();
+
+
 
   order: Order = {
     id: null,
@@ -68,24 +72,51 @@ export class OrderComponent implements OnInit {
     description: '',
     client_name: '',
     client_phone: '',
-    order_amount: 0,
     agreedGoldRate: 0,
     transactions: [],
 
-    total24kProductIn: 0,
-    total24kProductOut: 0,
-    total24kScrapIn: 0,
-    total24kScrapOut: 0,
-    total24kIn: 0,
-    total24kOut: 0,
-    total24k: 0,
-    totalCashIn: 0,
-    totalCashOut: 0,
-    totalBankIn: 0,
-    totalBankOut: 0,
-    totalMoneyIn: 0,
-    totalMoneyOut: 0,
-    totalMoney: 0,
+    totalProductInAsMoney :0,
+    totalProductInAsMoneyPending :0,
+    totalProductOutAsMoney :0,
+    totalProductOutAsMoneyPending :0,
+    totalScrapInAsMoney :0,
+    totalScrapInAsMoneyPending :0,
+    totalScrapOutAsMoney :0,
+    totalScrapOutAsMoneyPending :0,
+    
+    totalCashIn :0,
+    totalCashInPending :0,
+    totalCashOut :0,
+    totalCashOutPending :0,
+    totalBankIn :0,
+    totalBankInPending :0,
+    totalBankOut :0,
+    totalBankOutPending :0,
+    
+    total24kProductIn :0,
+    total24kProductInPending :0,
+    total24kProductOut :0,
+    total24kProductOutPending :0,
+    total24kScrapIn :0,
+    total24kScrapInPending :0,
+    total24kScrapOut :0,
+    total24kScrapOutPending :0,
+    total24kIn :0,
+    total24kInPending :0,
+    total24kOut :0,
+    total24kOutPending :0,
+    total24k :0,
+    total24kPending :0,
+    
+    
+    totalMoneyIn :0,
+    totalMoneyInPending :0,
+    totalMoneyOut :0,
+    totalMoneyOutPending :0,
+    totalMoney :0,
+    totalMoneyPending :0,
+
+    grandTotalAsMoney: 0,
     status: null,
   };
 
@@ -145,32 +176,58 @@ export class OrderComponent implements OnInit {
         this.isEditing = false;
         // Reset order for new creation
 
-
-        
         this.order = {
           id: null,
           date: this.today.toISOString(),
           description: '',
           client_name: '',
           client_phone: '',
-          order_amount: 0,
           agreedGoldRate: 0,
           transactions: [],
+
+          totalProductInAsMoney :0,
+          totalProductInAsMoneyPending :0,
+          totalProductOutAsMoney :0,
+          totalProductOutAsMoneyPending :0,
+          totalScrapInAsMoney :0,
+          totalScrapInAsMoneyPending :0,
+          totalScrapOutAsMoney :0,
+          totalScrapOutAsMoneyPending :0,
+          
+          totalCashIn :0,
+          totalCashInPending :0,
+          totalCashOut :0,
+          totalCashOutPending :0,
+          totalBankIn :0,
+          totalBankInPending :0,
+          totalBankOut :0,
+          totalBankOutPending :0,
+          
+          total24kProductIn :0,
+          total24kProductInPending :0,
+          total24kProductOut :0,
+          total24kProductOutPending :0,
+          total24kScrapIn :0,
+          total24kScrapInPending :0,
+          total24kScrapOut :0,
+          total24kScrapOutPending :0,
+          total24kIn :0,
+          total24kInPending :0,
+          total24kOut :0,
+          total24kOutPending :0,
+          total24k :0,
+          total24kPending :0,
+          
+          
+          totalMoneyIn :0,
+          totalMoneyInPending :0,
+          totalMoneyOut :0,
+          totalMoneyOutPending :0,
+          totalMoney :0,
+          totalMoneyPending :0,
       
-          total24kProductIn: 0,
-          total24kProductOut: 0,
-          total24kScrapIn: 0,
-          total24kScrapOut: 0,
-          total24kIn: 0,
-          total24kOut: 0,
-          total24k: 0,
-          totalCashIn: 0,
-          totalCashOut: 0,
-          totalBankIn: 0,
-          totalBankOut: 0,
-          totalMoneyIn: 0,
-          totalMoneyOut: 0,
-          totalMoney: 0,
+          grandTotalAsMoney: 0,
+
           status: null,
         };
         this.loadDefaultGoldRate();
@@ -279,7 +336,7 @@ export class OrderComponent implements OnInit {
     this.isATransactionMoney = this.order.transactions.some(transaction => transaction.type === 'Cash' || transaction.type === 'Bank' || transaction.type === 'Money');
 
     this.recalculateTotals();
-
+    this.calculateStatus();
     console.log("OnTransactionSubmit:", this.order.transactions);
     this.isDrawerOpen = false;
   }
@@ -296,6 +353,7 @@ export class OrderComponent implements OnInit {
   deleteTransaction(index: number) {
     this.order.transactions = this.order.transactions.filter((_, i) => i !== index);
     this.recalculateTotals();
+    this.calculateStatus();
   }
 
 
@@ -377,7 +435,6 @@ export class OrderComponent implements OnInit {
       initial.agreedGoldRate !== current.agreedGoldRate ||
       initial.client_name !== current.client_name ||
       initial.client_phone !== current.client_phone ||
-      initial.order_amount !== current.order_amount ||
       initial.date !== current.date) {
       return true;
     }
@@ -396,14 +453,17 @@ export class OrderComponent implements OnInit {
         currentTransaction.type !== initialTransaction.type ||
         currentTransaction.direction !== initialTransaction.direction ||
         currentTransaction.product_id !== initialTransaction.product_id ||
-        currentTransaction.quantity !== initialTransaction.quantity ||
+
         currentTransaction.weight_brut !== initialTransaction.weight_brut ||
+        currentTransaction.weight_brut_total !== initialTransaction.weight_brut_total ||
         currentTransaction.carat !== initialTransaction.carat ||
+        currentTransaction.amount !== initialTransaction.amount ||
+        currentTransaction.quantity !== initialTransaction.quantity ||
+        currentTransaction.weight24k !== initialTransaction.weight24k ||
         currentTransaction.agreed_milliemes !== initialTransaction.agreed_milliemes ||
         currentTransaction.agreed_weight24k !== initialTransaction.agreed_weight24k ||
         currentTransaction.agreed_price !== initialTransaction.agreed_price ||
         currentTransaction.paiable_as_cash_only !== initialTransaction.paiable_as_cash_only ||
-        currentTransaction.amount !== initialTransaction.amount ||
         currentTransaction.status !== initialTransaction.status) {
         return true;
       }
@@ -412,88 +472,222 @@ export class OrderComponent implements OnInit {
     return false;
   }
 
+
+  //Depends from grandTotalAsMoney. Run it after recalculateTotals
+  calculateStatus() {
+
+    let minPriority = 9999;
+    this.order.transactions.forEach(transaction => {
+      const statusOption = this.statusOptions.find(s => s.key === transaction.status);
+      if (statusOption) {
+        if (statusOption.priority < minPriority) {
+          minPriority = statusOption.priority;
+        }
+      }
+    });
+
+    console.log("minPriority", minPriority);
+
+    let status = this.statusOptions.find(s => s.priority === minPriority)?.key || null;
+
+    if(status === 'Delivered' || status === 'Received') {
+      status = 'Completed';
+    }
+
+    this.order.status = status;
+  }
+
   recalculateTotals() {
 
-    let total24kProductIn = 0;
-    let total24kProductOut = 0;
-    let total24kScrapIn = 0;
-    let total24kScrapOut = 0;
-    let total24kIn = 0;
-    let total24kOut = 0;
-    let total24k = 0;
-    let totalCashIn = 0;
-    let totalCashOut = 0;
-    let totalBankIn = 0;
-    let totalBankOut = 0;
-    let totalMoneyIn = 0;
-    let totalMoneyOut = 0;
-    let totalMoney = 0;
+    this.order.total24kIn =  0;
+    this.order.total24kInPending = 0;
+    this.order.total24kOut = 0;
+    this.order.total24kOutPending = 0;
+    this.order.total24k =  0;
+    this.order.total24kPending = 0;
+
+    this.order.total24kProductIn = 0;
+    this.order.total24kProductInPending = 0;
+    this.order.total24kProductOut = 0;
+    this.order.total24kProductOutPending = 0;
+    this.order.total24kScrapIn = 0;
+    this.order.total24kScrapInPending = 0;
+    this.order.total24kScrapOut = 0;
+    this.order.total24kScrapOutPending = 0;
+
+    this.order.totalProductInAsMoney = 0;
+    this.order.totalProductInAsMoneyPending = 0;
+    this.order.totalProductOutAsMoney = 0;
+    this.order.totalProductOutAsMoneyPending = 0;
+    this.order.totalScrapInAsMoney = 0;
+    this.order.totalScrapInAsMoneyPending = 0;
+    this.order.totalScrapOutAsMoney = 0;
+    this.order.totalScrapOutAsMoneyPending = 0;
+
+    this.order.totalCashIn = 0;
+    this.order.totalCashInPending = 0;
+    this.order.totalCashOut = 0;
+    this.order.totalCashOutPending = 0;
+    this.order.totalBankIn = 0;
+    this.order.totalBankInPending = 0;
+    this.order.totalBankOut = 0;
+    this.order.totalBankOutPending = 0;
+
+    this.order.totalMoneyIn = 0;
+    this.order.totalMoneyInPending = 0;
+    this.order.totalMoneyOut = 0;
+    this.order.totalMoneyOutPending = 0;
+    this.order.totalMoney = 0;
+    this.order.totalMoneyPending = 0;
+
+
+    this.order.grandTotalAsMoney = 0;
+
 
     this.order.transactions.forEach(transaction => {
-      // Calculate as gold
-      if (transaction.type === 'Product' && (transaction.product?.is_gold || transaction.product?.contains_gold)) {
-        if (transaction.direction === 'In') {
-          total24kProductIn += Number(transaction.agreed_weight24k || 0);
-          total24kIn += Number(transaction.agreed_weight24k || 0);
-          total24k += Number(transaction.agreed_price || 0);
-        } else {
-          total24kProductOut += Number(transaction.agreed_weight24k || 0);
-          total24kOut += Number(transaction.agreed_weight24k || 0);
-          total24k -= Number(transaction.agreed_price || 0);
+
+      if (transaction.status === 'Delivered' || transaction.status === 'Received') {
+        if (transaction.type === 'Product' && (transaction.product?.is_gold || transaction.product?.contains_gold)) {
+          if (transaction.direction === 'In') {
+            this.order.total24kProductIn = parseFloat((this.order.total24kProductIn + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kIn = parseFloat((this.order.total24kIn + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24k = parseFloat((this.order.total24k + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.totalProductInAsMoney = parseFloat((this.order.totalProductInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          } else {
+            this.order.total24kProductOut = parseFloat((this.order.total24kProductOut + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kOut = parseFloat((this.order.total24kOut + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24k = parseFloat((this.order.total24k - Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.totalProductOutAsMoney = parseFloat((this.order.totalProductOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
+          }
+        }
+        if (transaction.type === 'Product' && (!transaction.product?.is_gold && !transaction.product?.contains_gold)) {
+          if (transaction.direction === 'In') {
+            this.order.totalProductInAsMoney = parseFloat((this.order.totalProductInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          } else {
+            this.order.totalProductOutAsMoney = parseFloat((this.order.totalProductOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
+          }
+        }
+        if (transaction.type === 'Scrap') {
+          if (transaction.direction === 'In') {
+            this.order.total24kScrapIn = parseFloat((this.order.total24kScrapIn + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kIn = parseFloat((this.order.total24kIn + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24k = parseFloat((this.order.total24k + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.totalScrapInAsMoney = parseFloat((this.order.totalScrapInAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          } else {
+            this.order.total24kScrapOut = parseFloat((this.order.total24kScrapOut + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kOut = parseFloat((this.order.total24kOut + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24k = parseFloat((this.order.total24k - Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.totalScrapOutAsMoney = parseFloat((this.order.totalScrapOutAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
+          }
+        }
+        if (transaction.type === 'Cash') {
+          if (transaction.direction === 'In') {
+            this.order.totalCashIn = parseFloat((this.order.totalCashIn + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyIn = parseFloat((this.order.totalMoneyIn + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoney = parseFloat((this.order.totalMoney + Number(transaction.amount || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.amount || 0)).toFixed(2));
+          } else {
+            this.order.totalCashOut = parseFloat((this.order.totalCashOut + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyOut = parseFloat((this.order.totalMoneyOut + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoney = parseFloat((this.order.totalMoney - Number(transaction.amount || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.amount || 0)).toFixed(2));
+          }
+        }
+        if (transaction.type === 'Bank') {
+          if (transaction.direction === 'In') {
+            this.order.totalBankIn = parseFloat((this.order.totalBankIn + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyIn = parseFloat((this.order.totalMoneyIn + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoney = parseFloat((this.order.totalMoney + Number(transaction.amount || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.amount || 0)).toFixed(2));
+          } else {
+            this.order.totalBankOut = parseFloat((this.order.totalBankOut + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyOut = parseFloat((this.order.totalMoneyOut + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoney = parseFloat((this.order.totalMoney - Number(transaction.amount || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.amount || 0)).toFixed(2));
+          }
         }
       }
-      if (transaction.type === 'Scrap') {
-        if (transaction.direction === 'In') {
-          total24kScrapIn += Number(transaction.agreed_weight24k || 0);
-          total24kIn += Number(transaction.agreed_weight24k || 0);
-          total24k += Number(transaction.agreed_price || 0);
-        } else {
-          total24kScrapOut += Number(transaction.agreed_weight24k || 0);
-          total24kOut -= Number(transaction.agreed_weight24k || 0);
-          total24k -= Number(transaction.agreed_price || 0);
+      else {
+        if (transaction.type === 'Product' && (transaction.product?.is_gold || transaction.product?.contains_gold)) {
+          if (transaction.direction === 'In') {
+            this.order.total24kProductInPending = parseFloat((this.order.total24kProductInPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kInPending = parseFloat((this.order.total24kInPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kPending = parseFloat((this.order.total24kPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.totalProductInAsMoneyPending = parseFloat((this.order.totalProductInAsMoneyPending + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          } else {
+            this.order.total24kProductOutPending = parseFloat((this.order.total24kProductOutPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kOutPending = parseFloat((this.order.total24kOutPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kPending = parseFloat((this.order.total24kPending - Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.totalProductOutAsMoneyPending = parseFloat((this.order.totalProductOutAsMoneyPending + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
+          }
         }
-      }
-      if (transaction.type === 'Cash') {
-        if (transaction.direction === 'In') {
-          totalCashIn += Number(transaction.amount || 0);
-          totalMoneyIn += Number(transaction.amount || 0);
-          totalMoney += Number(transaction.amount || 0);
-        } else {
-          totalCashOut += Number(transaction.amount || 0);
-          totalMoneyOut += Number(transaction.amount || 0);
-          totalMoney -= Number(transaction.amount || 0);
+        if (transaction.type === 'Product' && (!transaction.product?.is_gold && !transaction.product?.contains_gold)) {
+          if (transaction.direction === 'In') {
+            this.order.totalProductInAsMoneyPending = parseFloat((this.order.totalProductInAsMoneyPending + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          } else {
+            this.order.totalProductOutAsMoneyPending = parseFloat((this.order.totalProductOutAsMoneyPending + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
+          }
         }
-      }
-      if (transaction.type === 'Bank') {
-        if (transaction.direction === 'In') {
-          totalBankIn += Number(transaction.amount || 0);
-          totalMoneyIn += Number(transaction.amount || 0);
-          totalMoney += Number(transaction.amount || 0);
-        } else {
-          totalBankOut += Number(transaction.amount || 0);
-          totalMoneyOut += Number(transaction.amount || 0);
-          totalMoney -= Number(transaction.amount || 0);
+        if (transaction.type === 'Scrap') {
+          if (transaction.direction === 'In') {
+            this.order.total24kScrapInPending = parseFloat((this.order.total24kScrapInPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kInPending = parseFloat((this.order.total24kInPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kPending = parseFloat((this.order.total24kPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.totalScrapInAsMoneyPending = parseFloat((this.order.totalScrapInAsMoneyPending + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.agreed_price || 0)).toFixed(2));
+          } else {
+            this.order.total24kScrapOutPending = parseFloat((this.order.total24kScrapOutPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kOutPending = parseFloat((this.order.total24kOutPending + Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.total24kPending = parseFloat((this.order.total24kPending - Number(transaction.weight24k || 0)).toFixed(2));
+            this.order.totalScrapOutAsMoneyPending = parseFloat((this.order.totalScrapOutAsMoneyPending + Number(transaction.agreed_price || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.agreed_price || 0)).toFixed(2));
+          }
+        }
+        if (transaction.type === 'Cash') {
+          if (transaction.direction === 'In') {
+            this.order.totalCashInPending = parseFloat((this.order.totalCashInPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyInPending = parseFloat((this.order.totalMoneyInPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyPending = parseFloat((this.order.totalMoneyPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.amount || 0)).toFixed(2));
+          } else {
+            this.order.totalCashOutPending = parseFloat((this.order.totalCashOutPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyOutPending = parseFloat((this.order.totalMoneyOutPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyPending = parseFloat((this.order.totalMoneyPending - Number(transaction.amount || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.amount || 0)).toFixed(2));
+          }
+        }
+        if (transaction.type === 'Bank') {
+          if (transaction.direction === 'In') {
+            this.order.totalBankInPending = parseFloat((this.order.totalBankInPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyInPending = parseFloat((this.order.totalMoneyInPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyPending = parseFloat((this.order.totalMoneyPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney + Number(transaction.amount || 0)).toFixed(2));
+          } else {
+            this.order.totalBankOutPending = parseFloat((this.order.totalBankOutPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyOutPending = parseFloat((this.order.totalMoneyOutPending + Number(transaction.amount || 0)).toFixed(2));
+            this.order.totalMoneyPending = parseFloat((this.order.totalMoneyPending - Number(transaction.amount || 0)).toFixed(2));
+            this.order.grandTotalAsMoney = parseFloat((this.order.grandTotalAsMoney - Number(transaction.amount || 0)).toFixed(2));
+          }
         }
       }
 
     });
 
 
-    this.order.total24kProductIn = parseFloat(total24kProductIn.toFixed(4));
-    this.order.total24kProductOut = parseFloat(total24kProductOut.toFixed(4));
-    this.order.total24kScrapIn = parseFloat(total24kScrapIn.toFixed(4));
-    this.order.total24kScrapOut = parseFloat(total24kScrapOut.toFixed(4));
-    this.order.total24kIn = parseFloat(total24kIn.toFixed(4));
-    this.order.total24kOut = parseFloat(total24kOut.toFixed(4));
-    this.order.total24k = parseFloat(total24k.toFixed(4));
 
-    this.order.totalCashIn = parseFloat(totalCashIn.toFixed(2));
-    this.order.totalCashOut = parseFloat(totalCashOut.toFixed(2));
-    this.order.totalBankIn = parseFloat(totalBankIn.toFixed(2));
-    this.order.totalBankOut = parseFloat(totalBankOut.toFixed(2));
-    this.order.totalMoneyIn = parseFloat(totalMoneyIn.toFixed(2));
-    this.order.totalMoneyOut = parseFloat(totalMoneyOut.toFixed(2));
-    this.order.totalMoney = parseFloat(totalMoney.toFixed(2));
+
+
+
 
     console.log("Recalculated Totals:", this.order);
 
@@ -506,7 +700,7 @@ export class OrderComponent implements OnInit {
     const num = Number(amount);
     return isNaN(num) ? "0.00" : num.toFixed(2);
   }
-  
+
 
   isOrderValid(): boolean {
     let isProductInTransactions = this.order.transactions.some(t => t.type === 'Product');
@@ -519,12 +713,16 @@ export class OrderComponent implements OnInit {
       && this.order.client_phone.trim() !== ''
       && this.order.date !== null;
       */
-     return true;
+    return true;
   }
 
   isNaN(value: any): boolean {
     return Number.isNaN(value);
   }
 
+  getStatusValue(status: string | null): string {
+    if (!status) return '';
+    return this.statusOptions.find(s => s.key === status)?.value || '';
+  }
 
 } 

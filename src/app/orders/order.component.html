@@ -48,7 +48,7 @@
           <label for="client_phone" class="block text-sm font-medium text-gray-900">Müşteri Telefonu</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
             <input matInput [(ngModel)]="order.client_phone" name="client_phone" id="client_phone" type="tel"
-              placeholder="0695784556" pattern="[0-9]{10}">
+              placeholder="0695784556">
           </mat-form-field>
         </div>
       </div>
@@ -121,55 +121,34 @@
             <div class="flex items-center gap-x-2">
               <div class="flex items-center gap-x-2">
                 <span class="text-sm text-gray-500">
-            
-                  @if (transaction.type === 'Product') {
-                    {{transaction.quantity}} x {{transaction.product?.name}}
-                    }
-                    @if (transaction.type === 'Scrap') {
-                    {{transaction.weight_brut}} g Hurda
-                    }
-                    @if (transaction.type === 'Cash') {
-                    {{formatAmount(transaction.amount)}} EUR Nakit Ödeme
-                    }
-                    @if (transaction.type === 'Bank') {
-                    {{formatAmount(transaction.amount)}} EUR Banka Ödemesi
-                    }
-                    @if (transaction.product?.is_gold || transaction.product?.contains_gold || transaction.type
-                    ==='Scrap') {
-                    <br />
-                    Ayar: {{transaction.carat}}
-                    }
-                    @if (transaction.product?.is_gold || transaction.product?.contains_gold) {
-                    <br />
-                    Tek ürün brüt altın ağırlığı: {{transaction.weight_brut}} g
-                    <br />
-                    Toplam brüt altın ağırlığı: {{transaction.weight_brut_total}} g
-                    }
-                    @if (transaction.type === 'Product' || (transaction.type === 'Scrap')) {
-                    <br />
-                    Euro bazında tutar: {{transaction.agreed_price}} EUR
-                    }
-                    @if ( transaction.product?.is_gold || transaction.type === 'Scrap') {
-                    <br />
-                    Milyem: {{transaction.agreed_milliemes}}
-                    }
-                    @if (transaction.product?.is_gold || transaction.type === 'Scrap') {
-                    <br />
-                    Gerçek has altın ağırlığı: {{transaction.weight24k}} g
-                    }
-                    @if (transaction.product?.is_gold || transaction.type === 'Scrap') {
-                    <br />
-                    Milyeme göre has altın ağırlığı: {{transaction.agreed_weight24k}} g
-                    }
-                    @if (transaction.product?.contains_gold) {
-                    <br />
-                    Toplam icerdigi has altın ağırlığı: {{transaction.weight24k}} g
-                    }
-                    @if (!transaction.product?.is_gold || (transaction.type === 'Cash') || (transaction.type === 'Bank'))
-                    {
-                    <br />
-                    Kura göre tutarin has altın ağırlığı: {{transaction.agreed_weight24k}} g
-                    }
+                  {{getStatusValue(transaction.status)}}
+                  <br />
+                  @if (transaction.type === 'Product' && (transaction.product?.is_gold ||
+                  transaction.product?.contains_gold)) {
+                  {{transaction.quantity}} x {{transaction.product?.name}} ({{transaction.carat}} Ayar,
+                  {{transaction.weight_brut_total}} g)
+                  }
+                  @if (transaction.type === 'Product' && (!transaction.product?.is_gold &&
+                  !transaction.product?.contains_gold)) {
+                  {{transaction.quantity}} x {{transaction.product?.name}}
+                  }
+                  @if (transaction.type === 'Scrap') {
+                  Hurda ({{transaction.carat}} Ayar, {{transaction.weight_brut_total}} g)
+                  }
+                  @if (transaction.type === 'Cash') {
+                  Nakit Ödeme
+                  }
+                  @if (transaction.type === 'Bank') {
+                  Banka Ödemesi
+                  }
+                  @if (transaction.type === 'Product' || (transaction.type === 'Scrap')) {
+                  <br />
+                  {{transaction.agreed_price}} EUR
+                  }
+                  @if (transaction.type === 'Cash' || transaction.type === 'Bank') {
+                  <br />
+                  {{formatAmount(transaction.amount)}} EUR
+                  }
                 </span>
               </div>
             </div>
@@ -194,106 +173,139 @@
 
         <!-- Totals Section -->
         <div *ngIf="order.transactions.length > 0" class="mt-8 space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Gold Totals -->
-            @if (isATransactionGold) {
+          <div class="grid grid-cols-1">
+            <!-- Cash/Bank Totals -->
             <div class="space-y-2">
-              <h3 class="text-sm font-medium text-gray-900">Has Altın Cinsinden İşlemler</h3>
               <div class="space-y-1">
-                @if (order.total24kProductIn > 0) {
+                @if (order.totalProductInAsMoney > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Alınan Ürünler:</span>
-                  <span class="text-sm font-medium">{{order.total24kProductIn}}g</span>
+                  <span class="text-sm text-gray-500">Alınan Ürün:</span>
+                  <span class="text-sm text-gray-500">{{order.totalProductInAsMoney}} EUR</span>
                 </div>
                 }
-                @if (order.total24kProductOut > 0) {
+                @if (order.totalProductInAsMoneyPending > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm text-gray-500">Satılan Ürünler:</span>
-                  <span class="text-sm font-medium">{{order.total24kProductOut}}g</span>
+                  <span class="text-sm text-gray-500">Alınacak Ürün:</span>
+                  <span class="text-sm text-gray-500">{{order.totalProductInAsMoneyPending}} EUR</span>
                 </div>
                 }
-                @if (order.total24kScrapIn > 0) {
+                @if (order.totalProductOutAsMoney > 0) {
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Satılan Ürün:</span>
+                  <span class="text-sm text-gray-500">{{order.totalProductOutAsMoney}} EUR</span>
+                </div>
+                }
+                @if (order.totalProductOutAsMoneyPending > 0) {
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Satılacak Ürün:</span>
+                  <span class="text-sm text-gray-500">{{order.totalProductOutAsMoneyPending}} EUR</span>
+                </div>
+                }
+                @if (order.totalScrapInAsMoney > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Alınan Hurda:</span>
-                  <span class="text-sm font-medium">{{order.total24kScrapIn}}g</span>
+                  <span class="text-sm text-gray-500">{{order.totalScrapInAsMoney}} EUR</span>
                 </div>
                 }
-                @if (order.total24kScrapOut > 0) {
+                @if (order.totalScrapInAsMoneyPending > 0) {
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Alınacak Hurda:</span>
+                  <span class="text-sm text-gray-500">{{order.totalScrapInAsMoneyPending}} EUR</span>
+                </div>
+                }
+                @if (order.totalScrapOutAsMoney > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Satılan Hurda:</span>
-                  <span class="text-sm font-medium">{{order.total24kScrapOut}}g</span>
+                  <span class="text-sm text-gray-500">{{order.totalScrapOutAsMoney}} EUR</span>
                 </div>
                 }
-                @if (order.total24kIn > 0) {
+                @if (order.totalScrapOutAsMoneyPending > 0) {
                 <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-900">Toplam Girdiler:</span>
-                  <span class="text-sm font-medium">{{order.total24kIn}}g</span>
+                  <span class="text-sm text-gray-500">Satılacak Hurda:</span>
+                  <span class="text-sm text-gray-500">{{order.totalScrapOutAsMoneyPending}} EUR</span>
                 </div>
                 }
-                @if (order.total24kOut > 0) {
-                <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-900">Toplam Çıktılar:</span>
-                  <span class="text-sm font-medium">{{order.total24kOut}}g</span>
-                </div>
-                }
-                <div class="flex justify-between">
-                  <span class="text-sm font-medium text-gray-900">Toplam:</span>
-                  <span class="text-sm font-medium">{{order.total24k}} g</span>
-                </div>
-
-              </div>
-            </div>
-            }
-            
-
-            <!-- Cash/Bank Totals -->
-            @if (isATransactionMoney) {
-            <div class="space-y-2">
-              <h3 class="text-sm font-medium text-gray-900">Euro Cinsinden İşlemler</h3>
-              <div class="space-y-1">
                 @if (order.totalCashIn > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Alınan Nakit Ödeme:</span>
-                  <span class="text-sm font-medium">{{order.totalCashIn}} EUR</span>
+                  <span class="text-sm text-gray-500">{{order.totalCashIn}} EUR</span>
+                </div>
+                }
+                @if (order.totalCashInPending > 0) {
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Alınacak Nakit Ödeme:</span>
+                  <span class="text-sm text-gray-500">{{order.totalCashInPending}} EUR</span>
                 </div>
                 }
                 @if (order.totalCashOut > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Yapılan Nakit Ödeme:</span>
-                  <span class="text-sm font-medium">{{order.totalCashOut}} EUR</span>
+                  <span class="text-sm text-gray-500">{{order.totalCashOut}} EUR</span>
+                </div>
+                }
+                @if (order.totalCashOutPending > 0) {
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Yapılacak Nakit Ödeme:</span>
+                  <span class="text-sm text-gray-500">{{order.totalCashOutPending}} EUR</span>
                 </div>
                 }
                 @if (order.totalBankIn > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Alınan Banka Ödemesi:</span>
-                  <span class="text-sm font-medium">{{order.totalBankIn}} EUR</span>
+                  <span class="text-sm text-gray-500">{{order.totalBankIn}} EUR</span>
+                </div>
+                }
+                @if (order.totalBankInPending > 0) {
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Alınacak Banka Ödemesi:</span>
+                  <span class="text-sm text-gray-500">{{order.totalBankInPending}} EUR</span>
                 </div>
                 }
                 @if (order.totalBankOut > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-500">Yapılan Banka Ödemesi:</span>
-                  <span class="text-sm font-medium">{{order.totalBankOut}} EUR</span>
+                  <span class="text-sm text-gray-500">{{order.totalBankOut}} EUR</span>
+                </div>
+                }
+                @if (order.totalBankOutPending > 0) {
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-500">Yapılacak Banka Ödemesi:</span>
+                  <span class="text-sm text-gray-500">{{order.totalBankOutPending}} EUR</span>
                 </div>
                 }
                 @if (order.totalMoney > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam Alınan Ödeme:</span>
-                  <span class="text-sm font-medium">{{order.totalMoney}} EUR</span>
+                  <span class="text-sm font-medium">{{order.totalMoneyIn}} EUR</span>
                 </div>
                 }
+                @if (order.totalMoneyPending > 0) {
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam Alınacak Ödeme:</span>
+                  <span class="text-sm font-medium">{{order.totalMoneyInPending}} EUR</span>
+                </div>
+                }
+                
                 @if (order.totalMoneyOut > 0) {
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam Yapılan Ödeme:</span>
                   <span class="text-sm font-medium">{{order.totalMoneyOut}} EUR</span>
                 </div>
                 }
+                @if (order.totalMoneyOutPending > 0) {
+                <div class="flex justify-between">
+                  <span class="text-sm font-medium text-gray-900">Toplam Yapılacak Ödeme:</span>
+                  <span class="text-sm font-medium">{{order.totalMoneyOutPending}} EUR</span>
+                </div>
+                }
                 <div class="flex justify-between">
                   <span class="text-sm font-medium text-gray-900">Toplam:</span>
-                  <span class="text-sm font-medium">{{order.totalMoney}} EUR</span>
+                  <span class="text-sm font-medium">{{order.grandTotalAsMoney}} EUR</span>
                 </div>
               </div>
             </div>
-            }
+
+
           </div>
         </div>
       </div>
@@ -320,8 +332,7 @@
   <app-transaction
     [transaction]="editingTransactionIndex !== null ? order.transactions[editingTransactionIndex] : undefined"
     [type]="transactionType!" [direction]="transactionDirection!" [context]="'Order'"
-    [agreedGoldRate]="order.agreedGoldRate" [isOpen]="isDrawerOpen"
-    [isAnimationComplete]="isDrawerAnimationComplete" (transactionSubmit)="onTransactionSubmit($event)"
-    (cancel)="onDrawerClose()">
+    [agreedGoldRate]="order.agreedGoldRate" [isOpen]="isDrawerOpen" [isAnimationComplete]="isDrawerAnimationComplete"
+    (transactionSubmit)="onTransactionSubmit($event)" (cancel)="onDrawerClose()">
   </app-transaction>
 </app-drawer>
