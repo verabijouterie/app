@@ -518,8 +518,23 @@ export class ScenarioComponent implements OnInit {
     return isNaN(num) ? "0.00" : num.toFixed(2);
   }
 
-  isOrderValid(): boolean {
-    return this.scenario.transactions.length > 0
+
+  isScenarioValid(): boolean {
+
+    if(this.scenario.transactions.length === 0) {
+      return false;
+    }
+
+    if(this.scenario.date === null ) {
+      return false;
+    }
+
+    if(this.scenario.agreedGoldRate === null || this.scenario.agreedGoldRate < 0) {
+      return false;
+    }
+
+    return true;
+
   }
 
   isNaN(value: any): boolean {

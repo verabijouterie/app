@@ -320,7 +320,6 @@ export class OrderComponent implements OnInit {
   }
 
   onTransactionSubmit(transaction: Transaction) {
-    transaction.date = this.order.date;
 
     if (this.editingTransactionIndex !== null) {
       this.order.transactions = this.order.transactions.map((t, i) =>
@@ -435,7 +434,10 @@ export class OrderComponent implements OnInit {
       initial.agreedGoldRate !== current.agreedGoldRate ||
       initial.client_name !== current.client_name ||
       initial.client_phone !== current.client_phone ||
-      initial.date !== current.date) {
+      initial.date !== current.date || 
+      initial.status !== current.status
+      
+    ) {
       return true;
     }
 
@@ -450,6 +452,7 @@ export class OrderComponent implements OnInit {
       const initialTransaction = initial.transactions[i];
 
       if (!initialTransaction ||
+        currentTransaction.date !== initialTransaction.date ||
         currentTransaction.type !== initialTransaction.type ||
         currentTransaction.direction !== initialTransaction.direction ||
         currentTransaction.product_id !== initialTransaction.product_id ||
@@ -703,17 +706,29 @@ export class OrderComponent implements OnInit {
 
 
   isOrderValid(): boolean {
-    let isProductInTransactions = this.order.transactions.some(t => t.type === 'Product');
-    console.log("ToDo: isOrderValid");
-    /*
-    return this.order.transactions.length > 0
-      && isProductInTransactions
-      && this.order.order_amount > 0
-      && this.order.client_name.trim() !== ''
-      && this.order.client_phone.trim() !== ''
-      && this.order.date !== null;
-      */
+
+    if(this.order.transactions.length === 0) {
+      return false;
+    }
+
+    if(this.order.client_name.trim() === '') {
+      return false;
+    }
+
+    if(this.order.client_phone.trim() === '') {
+      return false;
+    }
+
+    if(this.order.date === null ) {
+      return false;
+    }
+
+    if(this.order.agreedGoldRate === null || this.order.agreedGoldRate < 0) {
+      return false;
+    }
+
     return true;
+
   }
 
   isNaN(value: any): boolean {

@@ -316,7 +316,7 @@ export class TransactionComponent implements OnInit, OnChanges {
     }
   }
 
-  isFormValid() {
+  isTransactionValid() {
     if (this.formTransaction.type === 'Product') {
       if (!this.selectedProduct) {
         return false;
@@ -349,6 +349,18 @@ export class TransactionComponent implements OnInit, OnChanges {
         return false;
       }
     }
+
+    if(this.context === 'Order') {
+      if(this.formTransaction.status === null) {
+        return false;
+      }
+      if(this.formTransaction.status === 'Delivered' || this.formTransaction.status === 'Received') {
+        if(this.formTransaction.date === null) {
+          return false;
+        }
+      }
+    }
+    
     return true;
   }
 
@@ -446,6 +458,11 @@ export class TransactionComponent implements OnInit, OnChanges {
         break;
       case 'amount':
         this.calculateAgreedWeight24();
+        break;
+      case 'status':
+        if (this.formTransaction.status !== 'Delivered' && this.formTransaction.status !== 'Received') {
+          this.formTransaction.date = this.today.toISOString();
+        }
         break;
     }
   }

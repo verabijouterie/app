@@ -400,7 +400,8 @@ export class SupplyComponent implements OnInit {
     if (initial.description !== current.description ||
         initial.wholesaler_id !== current.wholesaler_id ||
         initial.agreedGoldRate !== current.agreedGoldRate ||
-        initial.date !== current.date) {
+        initial.date !== current.date
+      ) {
       return true;
     }
 
@@ -547,9 +548,24 @@ export class SupplyComponent implements OnInit {
     return isNaN(num) ? "0.00" : num.toFixed(2);
   }
 
-  isOrderValid(): boolean {
-    return this.supply.transactions.length > 0
-      && this.supply.wholesaler_id !== 0;
+  isSupplyValid(): boolean {
+    if(this.supply.transactions.length === 0) {
+      return false;
+    }
+
+    if(this.supply.wholesaler_id === 0) {
+      return false;
+    }
+
+    if(this.supply.date === null) {
+      return false;
+    }
+
+    if(this.supply.agreedGoldRate === null || this.supply.agreedGoldRate < 0) {
+      return false;
+    }
+
+    return true;
   }
 
   isNaN(value: any): boolean {
