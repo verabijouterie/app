@@ -6,7 +6,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Scenario } from '../interfaces/scenario.interface';
 import { ScenarioService } from '../services/scenario.service';
 import { DatePipe } from '@angular/common';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';

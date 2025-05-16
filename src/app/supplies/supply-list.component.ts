@@ -10,7 +10,7 @@ import { SupplyService } from '../services/supply.service';
 import { DatePipe } from '@angular/common';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Supply } from '../interfaces/supply.interface';
+
 @Component({
   selector: 'app-supply-list',
   standalone: true,
@@ -29,24 +29,12 @@ import { Supply } from '../interfaces/supply.interface';
   styleUrls: ['./supply-list.component.scss']
 })
 export class SupplyListComponent implements OnInit {
-  supplies: Supply[] = [];
+  supplies: any[] = [];
   pageSize = 10;
   currentPage = 1;
   loading = false;
   allLoaded = false;
   totalSupplies = 0;
-
-  displayedColumns: string[] = [
-    'actions',
-    'date',
-    'wholesaler_name',
-    'agreedTotalInAs24K',
-    'agreedTotalOutAs24K',
-    'agreedTotalAs24K',
-    'agreedTotalInAsMoney',
-    'agreedTotalOutAsMoney',
-    'agreedTotalAsMoney'
-  ];
 
   constructor(
     private supplyService: SupplyService,
@@ -56,10 +44,10 @@ export class SupplyListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadScenarios();
+    this.loadSupplies();
   }
 
-  loadScenarios() {
+  loadSupplies() {
     if (this.loading || this.allLoaded) return;
 
     this.loading = true;
@@ -72,11 +60,9 @@ export class SupplyListComponent implements OnInit {
         this.supplies = [...this.supplies, ...supplies];
         this.currentPage++;
         this.loading = false;
-        
-
       },
       error: (error) => {
-        this.snackBar.open('Toptan Alışverişler yüklenirken bir hata oluştu', 'Kapat', {
+        this.snackBar.open('Alışverişler yüklenirken bir hata oluştu', 'Kapat', {
           duration: 3000,
           horizontalPosition: 'end',
           verticalPosition: 'top',
@@ -88,20 +74,20 @@ export class SupplyListComponent implements OnInit {
   }
 
   loadMore() {
-    this.loadScenarios();
+    this.loadSupplies();
   }
 
   deleteSupply(id: number) {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
-        title: 'Toptan Alışverişi Sil',
-        message: 'Bu toptan alışverişini silmek istediğinizden emin misiniz?'
+        title: 'Alışverişi Sil',
+        message: 'Bu alışverişi silmek istediğinizden emin misiniz?'
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Optimistically remove the supply from the local array
+        // Optimistically remove the scenario from the local array
         this.supplies = this.supplies.filter(supply => supply.id !== id);
         
         this.supplyService.deleteSupply(id).subscribe({
@@ -109,8 +95,8 @@ export class SupplyListComponent implements OnInit {
             // Success - no need to reload since we already updated the UI
           },
           error: (error) => {
-            this.loadScenarios();
-            this.snackBar.open('Toptan Alışveriş silinirken bir hata oluştu', 'Kapat', {
+            this.loadSupplies();
+            this.snackBar.open('Alışveriş silinirken bir hata oluştu', 'Kapat', {
               duration: 3000,
               horizontalPosition: 'end',
               verticalPosition: 'top',
@@ -125,7 +111,4 @@ export class SupplyListComponent implements OnInit {
   createNewSupply() {
     this.router.navigate(['/supplies/new']);
   }
-
-
-
 } 
