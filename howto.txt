@@ -1,0 +1,31 @@
+reset database
+SET FOREIGN_KEY_CHECKS = 0;
+
+DELETE FROM transactions;
+ALTER TABLE transactions AUTO_INCREMENT = 1;
+
+DELETE FROM supplies;
+ALTER TABLE supplies AUTO_INCREMENT = 1;
+
+DELETE FROM scenarios;
+ALTER TABLE scenarios AUTO_INCREMENT = 1;
+
+DELETE FROM orders;
+ALTER TABLE orders AUTO_INCREMENT = 1;
+
+DELETE FROM logs;
+ALTER TABLE logs AUTO_INCREMENT = 1;
+
+DELETE FROM balance_wholesaler;
+ALTER TABLE balance_wholesaler AUTO_INCREMENT = 1;
+
+DELETE FROM inventory_scrap;
+ALTER TABLE inventory_scrap AUTO_INCREMENT = 1;
+
+DELETE FROM inventory_products;
+ALTER TABLE inventory_products AUTO_INCREMENT = 1;
+
+DELETE FROM inventory_money;
+ALTER TABLE inventory_money AUTO_INCREMENT = 1;
+
+SET FOREIGN_KEY_CHECKS = 1;

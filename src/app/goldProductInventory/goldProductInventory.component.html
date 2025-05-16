@@ -1,0 +1,128 @@
+<div class="h-full w-full p-4">
+  <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-900/5 p-8 h-full">
+    <div class="flex justify-between items-center mb-8">
+      <p class="text-base text-gray-500">Altın ürün stoklarınız</p>
+    </div>
+
+    <div class="h-[calc(100%-4rem)] overflow-auto">
+      <table mat-table [dataSource]="goldProductInventory" class="w-full mat-elevation-z8 mat-striped">
+        <!-- Category Name Column -->
+        <ng-container matColumnDef="category_name">
+          <th mat-header-cell *matHeaderCellDef>Kategori</th>
+          <td mat-cell *matCellDef="let element">{{element.category_name}}</td>
+        </ng-container>
+
+
+        <!-- Product Name Column -->
+        <ng-container matColumnDef="product_name">
+          <th mat-header-cell *matHeaderCellDef>Ürün Adı</th>
+          <td mat-cell *matCellDef="let element">{{element.product_name}}</td>
+        </ng-container>
+
+
+
+        <!-- 24K Columns -->
+        <ng-container matColumnDef="qty_24">
+          <th mat-header-cell *matHeaderCellDef>24K Adet</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.qty_24 !== '0'}">{{element.qty_24}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="weight_24">
+          <th mat-header-cell *matHeaderCellDef>24K Ağırlık</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.weight_24 !== '0.0000'}">{{element.weight_24}}</td>
+        </ng-container>
+
+        <!-- 22K Columns -->
+        <ng-container matColumnDef="qty_22">
+          <th mat-header-cell *matHeaderCellDef>22K Adet</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.qty_22 !== '0'}">{{element.qty_22}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="weight_22">
+          <th mat-header-cell *matHeaderCellDef>22K Ağırlık</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.weight_22 !== '0.0000'}">{{element.weight_22}}</td>
+        </ng-container>
+
+        <!-- 21K Columns -->
+        <ng-container matColumnDef="qty_21">
+          <th mat-header-cell *matHeaderCellDef>21K Adet</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.qty_21 !== '0'}">{{element.qty_21}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="weight_21">
+          <th mat-header-cell *matHeaderCellDef>21K Ağırlık</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.weight_21 !== '0.0000'}">{{element.weight_21}}</td>
+        </ng-container>
+
+        <!-- 20K Columns -->
+        <ng-container matColumnDef="qty_20">
+          <th mat-header-cell *matHeaderCellDef>20K Adet</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.qty_20 !== '0'}">{{element.qty_20}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="weight_20">
+          <th mat-header-cell *matHeaderCellDef>20K Ağırlık</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.weight_20 !== '0.0000'}">{{element.weight_20}}</td>
+        </ng-container>
+
+        <!-- 18K Columns -->
+        <ng-container matColumnDef="qty_18">
+          <th mat-header-cell *matHeaderCellDef>18K Adet</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.qty_18 !== '0'}">{{element.qty_18}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="weight_18">
+          <th mat-header-cell *matHeaderCellDef>18K Ağırlık</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.weight_18 !== '0.0000'}">{{element.weight_18}}</td>
+        </ng-container>
+
+        <!-- 14K Columns -->
+        <ng-container matColumnDef="qty_14">
+          <th mat-header-cell *matHeaderCellDef>14K Adet</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.qty_14 !== '0'}">{{element.qty_14}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="weight_14">
+          <th mat-header-cell *matHeaderCellDef>14K Ağırlık</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.weight_14 !== '0.0000'}">{{element.weight_14}}</td>
+        </ng-container>
+
+        <!-- 9K Columns -->
+        <ng-container matColumnDef="qty_9">
+          <th mat-header-cell *matHeaderCellDef>9K Adet</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.qty_9 !== '0'}">{{element.qty_9}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="weight_9">
+          <th mat-header-cell *matHeaderCellDef>9K Ağırlık</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.weight_9 !== '0.0000'}">{{element.weight_9}}</td>
+        </ng-container>
+
+        <!-- 8K Columns -->
+        <ng-container matColumnDef="qty_8">
+          <th mat-header-cell *matHeaderCellDef>8K Adet</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.qty_8 !== '0'}">{{element.qty_8}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="weight_8">
+          <th mat-header-cell *matHeaderCellDef>8K Ağırlık</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.weight_8 !== '0.0000'}">{{element.weight_8}}</td>
+        </ng-container>
+
+        <!-- Total Columns -->
+        <ng-container matColumnDef="total_quantity">
+          <th mat-header-cell *matHeaderCellDef>Toplam Adet</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.total_quantity !== '0'}">{{element.total_quantity}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="total_weight24k">
+          <th mat-header-cell *matHeaderCellDef>Toplam 24K Ağırlık</th>
+          <td mat-cell *matCellDef="let element" [ngClass]="{'font-bold': element.total_weight24k !== '0.0000'}">{{element.total_weight24k}}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index" [ngClass]="{'bg-gray-50': i % 2 === 1}"></tr>
+      </table>
+    </div>
+  </div>
+</div>

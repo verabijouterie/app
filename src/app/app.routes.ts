@@ -19,7 +19,7 @@ import { SupplyComponent } from './supplies/supply.component';
 import { WholesalerListComponent } from './wholesalers/wholesaler-list.component';
 import { UserListComponent } from './users/user-list.component';
 import { ProductListComponent } from './products/product-list.component';
-
+import { GoldProductInventoryComponent } from './goldProductInventory/goldProductInventory.component';
 export const routes: Routes = [
   {
     path: '',
@@ -44,7 +44,8 @@ export const routes: Routes = [
       { path: 'permissions', component: PermissionsComponent },
       { path: 'users', component: UserListComponent },
       { path: 'categories', component: CategoriesComponent },
-      { path: 'wholesalers', component: WholesalerListComponent }
+      { path: 'wholesalers', component: WholesalerListComponent },
+      { path: 'gold-product-inventory', component: GoldProductInventoryComponent }
     ]
   },
   {
