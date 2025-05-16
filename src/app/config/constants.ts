@@ -21,7 +21,7 @@ export const CARAT_PURITY_MAP_SCRAP: { [key: number]: number } = {
 }; 
 
 export const STATUS_OPTIONS = [
-  { key: 'ToBeOrdered', value: 'Toptancıdan Sipariş Edilecek' , priority: 1},
+  { key: 'ToBeOrdered', value: 'Sipariş Edilecek' , priority: 1},
   { key: 'AwaitingWholesaler', value: 'Toptancı Bekleniyor' , priority: 2},
   { key: 'AwaitingCustomer', value: 'Müşteri Bekleniyor' , priority: 3},
   { key: 'Pending', value: 'Beklemede' , priority: 4},

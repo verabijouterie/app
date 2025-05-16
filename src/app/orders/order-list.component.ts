@@ -6,11 +6,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Order } from '../interfaces/order.interface';
 import { OrderService } from '../services/order.service';
 import { DatePipe } from '@angular/common';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { STATUS_OPTIONS } from '../config/constants'; 
+
 
 @Component({
   selector: 'app-order-list',
@@ -30,26 +31,13 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrls: ['./order-list.component.scss']
 })
 export class OrderListComponent implements OnInit {
-  orders: Order[] = [];
+  orders: any[] = [];
   pageSize = 10;
   currentPage = 1;
   loading = false;
   allLoaded = false;
   totalOrders = 0;
-
-  displayedColumns: string[] = [
-    'actions',
-    'id',
-    'client_name',
-    'date_planned',
-    'date_fulfilled',
-    'total_order_amount',
-    'total24kOut',
-    'totalPaymentIn',
-    'remaining_amount',
-    'status'
-  ];
-
+  statusOptions = STATUS_OPTIONS;
   constructor(
     private orderService: OrderService,
     private router: Router,
@@ -68,7 +56,7 @@ export class OrderListComponent implements OnInit {
 
     this.orderService.getOrders(this.currentPage, this.pageSize).subscribe({
       next: (orders) => {
-        this.totalOrders+= orders.length;
+        this.totalOrders += orders.length;
         this.allLoaded = orders.length < this.pageSize;
         
         this.orders = [...this.orders, ...orders];
@@ -91,20 +79,6 @@ export class OrderListComponent implements OnInit {
     this.loadOrders();
   }
 
-  getStatusTranslation(status: string | null | undefined): string {
-    if (!status) return '';
-    
-    const statusMap: Record<string, string> = {
-      'ToBeOrdered': 'Sipariş Edilecek',
-      'AwaitingWholesaler': 'Toptancı Bekleniyor',
-      'AwaitingCustomer': 'Müşteri Bekleniyor',
-      'HandedOut': 'Teslim Edildi',
-      'Completed': 'Tamamlandı'
-    };
-    
-    return statusMap[status] || status;
-  }
-
   deleteOrder(id: number) {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
       data: {
@@ -115,11 +89,12 @@ export class OrderListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Optimistically remove the order from the local array
+        // Optimistically remove the scenario from the local array
         this.orders = this.orders.filter(order => order.id !== id);
         
         this.orderService.deleteOrder(id).subscribe({
           next: () => {
+            // Success - no need to reload since we already updated the UI
           },
           error: (error) => {
             this.loadOrders();
@@ -137,5 +112,10 @@ export class OrderListComponent implements OnInit {
 
   createNewOrder() {
     this.router.navigate(['/orders/new']);
+  }
+
+  getStatusValue(status: string | null): string {
+    if (!status) return '';
+    return this.statusOptions.find(s => s.key === status)?.value || '';
   }
 } 
