@@ -12,7 +12,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Observable, of, Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { CARAT_OPTIONS, CARAT_PURITY_MAP_GOLD } from '../config/constants';
+import { CARAT_OPTIONS, CARAT_PURITY_MAP_GOLD, CARAT_PURITY_MAP_SCRAP } from '../config/constants';
 import { ProductsService } from '../services/products.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -68,7 +68,8 @@ export class TransactionComponent implements OnInit, OnChanges {
 
   caratOptions = CARAT_OPTIONS.map(carat => Number(carat));
   caratPurityMapGold = CARAT_PURITY_MAP_GOLD;
-
+  caratPurityMapScrap = CARAT_PURITY_MAP_SCRAP;
+  
   today: Date = new Date();
   formTransaction: Transaction = {
     id: null,
@@ -468,8 +469,13 @@ export class TransactionComponent implements OnInit, OnChanges {
   }
 
   calculateWeight24k() {
-    if (this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold || this.formTransaction.type === 'Scrap') {
+    if (this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold) {
       const purity = this.caratPurityMapGold[this.formTransaction.carat as keyof typeof this.caratPurityMapGold] || 0;
+      const weightAs24K = (this.formTransaction.weight_brut || 0) * purity * (this.formTransaction.quantity || 1);
+      this.formTransaction.weight24k = parseFloat(weightAs24K.toFixed(4));
+    }
+    else if (this.formTransaction.type === 'Scrap') {
+      const purity = this.caratPurityMapScrap[this.formTransaction.carat as keyof typeof this.caratPurityMapScrap] || 0;
       const weightAs24K = (this.formTransaction.weight_brut || 0) * purity * (this.formTransaction.quantity || 1);
       this.formTransaction.weight24k = parseFloat(weightAs24K.toFixed(4));
     }
