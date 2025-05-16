@@ -329,7 +329,7 @@ export class ScenarioComponent implements OnInit {
             panelClass: ['info-snackbar']
           });
 
-          this.router.navigate(['/supplies']);
+          this.router.navigate(['/scenarios']);
         },
         error: (error) => {
           this.snackBar.open('Alışveriş güncellenirken bir hata oluştu', 'Kapat', {
@@ -369,9 +369,30 @@ export class ScenarioComponent implements OnInit {
 
   private hasScenarioChanged(initial: Scenario, current: Scenario): boolean {
     // Compare basic properties
-    if (initial.description !== current.description ||
+    if (
+      initial.date !== current.date ||
+      initial.description !== current.description ||
       initial.agreedGoldRate !== current.agreedGoldRate ||
-      initial.date !== current.date) {
+      initial.total24kProductIn !== current.total24kProductIn ||
+      initial.total24kProductOut !== current.total24kProductOut ||
+      initial.total24kScrapIn !== current.total24kScrapIn ||
+      initial.total24kScrapOut !== current.total24kScrapOut ||
+      initial.total24kIn !== current.total24kIn ||
+      initial.total24kOut !== current.total24kOut ||
+      initial.total24k !== current.total24k ||
+      initial.totalCashIn !== current.totalCashIn ||
+      initial.totalCashOut !== current.totalCashOut ||
+      initial.totalBankIn !== current.totalBankIn ||
+      initial.totalBankOut !== current.totalBankOut ||
+      initial.totalMoneyIn !== current.totalMoneyIn ||
+      initial.totalMoneyOut !== current.totalMoneyOut ||
+      initial.totalMoney !== current.totalMoney ||
+      initial.totalProductInAsMoney !== current.totalProductInAsMoney ||
+      initial.totalProductOutAsMoney !== current.totalProductOutAsMoney ||
+      initial.totalScrapInAsMoney !== current.totalScrapInAsMoney ||
+      initial.totalScrapOutAsMoney !== current.totalScrapOutAsMoney ||
+      initial.grandTotalAsMoney !== current.grandTotalAsMoney
+      ) {
       return true;
     }
 

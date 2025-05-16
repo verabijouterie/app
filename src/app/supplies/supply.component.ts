@@ -225,7 +225,7 @@ export class SupplyComponent implements OnInit {
         } else {
           this.defaultGoldRate = goldRate?.rate || 0;
         }
-        if(!this.isEditing){
+        if (!this.isEditing) {
           this.supply.agreedGoldRate = this.defaultGoldRate;
         }
       }
@@ -243,7 +243,7 @@ export class SupplyComponent implements OnInit {
   onDateChange() {
     this.supply.transactions.forEach(transaction => {
       transaction.date = this.supply.date;
-    });    
+    });
   }
 
   recalculateTransaction(transaction: Transaction, goldRate: number) {
@@ -330,16 +330,16 @@ export class SupplyComponent implements OnInit {
     // If we're editing, check if there are any changes
     if (this.isEditing && this.initialSupply) {
       const hasChanges = this.hasSupplyChanged(this.initialSupply, this.supply);
-      
+
       if (!hasChanges) {
-        
+
         this.snackBar.open('Değişiklik yapılmadı', 'Kapat', {
           duration: 3000,
           horizontalPosition: 'end',
           verticalPosition: 'top',
           panelClass: ['info-snackbar']
         });
-        
+
         this.router.navigate(['/supplies']);
         return;
       }
@@ -397,11 +397,30 @@ export class SupplyComponent implements OnInit {
 
   private hasSupplyChanged(initial: Supply, current: Supply): boolean {
     // Compare basic properties
-    if (initial.description !== current.description ||
-        initial.wholesaler_id !== current.wholesaler_id ||
-        initial.agreedGoldRate !== current.agreedGoldRate ||
-        initial.date !== current.date
-      ) {
+    if (
+      initial.wholesaler_id !== current.wholesaler_id ||
+      initial.date !== current.date ||
+      initial.description !== current.description ||
+      initial.agreedGoldRate !== current.agreedGoldRate ||
+      initial.agreedTotalProductsInAs24K !== current.agreedTotalProductsInAs24K ||
+      initial.agreedTotalProductsOutAs24K !== current.agreedTotalProductsOutAs24K ||
+      initial.agreedTotalScrapInAs24K !== current.agreedTotalScrapInAs24K ||
+      initial.agreedTotalScrapOutAs24K !== current.agreedTotalScrapOutAs24K ||
+      initial.agreedTotalMoneyInAs24K !== current.agreedTotalMoneyInAs24K ||
+      initial.agreedTotalMoneyOutAs24K !== current.agreedTotalMoneyOutAs24K ||
+      initial.agreedTotalInAs24K !== current.agreedTotalInAs24K ||
+      initial.agreedTotalOutAs24K !== current.agreedTotalOutAs24K ||
+      initial.agreedTotalAs24K !== current.agreedTotalAs24K ||
+      initial.agreedTotalProductsInAsMoney !== current.agreedTotalProductsInAsMoney ||
+      initial.agreedTotalProductsOutAsMoney !== current.agreedTotalProductsOutAsMoney ||
+      initial.agreedTotalScrapInAsMoney !== current.agreedTotalScrapInAsMoney ||
+      initial.agreedTotalScrapOutAsMoney !== current.agreedTotalScrapOutAsMoney ||
+      initial.agreedTotalMoneyInAsMoney !== current.agreedTotalMoneyInAsMoney ||
+      initial.agreedTotalMoneyOutAsMoney !== current.agreedTotalMoneyOutAsMoney ||
+      initial.agreedTotalInAsMoney !== current.agreedTotalInAsMoney ||
+      initial.agreedTotalOutAsMoney !== current.agreedTotalOutAsMoney ||
+      initial.agreedTotalAsMoney !== current.agreedTotalAsMoney
+    ) {
       return true;
     }
 
@@ -536,9 +555,9 @@ export class SupplyComponent implements OnInit {
         }
       }
     });
-    
 
-    
+
+
   }
 
   formatAmount(amount: any): string {
@@ -549,19 +568,19 @@ export class SupplyComponent implements OnInit {
   }
 
   isSupplyValid(): boolean {
-    if(this.supply.transactions.length === 0) {
+    if (this.supply.transactions.length === 0) {
       return false;
     }
 
-    if(this.supply.wholesaler_id === 0) {
+    if (this.supply.wholesaler_id === 0) {
       return false;
     }
 
-    if(this.supply.date === null) {
+    if (this.supply.date === null) {
       return false;
     }
 
-    if(this.supply.agreedGoldRate === null || this.supply.agreedGoldRate < 0) {
+    if (this.supply.agreedGoldRate === null || this.supply.agreedGoldRate < 0) {
       return false;
     }
 

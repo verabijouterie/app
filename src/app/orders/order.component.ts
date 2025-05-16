@@ -425,13 +425,50 @@ export class OrderComponent implements OnInit {
 
   private hasOrderChanged(initial: Order, current: Order): boolean {
     // Compare basic properties
-    if (initial.description !== current.description ||
-      initial.agreedGoldRate !== current.agreedGoldRate ||
+    if (
+      initial.date !== current.date || 
       initial.client_name !== current.client_name ||
       initial.client_phone !== current.client_phone ||
-      initial.date !== current.date || 
-      initial.status !== current.status
-      
+      initial.description !== current.description ||
+      initial.status !== current.status ||
+      initial.agreedGoldRate !== current.agreedGoldRate ||
+      initial.totalProductInAsMoney !== current.totalProductInAsMoney ||
+      initial.totalProductInAsMoneyPending !== current.totalProductInAsMoneyPending ||
+      initial.totalProductOutAsMoney !== current.totalProductOutAsMoney ||
+      initial.totalProductOutAsMoneyPending !== current.totalProductOutAsMoneyPending ||
+      initial.totalScrapInAsMoney !== current.totalScrapInAsMoney ||
+      initial.totalScrapInAsMoneyPending !== current.totalScrapInAsMoneyPending ||
+      initial.totalScrapOutAsMoney !== current.totalScrapOutAsMoney ||
+      initial.totalScrapOutAsMoneyPending !== current.totalScrapOutAsMoneyPending ||
+      initial.totalCashIn !== current.totalCashIn ||
+      initial.totalCashInPending !== current.totalCashInPending ||
+      initial.totalCashOut !== current.totalCashOut ||
+      initial.totalCashOutPending !== current.totalCashOutPending ||
+      initial.totalBankIn !== current.totalBankIn ||
+      initial.totalBankInPending !== current.totalBankInPending ||
+      initial.totalBankOut !== current.totalBankOut ||
+      initial.totalBankOutPending !== current.totalBankOutPending ||
+      initial.total24kProductIn !== current.total24kProductIn ||
+      initial.total24kProductInPending !== current.total24kProductInPending ||
+      initial.total24kProductOut !== current.total24kProductOut ||
+      initial.total24kProductOutPending !== current.total24kProductOutPending ||
+      initial.total24kScrapIn !== current.total24kScrapIn ||
+      initial.total24kScrapInPending !== current.total24kScrapInPending ||
+      initial.total24kScrapOut !== current.total24kScrapOut ||
+      initial.total24kScrapOutPending !== current.total24kScrapOutPending ||
+      initial.total24kIn !== current.total24kIn ||
+      initial.total24kInPending !== current.total24kInPending ||
+      initial.total24kOut !== current.total24kOut ||
+      initial.total24kOutPending !== current.total24kOutPending ||
+      initial.total24k !== current.total24k ||
+      initial.total24kPending !== current.total24kPending ||
+      initial.totalMoneyIn !== current.totalMoneyIn ||
+      initial.totalMoneyInPending !== current.totalMoneyInPending ||
+      initial.totalMoneyOut !== current.totalMoneyOut ||
+      initial.totalMoneyOutPending !== current.totalMoneyOutPending ||
+      initial.totalMoney !== current.totalMoney ||
+      initial.totalMoneyPending !== current.totalMoneyPending ||
+      initial.grandTotalAsMoney !== current.grandTotalAsMoney
     ) {
       return true;
     }
