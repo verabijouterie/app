@@ -8,13 +8,15 @@
       </button>
     </div>
 
-    <div class="table-container">
-      <table mat-table [dataSource]="scenarios" class="w-full">
-
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef class="sticky-column">İşlemler</th>
-          <td mat-cell *matCellDef="let scenario" class="sticky-column">
+    <div class="space-y-6">
+      @for (scenario of scenarios; track scenario.id) {
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900">
+                #{{ scenario.id }} - {{ scenario.date | date:'dd/MM/yyyy' }}
+              </h2>
+            </div>
             <div class="flex gap-2">
               <button mat-icon-button color="accent" [routerLink]="['/scenarios', scenario.id]" matTooltip="Düzenle">
                 <mat-icon>edit</mat-icon>
@@ -23,98 +25,58 @@
                 <mat-icon>delete</mat-icon>
               </button>
             </div>
-          </td>
-        </ng-container>
+          </div>
 
-        <!-- Date Column -->
-        <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef class="sticky-column">Tarih</th>
-          <td mat-cell *matCellDef="let scenario" class="sticky-column">{{ scenario.date | date:'dd/MM/yyyy' }}</td>
-        </ng-container>
+          <div class="space-y-2">
+            @for (transaction of scenario.transactions; track transaction.id) {
+              <div class="flex items-center justify-between py-2 border-b border-gray-100"
+                   [ngClass]="{'bg-red-50': transaction.direction === 'Out', 'bg-green-50': transaction.direction === 'In'}">
+                <div class="flex items-center gap-4">
+                  <span class="text-sm font-medium text-gray-900">
+                    @if (transaction.type === 'Product' && transaction.carat) {
+                      {{ transaction.quantity }} x {{ transaction.product_name }} / {{ transaction.carat }} Ayar / {{ transaction.weight_brut_total }} g
+                    }
+                    @if (transaction.type === 'Product' && !transaction.carat) {
+                      {{ transaction.quantity }} x {{ transaction.product_name }}
+                    }
+                    @else if (transaction.type === 'Scrap') {
+                      Hurda / {{ transaction.carat }} Ayar / {{ transaction.weight_brut_total }} g
+                    } @else if (transaction.type === 'Cash') {
+                      Nakit
+                    } @else if (transaction.type === 'Bank') {
+                      Banka
+                    }
+                  </span>
+                </div>
+                <div class="text-sm font-medium text-gray-900">
+                  @if (transaction.type === 'Product' || transaction.type === 'Scrap') {
+                    {{ transaction.agreed_price | number:'1.2-2' }} €
+                  } @else {
+                    {{ transaction.amount | number:'1.2-2' }} €
+                  }
+                </div>
+              </div>
+            }
+          </div>
 
-        <!-- Description Column -->
-        <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef class="sticky-column">Açıklama</th>
-          <td mat-cell *matCellDef="let scenario" class="sticky-column">{{ scenario.description }}</td>
-        </ng-container>
+          <div class="flex justify-end mt-4 pt-4 border-t border-gray-200">
+            <div class="text-base font-semibold text-gray-900">
+              Toplam: {{ scenario.grandTotalAsMoney | number:'1.2-2' }} €
+            </div>
+          </div>
+        </div>
+      }
+    </div>
 
-        <!-- Total 24K Product In Column -->
-        <ng-container matColumnDef="total24kProductIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Ürün Girişi (g)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.total24kProductIn }}</td>
-        </ng-container>
-
-        <!-- Total 24K Product Out Column -->
-        <ng-container matColumnDef="total24kProductOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Ürün Çıkışı (g)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.total24kProductOut }}</td>
-        </ng-container>
-
-        <!-- Total 24K Scrap In Column -->
-        <ng-container matColumnDef="total24kScrapIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Hurda Girişi (g)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.total24kScrapIn }}</td>
-        </ng-container>
-
-        <!-- Total 24K Scrap Out Column -->
-        <ng-container matColumnDef="total24kScrapOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Hurda Çıkışı (g)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.total24kScrapOut }}</td>
-        </ng-container>
-
-
-        <!-- Total 24K In Column -->
-        <ng-container matColumnDef="total24kIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Giriş (g)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.total24kIn }}</td>
-        </ng-container>
-
-        <!-- Total 24K Out Column -->
-        <ng-container matColumnDef="total24kOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam 24K Çıkış (g)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.total24kOut }}</td>
-        </ng-container>
-
-        <!-- Total Cash In Column -->
-        <ng-container matColumnDef="totalCashIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam Nakit Giriş (€)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.totalCashIn | number:'1.2-2' }}</td>
-        </ng-container>
-
-        <!-- Total Cash Out Column -->
-        <ng-container matColumnDef="totalCashOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam Nakit Çıkış (€)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.totalCashOut | number:'1.2-2' }}</td>
-        </ng-container>
-
-        <!-- Total Bank In Column -->
-        <ng-container matColumnDef="totalBankIn">
-          <th mat-header-cell *matHeaderCellDef>Toplam Banka Girişi (€)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.totalBankIn | number:'1.2-2' }}</td>
-        </ng-container>
-
-        <!-- Total Bank Out Column -->
-        <ng-container matColumnDef="totalBankOut">
-          <th mat-header-cell *matHeaderCellDef>Toplam Banka Çıkışı (€)</th>
-          <td mat-cell *matCellDef="let scenario">{{ scenario.totalBankOut | number:'1.2-2' }}</td>
-        </ng-container>
-
-
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-
-      <div class="flex justify-center mt-4" *ngIf="!allLoaded">
-        <button 
-          mat-raised-button 
-          color="primary" 
-          (click)="loadMore()" 
-          [disabled]="loading">
-          <mat-icon *ngIf="loading">sync</mat-icon>
-          <span>{{ loading ? 'Yükleniyor...' : 'Daha Fazla Yükle' }}</span>
-        </button>
-      </div>
+    <div class="flex justify-center mt-4" *ngIf="!allLoaded">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="loadMore()" 
+        [disabled]="loading">
+        <mat-icon *ngIf="loading">sync</mat-icon>
+        <span>{{ loading ? 'Yükleniyor...' : 'Daha Fazla Yükle' }}</span>
+      </button>
     </div>
   </div>
 </div>

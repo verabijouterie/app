@@ -11,6 +11,7 @@ import { ScenarioService } from '../services/scenario.service';
 import { DatePipe } from '@angular/common';
 import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
 @Component({
   selector: 'app-scenario-list',
   standalone: true,
@@ -29,28 +30,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrls: ['./scenario-list.component.scss']
 })
 export class ScenarioListComponent implements OnInit {
-  scenarios: Scenario[] = [];
+  scenarios: any[] = [];
   pageSize = 10;
   currentPage = 1;
   loading = false;
   allLoaded = false;
   totalScenarios = 0;
-
-  displayedColumns: string[] = [
-    'actions',
-    'date',
-    'description',
-    'total24kProductIn',
-    'total24kProductOut',
-    'total24kScrapIn',
-    'total24kScrapOut',
-    'total24kIn',
-    'total24kOut',
-    'totalCashIn',
-    'totalCashOut',
-    'totalBankIn',
-    'totalBankOut'
-  ];
 
   constructor(
     private scenarioService: ScenarioService,
@@ -70,14 +55,12 @@ export class ScenarioListComponent implements OnInit {
 
     this.scenarioService.getScenarios(this.currentPage, this.pageSize).subscribe({
       next: (scenarios) => {
-        this.totalScenarios+= scenarios.length;
+        this.totalScenarios += scenarios.length;
         this.allLoaded = scenarios.length < this.pageSize;
         
         this.scenarios = [...this.scenarios, ...scenarios];
         this.currentPage++;
         this.loading = false;
-        
-
       },
       error: (error) => {
         this.snackBar.open('Alışverişler yüklenirken bir hata oluştu', 'Kapat', {
@@ -129,7 +112,4 @@ export class ScenarioListComponent implements OnInit {
   createNewScenario() {
     this.router.navigate(['/scenarios/new']);
   }
-
-
-
 } 

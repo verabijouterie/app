@@ -29,3 +29,32 @@ DELETE FROM inventory_money;
 ALTER TABLE inventory_money AUTO_INCREMENT = 1;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+########################################
+
+get scenarios
+
+SELECT
+    s.id,
+    s.date,
+    s.grandTotalAsMoney,
+    p.name,
+    t.id,
+    t.type,
+    t.direction,
+    t.amount,
+    t.agreed_price
+FROM
+    (
+        SELECT id
+        FROM scenarios
+        WHERE isRemoved = 0
+        ORDER BY date DESC, id DESC
+        LIMIT 0, 10
+    ) AS recent_scenarios
+JOIN scenarios s ON s.id = recent_scenarios.id
+LEFT JOIN transactions t ON t.scenario_id = s.id AND t.isRemoved = 0
+LEFT JOIN products p ON p.id = t.product_id
+ORDER BY
+    s.date DESC, s.id DESC, t.id ASC;
