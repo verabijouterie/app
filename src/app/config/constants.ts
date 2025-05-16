@@ -17,8 +17,7 @@ export const CARAT_PURITY_MAP_SCRAP: { [key: number]: number } = {
   18: 0.730,
   14: 0.565,
   9: 0.350,
-  8: 0.300,
-  0: 0.000
+  8: 0.300
 }; 
 
 export const STATUS_OPTIONS = [
