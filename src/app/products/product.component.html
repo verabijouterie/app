@@ -47,7 +47,7 @@
     <div class="space-y-1.5" *ngIf="formData.is_gold || formData.contains_gold">
       <label for="weight" class="block text-sm font-medium text-gray-900">Brüt Ağırlık (g)</label>
       <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-        <input matInput [(ngModel)]="formData.weight_brut" name="weight_brut" id="weight" type="number" step="0.01">
+        <input matInput [(ngModel)]="formData.weight_brut" name="weight_brut" id="weight" type="number">
       </mat-form-field>
     </div>
   </div>

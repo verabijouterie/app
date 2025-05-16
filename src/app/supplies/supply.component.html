@@ -37,7 +37,7 @@
       <div class="col-span-full space-y-1.5">
         <label for="agreedGoldRate" class="block text-sm font-medium text-gray-900">Varsayılan Altın Kuru</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
-          <input matInput type="number" [(ngModel)]="supply.agreedGoldRate" name="agreedGoldRate" id="agreedGoldRate"
+          <input matInput type="number" appDisableScrollOnNumber [(ngModel)]="supply.agreedGoldRate" name="agreedGoldRate" id="agreedGoldRate"
             placeholder="Varsayılan Altın Oranı Girin" (ngModelChange)="onGoldRateChange()">
         </mat-form-field>
       </div>

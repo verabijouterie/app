@@ -20,7 +20,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { STATUS_OPTIONS } from '../config/constants';
-
+import { DisableScrollOnNumberDirective } from '../directives/disable-scroll-on-number.directive';
 
 
 @Component({
@@ -37,7 +37,8 @@ import { STATUS_OPTIONS } from '../config/constants';
     DrawerComponent,
     TransactionComponent,
     MatDatepickerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    DisableScrollOnNumberDirective
   ],
   providers: [
     provideNativeDateAdapter()

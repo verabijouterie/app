@@ -20,6 +20,7 @@ import { Wholesaler } from '../interfaces/wholesaler.interface';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { STATUS_OPTIONS } from '../config/constants';
+import { DisableScrollOnNumberDirective } from '../directives/disable-scroll-on-number.directive'; // adjust path as needed
 
 
 @Component({
@@ -38,7 +39,8 @@ import { STATUS_OPTIONS } from '../config/constants';
     MatAutocompleteModule,
     MatSnackBarModule,
     MatCheckboxModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    DisableScrollOnNumberDirective
   ],
   providers: [
     provideNativeDateAdapter()
@@ -507,7 +509,7 @@ export class TransactionComponent implements OnInit, OnChanges {
   calculateAgreedWeight24AndMilliemes() {
     if ((this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold || this.formTransaction.type === 'Scrap') && this.agreedGoldRate && this.formTransaction.agreed_price) {
       this.formTransaction.agreed_weight24k = parseFloat((this.formTransaction.agreed_price / this.agreedGoldRate).toFixed(4));
-      this.formTransaction.agreed_milliemes = Math.round((this.formTransaction.agreed_weight24k / (this.formTransaction.weight_brut || 0) / (this.formTransaction.quantity || 1)) * 1000);
+      this.formTransaction.agreed_milliemes = parseFloat(((this.formTransaction.agreed_weight24k / (this.formTransaction.weight_brut || 0) / (this.formTransaction.quantity || 1)) * 1000).toFixed(4));
     }
     else {
       this.formTransaction.agreed_weight24k = 0;

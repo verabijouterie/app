@@ -12,6 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Wholesaler } from '../interfaces/wholesaler.interface';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { DisableScrollOnNumberDirective } from '../directives/disable-scroll-on-number.directive';
 
 @Component({
   selector: 'app-wholesaler',
@@ -29,6 +30,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatCardModule,
     MatCheckboxModule,
     MatSnackBarModule,
+    DisableScrollOnNumberDirective
   ],
   templateUrl: './wholesaler.component.html'
 })

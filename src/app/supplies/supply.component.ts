@@ -21,6 +21,7 @@ import { Wholesaler } from '../interfaces/wholesaler.interface';
 import { GoldRateService } from '../services/gold-rate.services';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { DisableScrollOnNumberDirective } from '../directives/disable-scroll-on-number.directive';
 
 
 
@@ -38,7 +39,8 @@ import { provideNativeDateAdapter } from '@angular/material/core';
     DrawerComponent,
     TransactionComponent,
     MatSnackBarModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    DisableScrollOnNumberDirective
   ],
   providers: [
     provideNativeDateAdapter()
