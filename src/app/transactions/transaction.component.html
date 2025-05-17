@@ -32,7 +32,10 @@
       </div>
       }
 
-      @if ((selectedProduct?.is_gold || selectedProduct?.contains_gold) || formTransaction.type === 'Scrap') {
+      @if (
+        (selectedProduct?.is_gold || selectedProduct?.contains_gold) || 
+        formTransaction.type === 'Scrap'
+      ) {
       <div class="space-y-1">
         <label for="carat" class="block text-sm font-medium text-gray-900">Ayar</label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
@@ -46,23 +49,62 @@
       </div>
       }
 
-      @if ((selectedProduct?.is_gold || selectedProduct?.contains_gold) || formTransaction.type === 'Scrap') {
+      @if(
+        selectedProduct && 
+        (selectedProduct.is_gold || selectedProduct.contains_gold) &&
+        selectedProduct.weight24k
+      ){
       <div class="space-y-1">
         <label for="weight" class="block text-sm font-medium text-gray-900">
           @if (formTransaction.type === 'Product') {
           Tek ürün brüt altın ağırlığı
           }
-          @if (formTransaction.type === 'Scrap') {
-          Hurda Brüt ağırlığı
-          }
         </label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <input matInput type="number" appDisableScrollOnNumber min="0" [(ngModel)]="formTransaction.weight_brut" name="weight_brut"
-            [disabled]="isWeightDisabled" (input)="onDataChanged('weight_brut')" (focus)="selectWeightInput($event)">
+            [disabled]=true>
+          <span matSuffix class="text-gray-500 ml-1 pr-2">g</span>
+        </mat-form-field>
+      </div>
+      <div class="space-y-1">
+        <label for="weight" class="block text-sm font-medium text-gray-900">
+          @if (formTransaction.type === 'Product') {
+          Toplam brüt altın ağırlığı
+          }
+        </label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <input matInput type="number" appDisableScrollOnNumber min="0" [(ngModel)]="formTransaction.weight_brut_total" name="weight_brut_total"
+            [disabled]=true>
           <span matSuffix class="text-gray-500 ml-1 pr-2">g</span>
         </mat-form-field>
       </div>
       }
+
+      @if(
+        (
+          selectedProduct && 
+          (selectedProduct.is_gold || selectedProduct.contains_gold) &&
+          !selectedProduct.weight24k
+        ) ||
+        formTransaction.type === 'Scrap'
+      ){
+      <div class="space-y-1">
+        <label for="weight" class="block text-sm font-medium text-gray-900">
+          @if (formTransaction.type === 'Product') {
+          Toplam brüt altın ağırlığı
+          }
+          @if (formTransaction.type === 'Scrap') {
+          Toplam brüt altın ağırlığı
+          }
+        </label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
+          <input matInput type="number" appDisableScrollOnNumber min="0" [(ngModel)]="formTransaction.weight_brut_total" name="weight_brut_total"
+            [disabled]=false (input)="onDataChanged('weight_brut_total')" (focus)="selectWeightTotalInput($event)">
+          <span matSuffix class="text-gray-500 ml-1 pr-2">g</span>
+        </mat-form-field>
+      </div>
+      }
+      
 
       @if (selectedProduct) {
       <div class="space-y-1">
@@ -76,7 +118,7 @@
         </label>
         <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full">
           <input matInput type="number" appDisableScrollOnNumber name="quantity" [(ngModel)]="formTransaction.quantity" min="1" step="1"
-            (focus)="selectQuantity($event)" (input)="onDataChanged('quantity')">
+            (focus)="selectQuantity($event)" (input)="onDataChanged('quantity')" (keypress)="($event.charCode >= 48 && $event.charCode <= 57) || $event.preventDefault()">
         </mat-form-field>
       </div>
       }
@@ -152,15 +194,6 @@
       }
 
 
-      @if (context === 'Supply' && selectedProduct && (selectedProduct.is_gold || selectedProduct.contains_gold)) {
-      <div class="space-y-1">
-        <label for="weight24k" class="text-sm font-medium text-gray-900 inline">Toplam brüt altın miktarı:
-        </label>
-        <span class="text-gray-900 text-base inline">
-          {{formTransaction.weight_brut_total}}g
-        </span>
-      </div>
-      }
 
 
       @if (
@@ -206,6 +239,24 @@
       }
 
 
+      <br>
+      Debug:
+      <br>
+      Ayar: {{formTransaction.carat}}
+      <br>
+      Adet: {{formTransaction.quantity}}
+      <br>
+      Tek brüt: {{formTransaction.weight_brut}}
+      <br>
+      Toplam brüt: {{formTransaction.weight_brut_total}}
+      <br>
+      Has altın: {{formTransaction.weight24k}}
+      <br>
+      Milyem: {{formTransaction.agreed_milliemes}}
+      <br>
+      Anlaşılan has altın: {{formTransaction.agreed_weight24k}}
+      <br>
+      Anlaşılan tutar: {{formTransaction.agreed_price}}
 
     </div>
 

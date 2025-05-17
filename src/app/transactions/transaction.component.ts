@@ -11,7 +11,7 @@ import { Product } from '../interfaces/product.interface';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule, FormControl } from '@angular/forms';
 import { Observable, of, Subscription } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { map, sequenceEqual, startWith } from 'rxjs/operators';
 import { CARAT_OPTIONS, CARAT_PURITY_MAP_GOLD, CARAT_PURITY_MAP_SCRAP } from '../config/constants';
 import { ProductsService } from '../services/products.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -71,7 +71,7 @@ export class TransactionComponent implements OnInit, OnChanges {
   caratOptions = CARAT_OPTIONS.map(carat => Number(carat));
   caratPurityMapGold = CARAT_PURITY_MAP_GOLD;
   caratPurityMapScrap = CARAT_PURITY_MAP_SCRAP;
-  
+
   today: Date = new Date();
   formTransaction: Transaction = {
     id: null,
@@ -96,7 +96,6 @@ export class TransactionComponent implements OnInit, OnChanges {
   };
 
   isCaratDisabled = false;
-  isWeightDisabled = false;
 
   private productsSubscription: Subscription | null = null;
   private productControlSubscription: Subscription | null = null;
@@ -353,17 +352,17 @@ export class TransactionComponent implements OnInit, OnChanges {
       }
     }
 
-    if(this.context === 'Order') {
-      if(this.formTransaction.status === null) {
+    if (this.context === 'Order') {
+      if (this.formTransaction.status === null) {
         return false;
       }
-      if(this.formTransaction.status === 'Delivered' || this.formTransaction.status === 'Received') {
-        if(this.formTransaction.date === null) {
+      if (this.formTransaction.status === 'Delivered' || this.formTransaction.status === 'Received') {
+        if (this.formTransaction.date === null) {
           return false;
         }
       }
     }
-    
+
     return true;
   }
 
@@ -372,7 +371,8 @@ export class TransactionComponent implements OnInit, OnChanges {
     input.select();
   }
 
-  selectWeightInput(event: FocusEvent) {
+
+  selectWeightTotalInput(event: FocusEvent) {
     const input = event.target as HTMLInputElement;
     input.select();
   }
@@ -396,126 +396,185 @@ export class TransactionComponent implements OnInit, OnChanges {
     switch (field) {
       case 'product':
         this.formTransaction.quantity = 1;
+        this.formTransaction.carat = null;
+
         this.formTransaction.agreed_milliemes = 0;
         this.formTransaction.agreed_price = 0;
         this.formTransaction.agreed_weight24k = 0;
+
+        this.formTransaction.weight_brut = 0;
+        this.formTransaction.weight_brut_total = 0;
         this.formTransaction.weight24k = 0;
+
         this.formTransaction.paiable_as_cash_only = !this.is_editing ? !(this.wholesaler?.prefers_gold ?? true) : false;
         this.isCaratDisabled = false;
-        this.isWeightDisabled = false;
-        if (!this.selectedProduct) {
-          this.formTransaction.carat = null;
-          this.formTransaction.weight_brut = 0;
-        }
-        else {
-          if (this.selectedProduct.is_gold || this.selectedProduct.contains_gold) {
-            if (this.selectedProduct.carat) {
-              this.formTransaction.carat = Number(this.selectedProduct.carat);
-              this.isCaratDisabled = true;
-            }
-            else {
-              this.formTransaction.carat = this.transaction?.carat || null;
-            }
-            if (this.selectedProduct.weight_brut) {
-              this.formTransaction.weight_brut = Number(this.selectedProduct.weight_brut);
-              this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
-              this.isWeightDisabled = true;
-            }
-            else {
-              this.formTransaction.weight_brut = this.transaction?.weight_brut || 0;
-              this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
-            }
-            this.calculateWeight24k();
+
+        if (this.selectedProduct && (this.selectedProduct.is_gold || this.selectedProduct.contains_gold)) {
+          if (this.selectedProduct.carat) {
+            this.formTransaction.carat = Number(this.selectedProduct.carat);
+            this.isCaratDisabled = true;
           }
-          else {
-            this.formTransaction.carat = null;
-            this.formTransaction.weight_brut = 0;
-          }
+          this.formTransaction.weight_brut = this.selectedProduct.weight_brut ? this.selectedProduct.weight_brut : 0;
+          this.formTransaction.weight_brut_total = this.formTransaction.weight_brut;
+          this.formTransaction.weight24k = this.selectedProduct.weight24k ? this.selectedProduct.weight24k : 0;
         }
         break;
       case 'carat':
-        this.calculateWeight24k();
+        if (this.formTransaction.carat) {
+          if(this.formTransaction.weight_brut_total && this.formTransaction.weight_brut_total != 0) {
+            let purity = 0;
+            if(this.type == "Scrap") {
+              purity = this.caratPurityMapScrap[this.formTransaction.carat as keyof typeof this.caratPurityMapScrap];
+            }
+            else {
+              purity = this.caratPurityMapGold[this.formTransaction.carat as keyof typeof this.caratPurityMapGold];
+            }
+            this.formTransaction.weight24k = this.formTransaction.weight_brut_total * purity
+          }
+        }
         break;
-      case 'weight_brut':
-        this.calculateWeight24k();
-        this.calculateAgreedWeight24AndPrice();
-        this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
+      case 'weight_brut_total':
+        if (this.formTransaction.weight_brut_total && this.formTransaction.weight_brut_total != 0) {
+          if(this.formTransaction.carat) {
+            this.formTransaction.weight_brut = this.formTransaction.weight_brut_total / (this.formTransaction.quantity || 1)
+            let purity = 0;
+            if(this.type == "Scrap") {
+              purity = this.caratPurityMapScrap[this.formTransaction.carat as keyof typeof this.caratPurityMapScrap];
+            }
+            else {
+              purity = this.caratPurityMapGold[this.formTransaction.carat as keyof typeof this.caratPurityMapGold];
+            }
+            this.formTransaction.weight24k = this.formTransaction.weight_brut_total * purity
+          }
+          if(this.formTransaction.agreed_milliemes && this.formTransaction.agreed_milliemes != 0) {
+            this.formTransaction.agreed_weight24k = this.formTransaction.weight_brut_total * ((this.formTransaction.agreed_milliemes) / 1000);
+            this.formTransaction.agreed_price = this.formTransaction.agreed_weight24k * this.agreedGoldRate;
+          }
+        }
         break;
       case 'quantity':
-        if (this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold) {
-          this.calculateWeight24k();
-          this.calculateAgreedWeight24AndPrice();
-          this.formTransaction.weight_brut_total = (this.formTransaction.weight_brut || 0) * (this.formTransaction.quantity || 1);
+        if (this.formTransaction.quantity && this.formTransaction.quantity != 0) {
+          //ceyrek gibi bir ürün seçildiyse
+          if (this.selectedProduct && this.selectedProduct.weight_brut && this.selectedProduct.carat) {
+            const purity = this.caratPurityMapGold[this.selectedProduct.carat as keyof typeof this.caratPurityMapGold];
+
+            this.formTransaction.weight_brut_total = this.selectedProduct.weight_brut * this.formTransaction.quantity;
+            this.formTransaction.weight24k = this.formTransaction.weight_brut_total * purity;
+
+            if(this.formTransaction.agreed_milliemes && this.formTransaction.agreed_milliemes != 0) {
+              this.formTransaction.agreed_weight24k = this.formTransaction.weight_brut_total * ((this.formTransaction.agreed_milliemes) / 1000);
+              this.formTransaction.agreed_price = this.formTransaction.agreed_weight24k * this.agreedGoldRate;
+            }
+          }
+          
+          else if ((this.selectedProduct && !this.selectedProduct.weight24k) || this.type == "Scrap") {
+            if (
+              this.formTransaction.carat &&
+              (this.formTransaction.weight_brut_total && this.formTransaction.weight_brut_total != 0)
+            ) {
+              let purity = 0;
+              if(this.type == "Scrap") {
+                purity = this.caratPurityMapScrap[this.formTransaction.carat as keyof typeof this.caratPurityMapScrap];
+              }
+              else {
+                purity = this.caratPurityMapGold[this.formTransaction.carat as keyof typeof this.caratPurityMapGold];
+              }
+              this.formTransaction.weight_brut = this.formTransaction.weight_brut_total / this.formTransaction.quantity;
+              this.formTransaction.weight24k = this.formTransaction.weight_brut_total * purity;
+
+              if(this.formTransaction.agreed_milliemes && this.formTransaction.agreed_milliemes != 0) {
+                this.formTransaction.agreed_weight24k = this.formTransaction.weight_brut_total * ((this.formTransaction.agreed_milliemes) / 1000);
+                this.formTransaction.agreed_price = this.formTransaction.agreed_weight24k * this.agreedGoldRate;
+              }
+            }
+          }
         }
         break;
       case 'agreed_milliemes':
-        this.calculateAgreedWeight24AndPrice();
+        if (this.formTransaction.agreed_milliemes && this.formTransaction.agreed_milliemes != 0) {
+          if (this.formTransaction.weight_brut_total && this.formTransaction.weight_brut_total != 0) {
+            this.formTransaction.agreed_weight24k = this.formTransaction.weight_brut_total * ((this.formTransaction.agreed_milliemes) / 1000);
+            this.formTransaction.agreed_price = this.formTransaction.agreed_weight24k * this.agreedGoldRate;
+          }
+        }
         break;
       case 'agreed_price':
-        if (this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold || this.formTransaction.type === 'Scrap') {
-          this.calculateAgreedWeight24AndMilliemes();
-        }
-        else if (!this.selectedProduct?.is_gold && !this.selectedProduct?.contains_gold) {
-          this.calculateAgreedWeight24();
+        if (this.formTransaction.agreed_price && this.formTransaction.agreed_price != 0) {
+          
+          if (this.formTransaction.weight_brut_total && this.formTransaction.weight_brut_total != 0) {
+            this.formTransaction.agreed_weight24k = this.formTransaction.agreed_price / this.agreedGoldRate;
+            this.formTransaction.agreed_milliemes = this.formTransaction.agreed_weight24k / this.formTransaction.weight_brut_total * 1000;
+          }
+          if(this.selectedProduct && (!this.selectedProduct.is_gold && !this.selectedProduct.contains_gold)) {
+            this.formTransaction.agreed_weight24k = this.formTransaction.agreed_price / this.agreedGoldRate;
+          }
         }
         break;
       case 'amount':
-        this.calculateAgreedWeight24();
+        if (this.formTransaction.amount && this.formTransaction.amount != 0) {
+          this.formTransaction.agreed_weight24k = this.formTransaction.amount / this.agreedGoldRate;
+        }
         break;
+
       case 'status':
         if (this.formTransaction.status !== 'Delivered' && this.formTransaction.status !== 'Received') {
           this.formTransaction.date = this.today.toISOString();
         }
         break;
     }
+
+
+    this.formTransaction.carat = Number(this.formTransaction.carat);
+    if(this.formTransaction.quantity) {
+      this.formTransaction.quantity = Number(this.formTransaction.quantity) || 1;
+    }
+
+    if(this.formTransaction.weight_brut) {
+      this.formTransaction.weight_brut = parseFloat(this.formTransaction.weight_brut.toFixed(4));
+    }
+    if(this.formTransaction.weight_brut_total) {
+      this.formTransaction.weight_brut_total = parseFloat(this.formTransaction.weight_brut_total.toFixed(4));
+    }
+    if(this.formTransaction.weight24k) {
+      this.formTransaction.weight24k = parseFloat(this.formTransaction.weight24k.toFixed(4));
+    }
+    if(this.formTransaction.agreed_milliemes) {
+      this.formTransaction.agreed_milliemes = parseFloat(this.formTransaction.agreed_milliemes.toFixed(4));
+    }
+    if(this.formTransaction.agreed_weight24k) {
+      this.formTransaction.agreed_weight24k = parseFloat(this.formTransaction.agreed_weight24k.toFixed(4));
+    }
+    if(this.formTransaction.agreed_price) {
+      this.formTransaction.agreed_price = parseFloat(this.formTransaction.agreed_price.toFixed(2));
+    }
+    if(this.formTransaction.amount) {
+      this.formTransaction.amount = parseFloat(this.formTransaction.amount.toFixed(2));
+    }
+    
+    
+    
+    
+    /*
+    this.formTransaction.weight_brut = this.formTransaction.weight_brut ? parseFloat(this.formTransaction.weight_brut.toFixed(4)) : null;
+    this.formTransaction.weight_brut_total = this.formTransaction.weight_brut_total ? parseFloat(this.formTransaction.weight_brut_total.toFixed(4)) : null;
+    this.formTransaction.weight24k = this.formTransaction.weight24k ? parseFloat(this.formTransaction.weight24k.toFixed(4)) : null;
+    this.formTransaction.agreed_milliemes = this.formTransaction.agreed_milliemes ? parseFloat(this.formTransaction.agreed_milliemes.toFixed(4)) : null;
+    this.formTransaction.agreed_weight24k = this.formTransaction.agreed_weight24k ? parseFloat(this.formTransaction.agreed_weight24k.toFixed(4)) : null;
+    this.formTransaction.agreed_price = this.formTransaction.agreed_price ? parseFloat(this.formTransaction.agreed_price.toFixed(2)) : null;
+    */
+    /*
+    console.log("carat ", this.formTransaction.carat);
+    console.log("quantity", this.formTransaction.quantity);
+    console.log("weight_brut ", this.formTransaction.weight_brut);
+    console.log("weight_brut_total ", this.formTransaction.weight_brut_total);
+    console.log("weight24k", this.formTransaction.weight24k);
+
+    console.log("agreed_milliemes", this.formTransaction.agreed_milliemes);
+    console.log("agreed_weight24k", this.formTransaction.agreed_weight24k);
+    console.log("agreed_price", this.formTransaction.agreed_price);
+    */
   }
 
-  calculateWeight24k() {
-    if (this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold) {
-      const purity = this.caratPurityMapGold[this.formTransaction.carat as keyof typeof this.caratPurityMapGold] || 0;
-      const weightAs24K = (this.formTransaction.weight_brut || 0) * purity * (this.formTransaction.quantity || 1);
-      this.formTransaction.weight24k = parseFloat(weightAs24K.toFixed(4));
-    }
-    else if (this.formTransaction.type === 'Scrap') {
-      const purity = this.caratPurityMapScrap[this.formTransaction.carat as keyof typeof this.caratPurityMapScrap] || 0;
-      const weightAs24K = (this.formTransaction.weight_brut || 0) * purity * (this.formTransaction.quantity || 1);
-      this.formTransaction.weight24k = parseFloat(weightAs24K.toFixed(4));
-    }
-  }
-
-  calculateAgreedWeight24AndPrice() {
-    if ((this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold || this.formTransaction.type === 'Scrap') && this.agreedGoldRate && this.formTransaction.agreed_milliemes) {
-      this.formTransaction.agreed_weight24k = parseFloat(((this.formTransaction.weight_brut || 0) * ((this.formTransaction.agreed_milliemes) / 1000) * (this.formTransaction.quantity || 1)).toFixed(4));
-      this.formTransaction.agreed_price = parseFloat(((this.agreedGoldRate) * (this.formTransaction.agreed_weight24k || 0)).toFixed(2));
-    }
-    else {
-      this.formTransaction.agreed_weight24k = 0;
-      this.formTransaction.agreed_price = 0;
-    }
-  }
-
-  calculateAgreedWeight24() {
-    if (this.formTransaction.type === 'Product' && this.agreedGoldRate && this.formTransaction.agreed_price) {
-      this.formTransaction.agreed_weight24k = parseFloat((this.formTransaction.agreed_price / this.agreedGoldRate).toFixed(4));
-    }
-    else if ((this.formTransaction.type === 'Cash' || this.formTransaction.type === 'Bank' || this.formTransaction.type === 'Money') && this.agreedGoldRate) {
-      this.formTransaction.agreed_weight24k = parseFloat(((this.formTransaction.amount || 0) / this.agreedGoldRate).toFixed(4));
-    }
-    else {
-      this.formTransaction.agreed_weight24k = 0;
-    }
-  }
-
-  calculateAgreedWeight24AndMilliemes() {
-    if ((this.selectedProduct?.is_gold || this.selectedProduct?.contains_gold || this.formTransaction.type === 'Scrap') && this.agreedGoldRate && this.formTransaction.agreed_price) {
-      this.formTransaction.agreed_weight24k = parseFloat((this.formTransaction.agreed_price / this.agreedGoldRate).toFixed(4));
-      this.formTransaction.agreed_milliemes = parseFloat(((this.formTransaction.agreed_weight24k / (this.formTransaction.weight_brut || 0) / (this.formTransaction.quantity || 1)) * 1000).toFixed(4));
-    }
-    else {
-      this.formTransaction.agreed_weight24k = 0;
-      this.formTransaction.agreed_milliemes = 0;
-    }
-  }
 
   onSubmit(event: Event) {
     event.preventDefault();
@@ -540,10 +599,8 @@ export class TransactionComponent implements OnInit, OnChanges {
     this.selectedProduct = null;
     this.productControl.setValue('');
     this.isCaratDisabled = false;
-    this.isWeightDisabled = false;
     this.selectedProduct = null;
     this.isCaratDisabled = false;
-    this.isWeightDisabled = false;
     this.formTransaction = {
       ...this.formTransaction,
       date: this.today.toISOString(),
